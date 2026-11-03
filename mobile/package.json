@@ -1,0 +1,77 @@
+{
+  "name": "myapp",
+  "main": "index.js",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "EXPO_OFFLINE=1 expo start",
+    "android": "EXPO_OFFLINE=1 expo start --android",
+    "ios": "EXPO_OFFLINE=1 expo start --ios",
+    "web": "EXPO_OFFLINE=1 expo start --web",
+    "build:android": "JAVA_HOME=/snap/android-studio/232/jbr PATH=/snap/android-studio/232/jbr/bin:$PATH NODE_OPTIONS='--dns-result-order=ipv4first' eas build --platform android --profile preview",
+    "postinstall": "node scripts/patch-expo-fetch.js"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "@magic-sdk/react-native-expo": "^34.12.0",
+    "@meteorwallet/sdk": "^1.0.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/netinfo": "12.0.1",
+    "@react-navigation/native": "^7.1.8",
+    "@tanstack/react-query": "^5.101.0",
+    "babel-preset-expo": "~57.0.1",
+    "buffer": "^6.0.3",
+    "expo": "~57.0.26",
+    "expo-application": "~57.0.3",
+    "expo-auth-session": "~57.0.13",
+    "expo-background-fetch": "~57.0.21",
+    "expo-blur": "~57.0.3",
+    "expo-clipboard": "~57.0.2",
+    "expo-constants": "~57.0.19",
+    "expo-crypto": "~57.0.3",
+    "expo-dev-client": "~57.0.19",
+    "expo-font": "~57.0.4",
+    "expo-linear-gradient": "~57.0.2",
+    "expo-linking": "~57.0.11",
+    "expo-local-authentication": "~57.0.3",
+    "expo-notifications": "~57.0.21",
+    "expo-router": "~57.0.24",
+    "expo-secure-store": "~57.0.4",
+    "expo-splash-screen": "~57.0.9",
+    "expo-status-bar": "~57.0.1",
+    "expo-task-manager": "~57.0.21",
+    "expo-web-browser": "~57.0.3",
+    "fast-text-encoding": "^1.0.6",
+    "nativewind": "^4.2.5",
+    "near-api-js": "^5.1.1",
+    "process": "^0.11.10",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-get-random-values": "~1.11.0",
+    "react-native-modal": "^14.0.0-rc.1",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "~0.21.0",
+    "react-native-webview": "13.16.1",
+    "react-native-worklets": "0.10.1",
+    "tailwindcss": "^3.4.19"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.4",
+    "react-test-renderer": "19.2.3",
+    "sharp": "^0.35.4",
+    "typescript": "~6.0.3"
+  },
+  "private": true,
+  "overrides": {
+    "typescript": "$typescript",
+    "utf-8-validate": "^6.0.0"
+  },
+  "expo": {
+    "install": {
+      "exclude": []
+    }
+  }
+}

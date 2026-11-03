@@ -1,0 +1,28 @@
+[package]
+name = "roda-token"
+version = "0.1.0"
+edition = "2021"
+description = "Roda test NEP-141 fungible token with protocol-gated mint (faucet)"
+license = "MIT"
+
+# Opt out of any parent workspace so this crate builds standalone.
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"
+near-contract-standards = "5"
+
+[profile.release]
+codegen-units = 1
+overflow-checks = true
+lto = true
+debug = false
+panic = "abort"
+opt-level = "z"
+strip = false
+
+[profile.dev]
+overflow-checks = true

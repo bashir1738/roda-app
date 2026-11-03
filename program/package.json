@@ -1,0 +1,17 @@
+{
+  "name": "roda-program",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build and test scripts for the Roda NEAR contracts",
+  "scripts": {
+    "build": "cargo build --target wasm32-unknown-unknown --release -p roda && cargo build --target wasm32-unknown-unknown --release -p roda-token",
+    "test": "cargo test -p roda && cargo test -p roda-token && node scripts/test-logic.js",
+    "setup": "node scripts/setup-testnet.js",
+    "set-token": "node scripts/set-token.js",
+    "smoke": "node scripts/smoke-testnet.js"
+  },
+  "dependencies": {
+    "near-api-js": "^4.0.3",
+    "bn.js": "^5.2.1"
+  }
+}

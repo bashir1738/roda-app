@@ -1,0 +1,26 @@
+[package]
+name = "roda"
+version = "0.1.0"
+edition = "2021"
+description = "Roda — rotating savings circles and savings vaults on NEAR Protocol"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"
+near-contract-standards = "5"
+serde_json = "1"
+
+[profile.release]
+codegen-units = 1
+overflow-checks = true
+lto = true
+debug = false
+panic = "abort"
+opt-level = "z"
+strip = false
+
+[profile.dev]
+overflow-checks = true
