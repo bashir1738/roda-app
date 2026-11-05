@@ -61,8 +61,10 @@ export function Features() {
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title}>
-                <Icon className="h-5 w-5 text-primary-light" />
+              <div key={f.title} className="border-2 border-charcoal bg-white p-6 shadow-[5px_5px_0_#111]">
+                <div className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-butter">
+                  <Icon className="h-5 w-5 text-charcoal" />
+                </div>
                 <h3 className="mt-5 text-lg font-medium tracking-tight text-primary">
                   {f.title}
                 </h3>

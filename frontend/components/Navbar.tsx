@@ -16,7 +16,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border-subtle/80 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b-2 border-charcoal bg-surface-sand/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-8xl items-center justify-between px-6 sm:px-10 lg:px-12">
         <a href="#" aria-label="Roda home">
           <Logo />

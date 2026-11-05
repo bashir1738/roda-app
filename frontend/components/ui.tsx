@@ -77,12 +77,12 @@ export function buttonClasses(
   className = "",
 ) {
   const base =
-    "inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-sm font-medium transition-colors duration-200";
+    "inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-charcoal px-6 text-sm font-bold transition-transform duration-200 hover:-translate-y-0.5";
   const variants = {
-    primary: "bg-primary text-black hover:bg-primary-light font-semibold",
-    "primary-inverted": "bg-white text-charcoal hover:bg-lavender font-semibold",
+    primary: "bg-primary text-black shadow-[4px_4px_0_#111] hover:bg-primary-light font-semibold",
+    "primary-inverted": "bg-white text-charcoal shadow-[4px_4px_0_#111] hover:bg-lavender font-semibold",
     secondary:
-      "border border-border-subtle bg-transparent text-charcoal hover:bg-surface-sand",
+      "border-2 border-charcoal bg-white text-charcoal shadow-[4px_4px_0_#111] hover:bg-surface-sand",
     "secondary-inverted":
       "border border-white/20 bg-transparent text-white hover:bg-white/10",
     ghost: "text-muted hover:text-charcoal",
@@ -143,7 +143,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-border-subtle bg-white p-8 sm:p-10 ${className}`}
+      className={`rounded-xl border-2 border-charcoal bg-white p-8 shadow-[6px_6px_0_#111] sm:p-10 ${className}`}
     >
       {children}
     </div>

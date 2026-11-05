@@ -13,7 +13,7 @@ export function Stats() {
       <Container>
         <div className="grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4 lg:gap-12">
           {STATS.map((s) => (
-            <div key={s.label}>
+            <div key={s.label} className="border-2 border-charcoal bg-white p-5 shadow-[4px_4px_0_#111]">
               <p className="text-3xl font-semibold tracking-tight text-charcoal sm:text-4xl">
                 {s.value}
               </p>

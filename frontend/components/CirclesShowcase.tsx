@@ -11,7 +11,7 @@ export function CirclesShowcase() {
     <Section id="circles" className="bg-white">
       <Container className="grid items-start gap-16 lg:grid-cols-2 lg:gap-24">
         <div className="order-2 lg:order-1">
-          <div className="rounded-2xl border border-border-subtle p-7 sm:p-9">
+          <div className="rounded-xl border-2 border-charcoal bg-white p-7 shadow-[7px_7px_0_#111] sm:p-9">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-base font-medium text-charcoal">Global Savers</p>

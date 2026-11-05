@@ -53,7 +53,7 @@ export function Security() {
 
           </div>
 
-          <div className="divide-y divide-border-subtle border-y border-border-subtle">
+          <div className="divide-y-2 divide-charcoal border-2 border-charcoal bg-white px-6 shadow-[6px_6px_0_#111]">
             {ASSURANCES.map((a) => (
               <div key={a.title} className="py-8">
                 <h3 className="text-base font-medium text-charcoal">{a.title}</h3>

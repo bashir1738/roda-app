@@ -33,8 +33,8 @@ export function HowItWorks() {
 
         <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-16">
           {STEPS.map((s) => (
-            <div key={s.step}>
-              <p className="text-[14px] font-semibold tracking-[0.16em] text-primary-light">{s.step}</p>
+            <div key={s.step} className="border-2 border-charcoal bg-white p-6 shadow-[5px_5px_0_#111]">
+              <p className="inline-block border-2 border-charcoal bg-sky px-2 py-1 text-[14px] font-black tracking-[0.16em] text-charcoal">{s.step}</p>
               <h3 className="mt-4 text-xl font-medium tracking-tight text-charcoal">
                 {s.title}
               </h3>

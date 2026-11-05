@@ -39,16 +39,16 @@ export function VaultTiers() {
           description="Choose a Solo plan to match your goals. No distractions, just pure on-chain discipline."
         />
 
-        <div className="mt-20 grid gap-px overflow-hidden rounded-2xl border border-border-subtle bg-border-subtle lg:grid-cols-3">
+        <div className="mt-20 grid gap-4 lg:grid-cols-3">
           {TIERS.map((t) => (
             <div
               key={t.name}
-              className={`flex flex-col p-8 sm:p-10 ${
-                t.popular ? "bg-lavender relative" : "bg-white"
+              className={`flex flex-col rounded-xl border-2 border-charcoal p-8 shadow-[6px_6px_0_#111] sm:p-10 ${
+                t.popular ? "bg-butter relative" : "bg-white"
               }`}
             >
               {t.popular && (
-                <div className="absolute top-0 inset-x-0 h-1 bg-primary"></div>
+                <div className="absolute -right-2 -top-4 border-2 border-charcoal bg-blush px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-charcoal">Popular</div>
               )}
               <div className="flex items-baseline justify-between">
                 <h3 className={`text-lg font-medium ${t.popular ? "text-primary" : "text-charcoal"}`}>

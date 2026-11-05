@@ -6,27 +6,30 @@
   --color-primary-light: #1AD9A4;
   --color-near-green: #00C08B;
   --color-surface: #ffffff;
-  --color-surface-sand: #f6f5f3;
+  --color-surface-sand: #f7f1e8;
   --color-surface-card: #ffffff;
   --color-lavender: #e6f9f3;
   --color-lavender-glow: #00C08B;
   --color-charcoal: #000000;
   --color-darkbg: #111111;
   --color-muted: #6f6b66;
-  --color-border-subtle: #eceae7;
-  --color-border: #eceae7;
+  --color-border-subtle: #111111;
+  --color-border: #111111;
   --color-emerald-accent: #00C08B;
   --color-accent: #e6f9f3;
   --color-alert: #b42318;
+  --color-butter: #ffd84d;
+  --color-blush: #ff8fa3;
+  --color-sky: #8bd7ff;
 
   --font-modena: var(--font-kuda-modena, "Kuda Modena", var(--font-jakarta), sans-serif);
   --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
 
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.25rem;
-  --radius-4xl: 1.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+  --radius-3xl: 1rem;
+  --radius-4xl: 1.25rem;
 
   --container-8xl: 90rem;
 
@@ -38,7 +41,7 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #f7f1e8;
   --foreground: #000000;
 }
 
@@ -56,6 +59,11 @@ body {
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #ffd84d;
+  color: #111111;
 }
 
 @keyframes marquee-left {

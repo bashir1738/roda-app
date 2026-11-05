@@ -28,7 +28,7 @@ export function CookiesNotification() {
   return (
     <>
       <div className="fixed bottom-4 left-4 right-4 z-[60] md:left-auto md:w-full md:max-w-[380px] md:bottom-8 md:right-8">
-        <div className="flex flex-col items-start gap-5 rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-xl shadow-black/5">
+        <div className="flex flex-col items-start gap-5 rounded-xl border-2 border-charcoal bg-white p-6 shadow-[6px_6px_0_#111]">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lavender/60">
               <CookieIcon className="h-5 w-5 text-primary" />
@@ -51,13 +51,13 @@ export function CookiesNotification() {
           <div className="flex w-full shrink-0 items-center gap-3">
             <button
               onClick={handleDecline}
-              className="flex h-10 flex-1 items-center justify-center rounded-full border border-border-subtle bg-white px-4 text-[13px] font-semibold text-muted transition-colors hover:bg-surface-sand"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-charcoal bg-white px-4 text-[13px] font-semibold text-muted transition-colors hover:bg-surface-sand"
             >
               Decline
             </button>
             <button
               onClick={handleAccept}
-              className="flex h-10 flex-1 items-center justify-center rounded-full bg-primary px-4 text-[13px] font-semibold text-black transition-colors hover:bg-primary-light"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-charcoal bg-primary px-4 text-[13px] font-semibold text-black transition-colors hover:bg-primary-light"
             >
               Accept
             </button>
@@ -107,12 +107,12 @@ function PrivacyModal({
         className="absolute inset-0 cursor-default bg-charcoal/40 backdrop-blur-sm"
       />
 
-      <div className="relative w-full max-w-lg rounded-2xl border border-border-subtle bg-white p-8 max-h-[85vh] flex flex-col">
+      <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-xl border-2 border-charcoal bg-white p-8 shadow-[6px_6px_0_#111]">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-surface-sand hover:text-charcoal transition-colors"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg border-2 border-charcoal bg-butter text-charcoal"
         >
           <CloseIcon className="h-4 w-4" />
         </button>
@@ -147,7 +147,7 @@ function PrivacyModal({
         <div className="mt-8 pt-4 border-t border-border-subtle flex justify-end">
           <button
             onClick={onClose}
-            className="flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-black transition-colors hover:bg-primary-light"
+            className="flex h-10 items-center justify-center rounded-lg border-2 border-charcoal bg-primary px-6 text-sm font-semibold text-black transition-colors hover:bg-primary-light"
           >
             Got it
           </button>

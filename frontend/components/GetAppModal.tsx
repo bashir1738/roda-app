@@ -68,12 +68,12 @@ function GetAppModal({
         className="absolute inset-0 cursor-default bg-charcoal/30"
       />
 
-      <div className="relative w-full max-w-sm rounded-2xl border border-border-subtle bg-white p-8">
+      <div className="relative w-full max-w-sm rounded-xl border-2 border-charcoal bg-white p-8 shadow-[6px_6px_0_#111]">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-muted hover:text-charcoal"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg border-2 border-charcoal bg-butter text-charcoal"
         >
           <CloseIcon className="h-4 w-4" />
         </button>
@@ -131,7 +131,7 @@ function StoreOption({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-4 rounded-xl border border-border-subtle px-4 py-3.5 hover:bg-surface-sand"
+        className="flex items-center gap-4 rounded-lg border-2 border-charcoal px-4 py-3.5 hover:bg-surface-sand"
       >
         {inner}
       </a>
