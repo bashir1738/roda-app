@@ -19,7 +19,7 @@ export function Hero() {
           <h1 className="text-[3rem] font-semibold leading-[1.05] tracking-tight text-charcoal sm:text-6xl lg:text-[4.5rem]">
             Save together.
             <br />
-            <span className="inline-block bg-primary px-2 text-charcoal">Grow together.</span>
+            <span className="inline-block bg-[#00C08B] px-2 text-charcoal">Grow together.</span>
           </h1>
 
           <p className="mt-6 max-w-md border-l-4 border-[#9BE7B2] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
@@ -29,8 +29,17 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <GetAppButton variant="primary">Start a circle</GetAppButton>
-            <Button href="#how" variant="secondary">
+            <GetAppButton
+              variant="primary"
+              className="!bg-[#00C08B] hover:!bg-[#1AD9A4]"
+            >
+              Start a circle
+            </GetAppButton>
+            <Button
+              href="#how"
+              variant="secondary"
+              className="!border-charcoal !bg-white !text-black hover:!bg-surface-sand"
+            >
               How it works
             </Button>
           </div>

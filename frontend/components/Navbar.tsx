@@ -35,7 +35,11 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <GetAppButton className="hidden md:inline-flex">Get the app</GetAppButton>
+          <GetAppButton
+            className="hidden !bg-[#00C08B] hover:!bg-[#1AD9A4] md:inline-flex"
+          >
+            Get the app
+          </GetAppButton>
           <button
             type="button"
             className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal md:hidden"

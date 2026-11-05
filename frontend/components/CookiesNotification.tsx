@@ -57,7 +57,7 @@ export function CookiesNotification() {
             </button>
             <button
               onClick={handleAccept}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-charcoal bg-primary px-4 text-[13px] font-semibold text-black transition-colors hover:bg-primary-light"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg border-2 border-charcoal bg-[#00C08B] px-4 text-[13px] font-semibold text-black transition-colors hover:bg-[#1AD9A4]"
             >
               Accept
             </button>

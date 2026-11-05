@@ -9,7 +9,7 @@ export function Logo({
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <LeafGlyph
         className="h-5 w-5"
-        color="#FFD84D"
+        color="#00C08B"
       />
       <span
         className={`text-[15px] font-semibold tracking-tight ${
@@ -24,7 +24,7 @@ export function Logo({
 
 export function LeafGlyph({
   className = "",
-  color = "#FFD84D",
+  color = "#00C08B",
 }: {
   className?: string;
   color?: string;
