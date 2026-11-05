@@ -47,8 +47,8 @@ export function PinPad({ length, value, onKey, error, shakeAnim, disabled }: Pro
               {
                 backgroundColor:
                   i < value.length
-                    ? error ? '#EF4444' : '#421F6D'
-                    : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(66,31,109,0.15)'),
+                    ? error ? '#EF4444' : '#00C08B'
+                    : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,192,139,0.15)'),
               },
             ]}
           />

@@ -68,26 +68,26 @@ export default function Splash() {
           className="w-24 h-24 rounded-3xl bg-accent items-center justify-center mb-6"
           style={{ shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: 8 } }}
         >
-          <Icon name="leaf" size={50} color="#421F6D" />
+          <Icon name="leaf" size={50} color="#00C08B" />
         </View>
       </Animated.View>
 
       {/* Wordmark */}
       <Animated.Text
         style={{ opacity: wordOpacity, transform: [{ translateY: wordTranslate }] }}
-        className="text-surface text-5xl font-black tracking-tight"
+        className="text-black text-5xl font-black tracking-tight"
       >
         Roda
       </Animated.Text>
 
       {/* Tagline */}
-      <Animated.Text style={{ opacity: taglineOpacity }} className="text-surface/60 text-sm font-medium mt-2">
+      <Animated.Text style={{ opacity: taglineOpacity }} className="text-black/70 text-sm font-semibold mt-2">
         Rotating savings, reimagined
       </Animated.Text>
 
       {/* Footer mark */}
       <Animated.View style={{ opacity: taglineOpacity }} className="absolute bottom-12 items-center">
-        <Text className="text-surface/40 text-xs font-medium">Powered by NEAR</Text>
+        <Text className="text-black/50 text-xs font-semibold">Powered by NEAR</Text>
       </Animated.View>
     </View>
   );

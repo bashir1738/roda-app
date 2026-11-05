@@ -14,7 +14,7 @@ import { Icon, IconName } from './Icon';
 const SIDEBAR_WIDTH = Dimensions.get('window').width * 0.86;
 
 function SidebarRow({
-  icon, iconBg, iconColor = '#421F6D', label, labelColor, right, isDark,
+  icon, iconBg, iconColor = '#00C08B', label, labelColor, right, isDark,
 }: {
   icon: IconName;
   iconBg: string; iconColor?: string; label: string; labelColor?: string;
@@ -115,7 +115,7 @@ export function ProfileSidebar({ visible, onClose }: Props) {
           <View style={[styles.header, { borderBottomColor: headerBorderColor }]}>
             <View style={styles.headerLeft}>
               <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
-                <Icon name="person" size={20} color={isDark ? '#C084FC' : '#421F6D'} />
+                <Icon name="person" size={20} color={isDark ? '#00C08B' : '#00C08B'} />
               </View>
               <Text style={[styles.addrText, { color: addrColor }]} numberOfLines={1}>
                 {address ? fmtAddr(address) : 'Wallet'}
@@ -128,8 +128,8 @@ export function ProfileSidebar({ visible, onClose }: Props) {
 
           {!isConnected ? (
             <View style={styles.signedOut}>
-              <View style={[styles.signedOutIcon, isDark && { backgroundColor: 'rgba(192,132,252,0.15)' }]}>
-                <Icon name="person-outline" size={32} color={isDark ? '#C084FC' : '#421F6D'} />
+              <View style={[styles.signedOutIcon, isDark && { backgroundColor: 'rgba(0,192,139,0.15)' }]}>
+                <Icon name="person-outline" size={32} color={isDark ? '#00C08B' : '#00C08B'} />
               </View>
               <Text style={[styles.signedOutTitle, { color: isDark ? '#FFFFFF' : '#303030' }]}>You're signed out</Text>
               <Text style={[styles.signedOutSub, { color: isDark ? '#8E8E93' : '#6B6B6B' }]}>
@@ -147,14 +147,14 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                 <SidebarRow
                   isDark={isDark}
                   icon="moon-outline"
-                  iconBg={isDark ? 'rgba(120,80,160,0.3)' : 'rgba(66,31,109,0.12)'}
-                  iconColor={isDark ? '#C084FC' : '#421F6D'}
+                  iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
+                  iconColor={isDark ? '#00C08B' : '#00C08B'}
                   label="Dark Mode"
                   right={
                     <Switch
                       value={isDark}
                       onValueChange={(v) => setColorScheme(v ? 'dark' : 'light')}
-                      trackColor={{ false: '#D4C4E8', true: '#421F6D' }}
+                      trackColor={{ false: '#BEEEDB', true: '#00C08B' }}
                       thumbColor="#FFFFFF"
                     />
                   }
@@ -163,14 +163,14 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                 <SidebarRow
                   isDark={isDark}
                   icon="notifications-outline"
-                  iconBg={isDark ? 'rgba(120,80,160,0.3)' : 'rgba(66,31,109,0.12)'}
-                  iconColor={isDark ? '#C084FC' : '#421F6D'}
+                  iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
+                  iconColor={isDark ? '#00C08B' : '#00C08B'}
                   label="Push Notifications"
                   right={
                     <Switch
                       value={notifEnabled}
                       onValueChange={toggleNotifications}
-                      trackColor={{ false: isDark ? '#3A3A3C' : '#D4C4E8', true: '#421F6D' }}
+                      trackColor={{ false: isDark ? '#3A3A3C' : '#BEEEDB', true: '#00C08B' }}
                       thumbColor="#FFFFFF"
                     />
                   }
@@ -180,8 +180,8 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                     <SidebarRow
                       isDark={isDark}
                       icon="lock-closed-outline"
-                      iconBg={isDark ? 'rgba(192,132,252,0.18)' : 'rgba(66,31,109,0.12)'}
-                      iconColor={isDark ? '#C084FC' : '#421F6D'}
+                      iconBg={isDark ? 'rgba(0,192,139,0.18)' : 'rgba(0,192,139,0.12)'}
+                      iconColor={isDark ? '#00C08B' : '#00C08B'}
                       label="Export Private Key"
                       right={<Icon name="chevron-forward" size={16} color={isDark ? '#AEAEB2' : '#6B6B6B'} />}
                     />
@@ -225,7 +225,7 @@ export function ProfileButton({ onPress }: { onPress: () => void }) {
       style={[styles.profileBtn, { backgroundColor: isDark ? '#3A3A3C' : '#F3F4F6' }]}
       accessibilityLabel="Open profile"
     >
-      <Icon name="person" size={18} color={isDark ? '#C084FC' : '#421F6D'} />
+      <Icon name="person" size={18} color={isDark ? '#00C08B' : '#00C08B'} />
     </TouchableOpacity>
   );
 }
@@ -270,11 +270,11 @@ const styles = StyleSheet.create({
   rowIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   rowLabel: { flex: 1, fontSize: 14, fontWeight: '600' },
   signedOut: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, paddingHorizontal: 32 },
-  signedOutIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(66,31,109,0.08)', alignItems: 'center', justifyContent: 'center' },
+  signedOutIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,192,139,0.08)', alignItems: 'center', justifyContent: 'center' },
   signedOutTitle: { fontSize: 16, fontWeight: '800', textAlign: 'center' },
   signedOutSub: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
-  signInBtn: { backgroundColor: '#421F6D', borderRadius: 100, paddingHorizontal: 32, paddingVertical: 14, marginTop: 4 },
-  signInText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  signInBtn: { backgroundColor: '#00C08B', borderRadius: 100, paddingHorizontal: 32, paddingVertical: 14, marginTop: 4 },
+  signInText: { color: '#000000', fontWeight: '700', fontSize: 14 },
   profileBtn: {
     width: 36, height: 36, borderRadius: 18,
     alignItems: 'center', justifyContent: 'center',

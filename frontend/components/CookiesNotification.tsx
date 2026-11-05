@@ -57,7 +57,7 @@ export function CookiesNotification() {
             </button>
             <button
               onClick={handleAccept}
-              className="flex h-10 flex-1 items-center justify-center rounded-full bg-primary px-4 text-[13px] font-semibold text-white transition-colors hover:bg-primary-light"
+              className="flex h-10 flex-1 items-center justify-center rounded-full bg-primary px-4 text-[13px] font-semibold text-black transition-colors hover:bg-primary-light"
             >
               Accept
             </button>
@@ -147,7 +147,7 @@ function PrivacyModal({
         <div className="mt-8 pt-4 border-t border-border-subtle flex justify-end">
           <button
             onClick={onClose}
-            className="flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-light"
+            className="flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-black transition-colors hover:bg-primary-light"
           >
             Got it
           </button>

@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { useColorScheme } from 'nativewind';
 import { useWallet } from '../../providers/WalletContext';
 import { useDisplayName } from '../../hooks/useDisplayName';
 import { Icon } from '../../components/Icon';
@@ -13,6 +14,8 @@ import { Icon } from '../../components/Icon';
 type Stage = 'loading' | 'input' | 'saving' | 'done';
 
 export default function NameSetup() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const router = useRouter();
   const { address } = useWallet();
   const { name: existingName, loaded, saveLocal } = useDisplayName(address);
@@ -55,7 +58,7 @@ export default function NameSetup() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top', 'bottom']}>
       
 
       <KeyboardAvoidingView
@@ -66,13 +69,13 @@ export default function NameSetup() {
 
           {stage === 'loading' && (
             <View className="items-center">
-              <ActivityIndicator color="#421F6D" />
+              <ActivityIndicator color="#00C08B" />
             </View>
           )}
 
           {stage === 'saving' && (
             <View className="items-center gap-4">
-              <ActivityIndicator size="large" color="#421F6D" />
+              <ActivityIndicator size="large" color="#00C08B" />
               <Text className="text-charcoal dark:text-white font-semibold text-lg text-center">
                 Setting up your profile
               </Text>
@@ -86,9 +89,13 @@ export default function NameSetup() {
             <View className="items-center gap-4">
               <View
                 className="w-20 h-20 rounded-full items-center justify-center"
-                style={{ backgroundColor: '#F0FDF4', borderWidth: 1.5, borderColor: '#BBF7D0' }}
+                style={{
+                  backgroundColor: isDark ? 'rgba(0,192,139,0.15)' : '#F0FDF4',
+                  borderWidth: 1.5,
+                  borderColor: isDark ? 'rgba(0,192,139,0.3)' : '#BBF7D0',
+                }}
               >
-                <Icon name="checkmark" size={36} color="#16A34A" />
+                <Icon name="checkmark" size={36} color={isDark ? '#00C08B' : '#16A34A'} />
               </View>
               <Text className="text-charcoal dark:text-white font-black text-3xl text-center mt-2">
                 {input.trim()}
@@ -107,9 +114,9 @@ export default function NameSetup() {
               </Text>
 
               <TextInput
-                className="text-charcoal dark:text-white text-base font-medium bg-white dark:bg-[#121212] px-4 py-4 rounded-2xl mb-4"
-                style={{ borderWidth: 1, borderColor: error ? '#EF4444' : '#D4C4E8' }}
-                placeholderTextColor="#6B6B6B"
+                className="text-charcoal dark:text-white text-base font-medium bg-white dark:bg-[#1C1C1E] px-4 py-4 rounded-2xl mb-4"
+                style={{ borderWidth: 1, borderColor: error ? '#EF4444' : (isDark ? 'rgba(255,255,255,0.15)' : '#B8EAD7') }}
+                placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
                 placeholder="yourname"
                 value={input}
                 onChangeText={(text) => { setInput(text); setError(''); }}
@@ -130,8 +137,8 @@ export default function NameSetup() {
                 disabled={!input.trim()}
                 style={{ opacity: !input.trim() ? 0.3 : 1 }}
               >
-                <Text className="text-white text-base font-bold">Continue</Text>
-                <Icon name="arrow-forward" size={18} color="#FFFFFF" />
+                <Text className="text-black text-base font-bold">Continue</Text>
+                <Icon name="arrow-forward" size={18} color="#000000" />
               </TouchableOpacity>
             </View>
           )}

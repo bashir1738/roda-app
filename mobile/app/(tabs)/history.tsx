@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 import { TransactionItem, type TxType } from '../../components/TransactionItem';
 import { useWallet } from '../../providers/WalletContext';
 import { useTransactionHistory } from '../../hooks/useTransactionHistory';
@@ -24,6 +25,8 @@ const FILTER_ICONS: Record<Filter, IconName> = {
 };
 
 export default function HistoryTab() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { isConnected, address } = useWallet();
   const { openSidebar } = useProfileSidebar();
   const [active, setActive] = useState<Filter>('All');
@@ -35,9 +38,9 @@ export default function HistoryTab() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top']}>
       {/* Header */}
-      <View className="bg-white dark:bg-[#121212] px-5 pt-3 pb-6">
+      <View className="bg-white dark:bg-[#111111] px-5 pt-3 pb-6">
         <View className="flex-row justify-between items-start">
           <View>
             <Text className="text-charcoal dark:text-white text-[28px] font-extrabold tracking-tight mt-2">History</Text>
@@ -49,20 +52,30 @@ export default function HistoryTab() {
         </View>
       </View>
 
-      <View className="flex-1 bg-white dark:bg-[#121212] rounded-t-3xl overflow-hidden">
+      <View className="flex-1 bg-white dark:bg-[#111111] rounded-t-3xl overflow-hidden">
       {/* Filter chips */}
       <View className="flex-row gap-2 px-4 py-3 pt-4">
         {FILTERS.map((f) => (
           <TouchableOpacity
             key={f}
             className={`flex-row items-center gap-1 px-3 py-1.5 rounded-full border ${
-              active === f ? 'bg-primary border-primary' : 'bg-white border-border'
+              active === f
+                ? 'bg-primary border-primary'
+                : 'bg-white dark:bg-[#1C1C1E] border-border dark:border-white/10'
             }`}
             onPress={() => setActive(f)}
             accessibilityLabel={`Filter: ${f}`}
           >
-            <Icon name={FILTER_ICONS[f]} size={13} color={active === f ? '#EDD2F8' : '#6B6B6B'} />
-            <Text className={`text-xs font-semibold ${active === f ? 'text-surface' : 'text-muted'}`}>
+            <Icon
+              name={FILTER_ICONS[f]}
+              size={13}
+              color={active === f ? '#000000' : (isDark ? '#A1A1AA' : '#6B6B6B')}
+            />
+            <Text
+              className={`text-xs font-semibold ${
+                active === f ? 'text-black' : 'text-muted dark:text-[#A1A1AA]'
+              }`}
+            >
               {f}
             </Text>
           </TouchableOpacity>
@@ -101,7 +114,7 @@ function EmptyState({
   return (
     <View className="flex-1 items-center justify-center gap-3 px-10">
       <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-        <Icon name={icon} size={30} color="#421F6D" />
+        <Icon name={icon} size={30} color="#00C08B" />
       </View>
       <Text className="text-charcoal dark:text-white font-bold text-base">{title}</Text>
       <Text className="text-muted dark:text-[#A1A1AA] text-sm text-center">{subtitle}</Text>

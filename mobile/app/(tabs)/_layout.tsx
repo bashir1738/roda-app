@@ -10,7 +10,7 @@ function TabIcon({
 }: { iconActive: IconName; iconInactive: IconName; label: string; focused: boolean }) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const ACTIVE   = isDark ? '#FFFFFF' : '#421F6D';
+  const ACTIVE   = isDark ? '#00C08B' : '#000000';
   const INACTIVE = isDark ? '#8E8E93' : '#A1A1AA';
   
   return (
@@ -19,7 +19,7 @@ function TabIcon({
         paddingHorizontal: 16,
         paddingVertical: 4,
         borderRadius: 16,
-        backgroundColor: focused ? (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(66, 31, 109, 0.1)') : 'transparent'
+        backgroundColor: focused ? (isDark ? 'rgba(0, 192, 139, 0.2)' : 'rgba(0, 192, 139, 0.12)') : 'transparent'
       }}>
         <Icon name={focused ? iconActive : iconInactive} size={22} color={focused ? ACTIVE : INACTIVE} pop />
       </View>
@@ -51,7 +51,7 @@ export default function TabsLayout() {
         tabBarShowLabel: false,
         tabBarItemStyle: { height: TAB_H, justifyContent: 'center', paddingTop: 8 },
         tabBarStyle: {
-          backgroundColor: isDark ? '#121212' : '#FFFFFF',
+          backgroundColor: isDark ? '#111111' : '#FFFFFF',
           borderTopColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
           borderTopWidth: 1,
           height,

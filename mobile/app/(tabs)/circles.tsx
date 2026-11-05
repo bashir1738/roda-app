@@ -45,7 +45,7 @@ export default function CirclesTab() {
   const completed  = filtered.filter((c) => c.status === 2);
 
   return (
-    <View className="flex-1 bg-[#FDFBF7] dark:bg-[#121212]">
+    <View className="flex-1 bg-[#FDFBF7] dark:bg-[#111111]">
       <SafeAreaView className="flex-1" edges={['top']}>
         {/* Header */}
         <View className="px-5 pt-3 pb-4">
@@ -59,14 +59,14 @@ export default function CirclesTab() {
                 onPress={() => setShowJoin(true)}
                 accessibilityLabel="Join a circle"
               >
-                <Icon name="enter-outline" size={20} color={colorScheme === 'dark' ? '#FFFFFF' : '#421F6D'} />
-                <Text className="text-primary dark:text-white font-bold">Join</Text>
+                <Icon name="enter-outline" size={20} color={colorScheme === 'dark' ? '#00C08B' : '#00C08B'} />
+                <Text className="text-primary dark:text-[#00C08B] font-bold">Join</Text>
               </TouchableOpacity>
               <ProfileButton onPress={openSidebar} />
             </View>
           </View>
           {/* Search bar */}
-          <View className="flex-row items-center gap-2 mt-6 bg-white dark:bg-[#1C1C1E] rounded-full px-5 py-4 border border-border/50 dark:border-white/5" style={{ shadowColor: '#421F6D', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
+          <View className="flex-row items-center gap-2 mt-6 bg-white dark:bg-[#1C1C1E] rounded-full px-5 py-4 border border-border/50 dark:border-white/5" style={{ shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 }}>
             <Icon name="search-outline" size={18} color="#6B6B6B" />
             <TextInput
               value={query}
@@ -91,7 +91,7 @@ export default function CirclesTab() {
           {!isConnected ? (
             <View className="flex-1 items-center justify-center gap-3 px-8">
               <View className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center mb-2">
-                <Icon name="wallet-outline" size={40} color="#421F6D" />
+                <Icon name="wallet-outline" size={40} color="#00C08B" />
               </View>
               <Text className="text-charcoal dark:text-white font-bold text-2xl">Connect your wallet</Text>
               <Text className="text-muted dark:text-[#A1A1AA] text-base text-center font-medium">
@@ -100,7 +100,7 @@ export default function CirclesTab() {
             </View>
           ) : isLoading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator color="#421F6D" size="large" />
+              <ActivityIndicator color="#00C08B" size="large" />
             </View>
           ) : (
             <ScrollView
@@ -108,7 +108,7 @@ export default function CirclesTab() {
               contentContainerClassName="pb-8"
               showsVerticalScrollIndicator={false}
               refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#421F6D" colors={['#421F6D']} />
+                <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#00C08B" colors={['#00C08B']} />
               }
             >
               {circles.length > 0 ? (
@@ -162,19 +162,19 @@ export default function CirclesTab() {
                 </>
               ) : query ? (
                 <View className="flex-1 items-center justify-center gap-3 px-8 py-20">
-                  <Icon name="search-outline" size={48} color="#B8A0C8" />
+                  <Icon name="search-outline" size={48} color="#00C08B" />
                   <Text className="text-charcoal dark:text-white font-bold text-xl text-center">No results found</Text>
                   <Text className="text-muted dark:text-[#A1A1AA] text-base text-center">
                     Try a different search term
                   </Text>
-                  <TouchableOpacity onPress={() => setQuery('')} className="mt-4 px-6 py-3 bg-border/20 rounded-full">
-                    <Text className="text-primary font-bold text-base">Clear search</Text>
+                  <TouchableOpacity onPress={() => setQuery('')} className="mt-4 px-6 py-3 bg-border/20 dark:bg-white/10 rounded-full">
+                    <Text className="text-primary dark:text-[#00C08B] font-bold text-base">Clear search</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
                 <View className="flex-1 items-center justify-center gap-4 px-8 py-24">
                   <View className="w-24 h-24 rounded-full bg-primary/10 items-center justify-center mb-2">
-                    <Icon name="people" size={48} color="#421F6D" />
+                    <Icon name="people" size={48} color="#00C08B" />
                   </View>
                   <Text className="text-charcoal dark:text-white font-bold text-2xl text-center">Start a Circle</Text>
                   <Text className="text-muted dark:text-[#A1A1AA] text-base text-center font-medium leading-6">
@@ -184,8 +184,8 @@ export default function CirclesTab() {
                     className="mt-6 bg-primary px-8 py-4 rounded-full shadow-lg flex-row items-center gap-2"
                     onPress={() => setShowCreate(true)}
                   >
-                    <Icon name="add" size={20} color="#FFFFFF" />
-                    <Text className="text-white font-bold text-base">Create your first circle</Text>
+                    <Icon name="add" size={20} color="#000000" />
+                    <Text className="text-black font-bold text-base">Create your first circle</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -197,10 +197,10 @@ export default function CirclesTab() {
         {isConnected && circles.length > 0 && (
           <TouchableOpacity 
             className="absolute right-6 bottom-28 w-16 h-16 bg-primary rounded-full items-center justify-center shadow-xl"
-            style={{ shadowColor: '#421F6D', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }}
+            style={{ shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }}
             onPress={() => setShowCreate(true)}
           >
-            <Icon name="add" size={32} color="#FFFFFF" />
+            <Icon name="add" size={32} color="#000000" />
           </TouchableOpacity>
         )}
 

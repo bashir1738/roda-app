@@ -40,8 +40,8 @@ function MemberRow({ addr, position, isNext, isMe, hasPaid, displayName }: {
 
   return (
     <View className="flex-row items-center gap-3 py-3 border-b border-border dark:border-white/10">
-      <View className="w-10 h-10 rounded-full bg-primary/15 dark:bg-[#2A1B3D] border border-primary/20 dark:border-[#8B5CF6] items-center justify-center">
-        <Text className="text-primary dark:text-[#F0D9FF] text-sm font-black">{position}</Text>
+      <View className="w-10 h-10 rounded-full bg-primary/15 dark:bg-white/10 border border-primary/20 dark:border-white/20 items-center justify-center">
+        <Text className="text-primary dark:text-[#00C08B] text-sm font-black">{position}</Text>
       </View>
       <View className="flex-1">
         <Text
@@ -60,7 +60,7 @@ function MemberRow({ addr, position, isNext, isMe, hasPaid, displayName }: {
         )}
         {isNext && (
           <View className="flex-row items-center gap-1 bg-accent px-2 py-0.5 rounded-lg">
-            <Icon name="star" size={10} color="#421F6D" />
+            <Icon name="star" size={10} color="#00C08B" />
             <Text className="text-primary text-[11px] font-bold">Next</Text>
           </View>
         )}
@@ -116,7 +116,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View className="flex-1 bg-white dark:bg-[#121212]">
+      <View className="flex-1 bg-white dark:bg-[#111111]">
         {/* Drag handle */}
         <View className="w-9 h-1 rounded-full bg-border self-center mt-3 mb-4" />
 
@@ -136,7 +136,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
           </View>
 
           {/* Stats */}
-          <View className="flex-row bg-white dark:bg-[#121212] border border-border dark:border-white/10 mx-4 rounded-2xl p-4 mb-4">
+          <View className="flex-row bg-white dark:bg-[#111111] border border-border dark:border-white/10 mx-4 rounded-2xl p-4 mb-4">
             {[
               { label: 'Pool Balance', value: `$${fmtUSDC(circle.poolBalance)}` },
               { label: 'Your Position', value: circle.myPosition >= 0 ? `#${circle.myPosition + 1}` : '–' },
@@ -184,26 +184,26 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
         </ScrollView>
 
         {/* Footer */}
-        <View className="px-4 pb-6 pt-3 border-t border-border dark:border-white/10 bg-white dark:bg-[#121212] gap-3">
+        <View className="px-4 pb-6 pt-3 border-t border-border dark:border-white/10 bg-white dark:bg-[#111111] gap-3">
           {canInvite && (
             <TouchableOpacity
-              className="bg-primary/10 border border-primary/20 rounded-xl py-3.5 items-center flex-row justify-center gap-2 mt-1"
+              className="bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 rounded-xl py-3.5 items-center flex-row justify-center gap-2 mt-1"
               onPress={() => setShowInvite(true)}
               accessibilityLabel="Invite members"
             >
-              <Icon name="person-add-outline" size={17} color="#421F6D" />
-              <Text className="text-primary dark:text-[#E8B4FF] font-bold">Invite Members</Text>
+              <Icon name="person-add-outline" size={17} color="#00C08B" />
+              <Text className="text-primary dark:text-[#00C08B] font-bold">Invite Members</Text>
             </TouchableOpacity>
           )}
           {isRecipient && claim.txState === 'idle' && (
             <>
               {!payoutReady && (
-                <Text className="text-primary dark:text-[#E8B4FF] text-center text-sm font-semibold">
+                <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
                   Available to claim on {fmtPayoutTime(circle.nextPayoutTimestamp)}
                 </Text>
               )}
               <TouchableOpacity
-                className={`${payoutReady ? 'bg-primary' : 'bg-primary/50'} rounded-xl py-4 items-center justify-center mt-1`}
+                className={`${payoutReady ? 'bg-primary' : 'bg-primary/25 dark:bg-[#00C08B]/20'} rounded-xl py-4 items-center justify-center mt-1`}
                 onPress={() => {
                   if (payoutReady) claim.claim({ type: 'circle', circleId: circle.id });
                 }}
@@ -211,7 +211,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
                 accessibilityLabel="Claim payout"
                 accessibilityState={{ disabled: !payoutReady }}
               >
-                <Text className="text-white font-bold text-base text-center">Claim</Text>
+                <Text className={`font-bold text-base text-center ${payoutReady ? 'text-black' : 'text-black/40 dark:text-[#00C08B]/50'}`}>Claim</Text>
               </TouchableOpacity>
             </>
           )}
@@ -223,21 +223,21 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
               })}
               accessibilityLabel="Contribute"
             >
-              <Icon name="arrow-up-circle" size={18} color="white" />
-              <Text className="text-white font-bold text-base">
+              <Icon name="arrow-up-circle" size={18} color="#000000" />
+              <Text className="text-black font-bold text-base">
                 Contribute ${fmtUSDC(circle.contributionAmount)} USDC
               </Text>
             </TouchableOpacity>
           )}
           {circle.status === 0 && (
-            <View className="bg-primary/5 dark:bg-[#2A1B3D] border border-primary/15 dark:border-[#7C3AED] rounded-xl px-4 py-3 mt-1">
-              <Text className="text-primary dark:text-[#E8B4FF] text-center text-sm font-semibold">
+            <View className="bg-primary/5 dark:bg-[#00C08B]/10 border border-primary/15 dark:border-[#00C08B]/20 rounded-xl px-4 py-3 mt-1">
+              <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
                 Waiting for members ({circle.members.length}/{circle.maxMembers}). Contributions start when the circle is full.
               </Text>
             </View>
           )}
           <TouchableOpacity
-            className="border border-border rounded-full py-3.5 items-center"
+            className="border border-border dark:border-white/10 rounded-full py-3.5 items-center"
             onPress={onClose}
             accessibilityLabel="Close"
           >

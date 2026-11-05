@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Modal, View, Text, TextInput, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { useQuery } from '@tanstack/react-query';
 import { viewContract } from '../lib/contract';
 import { isValidCircleCode } from '../lib/circleCode';
@@ -23,6 +24,8 @@ interface CirclePreview {
 }
 
 export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [idInput, setIdInput] = useState('');
   const [circleId, setCircleId] = useState<number | null>(null);
   const [lookupError, setLookupError] = useState('');
@@ -89,7 +92,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="formSheet" onRequestClose={handleClose}>
-      <View className="flex-1 bg-white dark:bg-[#121212] px-5 pt-6">
+      <View className="flex-1 bg-white dark:bg-[#111111] px-5 pt-6">
         <View className="flex-row items-center justify-between mb-6">
           <Text className="text-charcoal dark:text-white text-xl font-bold">Join a Circle</Text>
           <TouchableOpacity onPress={handleClose}>
@@ -103,10 +106,10 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
         </Text>
         <View className="flex-row gap-2 mb-1">
           <TextInput
-            className="flex-1 bg-white dark:bg-[#121212] border rounded-2xl px-4 py-3 text-charcoal dark:text-white text-base font-semibold"
-            style={{ borderColor: lookupError ? '#EF4444' : '#D4C4E8' }}
+            className="flex-1 bg-white dark:bg-[#1C1C1E] border rounded-2xl px-4 py-3 text-charcoal dark:text-white text-base font-semibold"
+            style={{ borderColor: lookupError ? '#EF4444' : (isDark ? 'rgba(255,255,255,0.15)' : '#BEEEDB') }}
             placeholder="e.g. 483920"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={isDark ? '#A1A1AA' : '#9CA3AF'}
             keyboardType="number-pad"
             maxLength={6}
             value={idInput}
@@ -121,8 +124,8 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
             style={{ opacity: !idInput.trim() ? 0.4 : 1 }}
           >
             {infoLoading
-              ? <ActivityIndicator size="small" color="#FFFFFF" />
-              : <Text className="text-white font-bold">Look up</Text>}
+              ? <ActivityIndicator size="small" color="#000000" />
+              : <Text className="text-black font-bold">Look up</Text>}
           </TouchableOpacity>
         </View>
         {lookupError ? (
@@ -135,9 +138,9 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
 
         {/* Lookup: id set but no circle there */}
         {!hasCircle && !infoLoading && circleId !== null && !joined && (
-          <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-3xl p-4 flex-row items-center gap-3 mb-6">
+          <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700/60 rounded-3xl p-4 flex-row items-center gap-3 mb-6">
             <Icon name="search-outline" size={20} color="#EA580C" />
-            <Text className="text-orange-800 text-sm flex-1">
+            <Text className="text-orange-800 dark:text-orange-200 text-sm flex-1">
               No circle found with code {circleId}.
             </Text>
           </View>
@@ -155,11 +158,19 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
               </View>
               <View
                 className="px-3 py-1 rounded-full"
-                style={{ backgroundColor: isRecruiting && !isFull ? '#F0FDF4' : '#FFF7ED' }}
+                style={{
+                  backgroundColor: isRecruiting && !isFull
+                    ? (isDark ? 'rgba(0,192,139,0.15)' : '#F0FDF4')
+                    : (isDark ? 'rgba(234,88,12,0.15)' : '#FFF7ED'),
+                  borderWidth: 1,
+                  borderColor: isRecruiting && !isFull
+                    ? (isDark ? 'rgba(0,192,139,0.3)' : 'transparent')
+                    : (isDark ? 'rgba(234,88,12,0.3)' : 'transparent'),
+                }}
               >
                 <Text
                   className="text-xs font-semibold"
-                  style={{ color: isRecruiting && !isFull ? '#16A34A' : '#EA580C' }}
+                  style={{ color: isRecruiting && !isFull ? '#00C08B' : '#EA580C' }}
                 >
                   {isFull ? 'Full' : isRecruiting ? 'Open' : 'Active'}
                 </Text>
@@ -187,7 +198,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
                 <View
                   key={i}
                   className="flex-1 h-1.5 rounded-full"
-                  style={{ backgroundColor: i < memberCount ? '#421F6D' : 'rgba(255,255,255,0.12)' }}
+                  style={{ backgroundColor: i < memberCount ? '#00C08B' : 'rgba(255,255,255,0.12)' }}
                 />
               ))}
             </View>
@@ -207,10 +218,10 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
 
         {/* Success */}
         {joined && (
-          <View className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-3xl p-4 items-center gap-2 mb-4">
-            <Icon name="checkmark-circle" size={32} color="#16A34A" />
-            <Text className="text-green-800 font-bold">You've joined {name}!</Text>
-            <Text className="text-green-700 text-sm text-center">
+          <View className="bg-green-50 dark:bg-[#00C08B]/15 border border-green-200 dark:border-[#00C08B]/30 rounded-3xl p-4 items-center gap-2 mb-4">
+            <Icon name="checkmark-circle" size={32} color="#00C08B" />
+            <Text className="text-green-800 dark:text-white font-bold">You've joined {name}!</Text>
+            <Text className="text-green-700 dark:text-[#A1A1AA] text-sm text-center">
               Head back to your circles to see it.
             </Text>
           </View>
@@ -225,13 +236,13 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
           >
             {isPending ? (
               <>
-                <ActivityIndicator color="#FFFFFF" />
-                <Text className="text-white font-bold">Confirm in wallet…</Text>
+                <ActivityIndicator color="#000000" />
+                <Text className="text-black font-bold">Confirm in wallet…</Text>
               </>
             ) : (
               <>
-                <Icon name="people-outline" size={18} color="#FFFFFF" />
-                <Text className="text-white font-bold text-base">Join Circle</Text>
+                <Icon name="people-outline" size={18} color="#000000" />
+                <Text className="text-black font-bold text-base">Join Circle</Text>
               </>
             )}
           </TouchableOpacity>

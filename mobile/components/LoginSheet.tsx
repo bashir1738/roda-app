@@ -86,12 +86,12 @@ export function LoginSheet() {
       avoidKeyboard
     >
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View className="bg-white dark:bg-[#121212] rounded-t-3xl px-6 pt-3 pb-10">
+        <View className="bg-white dark:bg-[#111111] rounded-t-3xl px-6 pt-3 pb-10">
           <View className="self-center w-10 h-1 rounded-full bg-charcoal/15 dark:bg-white/25 mb-6" />
 
           <View className="items-center mb-7">
             <View className="w-14 h-14 rounded-2xl bg-primary items-center justify-center mb-4">
-              <Icon name="leaf" size={28} color="#FFFFFF" />
+              <Icon name="leaf" size={28} color="#000000" />
             </View>
             <Text className="text-charcoal dark:text-white text-2xl font-black text-center">
               Welcome to Roda
@@ -118,16 +118,17 @@ export function LoginSheet() {
                 onChangeText={setRecoveryInput}
                 autoCapitalize="characters"
                 placeholder="Enter backup code"
-                className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-white/10 px-4 py-4 rounded-2xl"
+                placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
+                className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-[#1C1C1E] border border-border dark:border-white/10 px-4 py-4 rounded-2xl"
               />
               {error && <Text className="text-red-500 text-sm">{error}</Text>}
               <TouchableOpacity className="bg-primary rounded-full py-4 items-center" onPress={onVerifyBackupCode}>
-                <Text className="text-white text-base font-bold">Verify and continue</Text>
+                <Text className="text-black text-base font-bold">Verify and continue</Text>
               </TouchableOpacity>
             </View>
           ) : <View className="gap-3">
             <TextInput
-              className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-white/10 border border-[#D4C4E8] dark:border-white/15 px-4 py-4 rounded-2xl"
+              className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-[#1C1C1E] border border-[#BEEEDB] dark:border-white/15 px-4 py-4 rounded-2xl"
               placeholder="you@example.com"
               placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
               value={email}
@@ -150,25 +151,25 @@ export function LoginSheet() {
               disabled={!valid || isLoggingIn}
               style={{ opacity: !valid || isLoggingIn ? 0.3 : 1 }}
             >
-              <Text className="text-white text-base font-bold">
+              <Text className="text-black text-base font-bold">
                 {isLoggingIn ? 'Waiting for code…' : 'Continue'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="border border-primary rounded-full py-4 items-center"
+              className="border border-primary/40 dark:border-[#00C08B]/40 bg-primary/5 dark:bg-[#00C08B]/10 rounded-full py-4 items-center"
               onPress={onCreateWallet}
               disabled={isLoggingIn}
             >
-              <Text className="text-primary text-base font-bold">
+              <Text className="text-primary dark:text-[#00C08B] text-base font-bold">
                 Create in-app wallet
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="border border-primary rounded-full py-4 items-center"
+              className="border border-primary/40 dark:border-[#00C08B]/40 bg-primary/5 dark:bg-[#00C08B]/10 rounded-full py-4 items-center"
               onPress={onMwaConnect}
               disabled={isLoggingIn}
             >
-              <Text className="text-primary text-base font-bold">
+              <Text className="text-primary dark:text-[#00C08B] text-base font-bold">
                 Connect Meteor wallet
               </Text>
             </TouchableOpacity>

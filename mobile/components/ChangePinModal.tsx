@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Modal, View, Text, TouchableOpacity, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 import { PinPad } from './PinPad';
 import { usePin, PIN_LENGTH } from '../hooks/usePin';
 import { Icon } from './Icon';
@@ -14,6 +15,8 @@ export function ChangePinModal({
   hasPin: boolean;
   onClose: () => void;
 }) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { verifyPin, savePin } = usePin();
 
   const [stage, setStage] = useState<Stage>(hasPin ? 'verify' : 'create');
@@ -116,7 +119,7 @@ export function ChangePinModal({
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top', 'bottom']}>
         {/* Header */}
         <View className="flex-row justify-between items-center px-4 pt-4 pb-3">
           <TouchableOpacity onPress={close}>
@@ -131,9 +134,13 @@ export function ChangePinModal({
             <View className="items-center gap-4">
               <View
                 className="w-20 h-20 rounded-full items-center justify-center"
-                style={{ backgroundColor: '#F0FDF4', borderWidth: 1.5, borderColor: '#BBF7D0' }}
+                style={{
+                  backgroundColor: isDark ? 'rgba(0,192,139,0.15)' : '#F0FDF4',
+                  borderWidth: 1.5,
+                  borderColor: isDark ? 'rgba(0,192,139,0.3)' : '#BBF7D0',
+                }}
               >
-                <Icon name="checkmark" size={36} color="#16A34A" />
+                <Icon name="checkmark" size={36} color={isDark ? '#00C08B' : '#16A34A'} />
               </View>
               <Text className="text-charcoal dark:text-white font-black text-2xl text-center">{t.title}</Text>
               <Text className="text-muted dark:text-[#A1A1AA] text-base text-center">{t.sub}</Text>
@@ -141,7 +148,7 @@ export function ChangePinModal({
           ) : (
             <>
               <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-7">
-                <Icon name="lock-closed-outline" size={34} color="#FFFFFF" />
+                <Icon name="lock-closed-outline" size={34} color="#000000" />
               </View>
               <Text className="text-charcoal dark:text-white text-[26px] font-black text-center leading-[32px] mb-1">
                 {t.title}

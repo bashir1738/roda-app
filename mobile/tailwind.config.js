@@ -10,14 +10,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary:  "#421F6D",
+        primary:  "#00C08B",
+        "primary-dark": "#008761",
+        "primary-light": "#1AD9A4",
+        near:     "#00C08B",
         surface:  "#FFFFFF",
         "surface-card": "#EDE6DC",
-        accent:   "#FFFFFF",
+        accent:   "#E6F9F3",
         alert:    "#C1440E",
-        sage:     "#B8A0C8",
-        charcoal: "#303030",
-        border:   "#D4C4E8",
+        sage:     "#7DD4BC",
+        charcoal: "#000000",
+        darkbg:   "#111111",
+        border:   "#BEEEDB",
         card:     "#FFFFFF",
         muted:    "#6B6B6B",
       },

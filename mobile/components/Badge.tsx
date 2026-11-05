@@ -9,12 +9,12 @@ type IoniconsName = IconName;
 const VARIANTS: Record<BadgeVariant, {
   className: string; textClass: string; label: string; icon?: IoniconsName; iconColor?: string;
 }> = {
-  active:     { className: 'bg-green-50 border border-green-200',    textClass: 'text-primary',   label: 'Active',    icon: 'radio-button-on', iconColor: '#4ADE80' },
-  recruiting: { className: 'bg-primary/10 border border-primary/20',    textClass: 'text-primary',    label: 'Recruiting',icon: 'person-add-outline', iconColor: '#FFFFFF' },
-  completed:  { className: 'bg-gray-100 border border-gray-200',     textClass: 'text-muted',     label: 'Completed', icon: 'checkmark-circle', iconColor: '#B8A0C8' },
-  yourTurn:   { className: 'bg-accent border border-accent',         textClass: 'text-primary',   label: 'Your turn!',icon: 'gift', iconColor: '#421F6D' },
-  matured:    { className: 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50', textClass: 'text-primary dark:text-white', label: 'Ready' },
-  locked:     { className: 'bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10', textClass: 'text-muted dark:text-white/80', label: 'Locked', icon: 'lock-closed-outline', iconColor: '#B8A0C8' },
+  active:     { className: 'bg-[#00C08B]/10 dark:bg-[#00C08B]/20 border border-[#00C08B]/30', textClass: 'text-primary dark:text-[#00C08B]', label: 'Active', icon: 'radio-button-on', iconColor: '#00C08B' },
+  recruiting: { className: 'bg-primary/10 dark:bg-[#00C08B]/20 border border-primary/20 dark:border-[#00C08B]/30', textClass: 'text-primary dark:text-[#00C08B]', label: 'Recruiting', icon: 'person-add-outline', iconColor: '#00C08B' },
+  completed:  { className: 'bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10', textClass: 'text-muted dark:text-[#A1A1AA]', label: 'Completed', icon: 'checkmark-circle', iconColor: '#A1A1AA' },
+  yourTurn:   { className: 'bg-[#00C08B]/15 dark:bg-[#00C08B]/25 border border-[#00C08B]/35', textClass: 'text-primary dark:text-[#00C08B]', label: 'Your turn!', icon: 'gift', iconColor: '#00C08B' },
+  matured:    { className: 'bg-[#00C08B]/15 dark:bg-[#00C08B]/20 border border-[#00C08B]/30 dark:border-[#00C08B]/40', textClass: 'text-primary dark:text-[#00C08B]', label: 'Ready' },
+  locked:     { className: 'bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10', textClass: 'text-muted dark:text-white/80', label: 'Locked', icon: 'lock-closed-outline', iconColor: '#A1A1AA' },
 };
 
 export function Badge({ variant, size = 'md' }: { variant: BadgeVariant; size?: 'sm' | 'md' }) {

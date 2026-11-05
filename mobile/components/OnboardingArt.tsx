@@ -4,11 +4,11 @@ import Svg, {
 } from 'react-native-svg';
 
 // Brand palette
-const FOREST = '#421F6D';
+const FOREST = '#00C08B';
 const GOLD = '#D49B2C';
-const CREAM = '#EDD2F8';
+const CREAM = '#E6F9F3';
 
-const SAGE = '#B8A0C8';
+const SAGE = '#7DD4BC';
 const CARD = '#FFFFFF';
 const TERRACOTTA = '#E07A5F';
 

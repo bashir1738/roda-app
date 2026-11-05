@@ -8,10 +8,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useWallet } from '../../providers/WalletContext';
 import { Icon } from '../../components/Icon';
+import { useColorScheme } from 'nativewind';
 
-const CREAM  = '#FFFFFF';
-const FOREST = '#421F6D';
-const GOLD   = '#FFFFFF';
+const NEAR_GREEN = '#00C08B';
 
 interface Slide {
   key: string;
@@ -48,6 +47,8 @@ export default function Onboarding() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { connect, isConnected } = useWallet();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const scrollX     = useRef(new Animated.Value(0)).current;
   const scrollXDots = useRef(new Animated.Value(0)).current;
@@ -83,8 +84,8 @@ export default function Onboarding() {
     setIndex(Math.round(e.nativeEvent.contentOffset.x / width));
 
   return (
-    <View style={styles.root}>
-      
+    <View style={[styles.root, { backgroundColor: isDark ? '#111111' : '#FFFFFF' }]}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
 
       {/* ── Image area ── */}
       <View style={{ height: IMAGE_H }}>
@@ -122,14 +123,14 @@ export default function Onboarding() {
         <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
           <View style={styles.logoRow}>
             <View style={styles.logoIcon}>
-              <Icon name="leaf" size={14} color={GOLD} />
+              <Icon name="leaf" size={14} color="#000000" />
             </View>
             <Text style={styles.logoText}>Roda</Text>
           </View>
           {!isLast && (
             <TouchableOpacity
               onPress={skipToLast}
-              style={styles.skipBtn}
+              style={[styles.skipBtn, isDark && { backgroundColor: 'rgba(255,255,255,0.2)' }]}
               accessibilityLabel="Skip"
             >
               <Text style={styles.skipText}>Skip</Text>
@@ -140,9 +141,9 @@ export default function Onboarding() {
       </View>
 
       {/* ── Bottom card — overlaps image ── */}
-      <View style={[styles.card, { marginTop: -OVERLAP, paddingBottom: insets.bottom + 24 }]}>
+      <View style={[styles.card, { backgroundColor: isDark ? '#111111' : '#FFFFFF', marginTop: -OVERLAP, paddingBottom: insets.bottom + 24 }]}>
 
-        {/* Dots — inside card, left-aligned, forest green active pill */}
+        {/* Dots — inside card, left-aligned, NEAR green active pill */}
         <View style={styles.dotsWrap}>
           {SLIDES.map((_, i) => {
             const ir = [(i - 1) * width, i * width, (i + 1) * width];
@@ -160,15 +161,15 @@ export default function Onboarding() {
                 style={{ marginRight: 6 }}
               >
                 <Animated.View
-                  style={[styles.dot, { width: dotW, backgroundColor: i === index ? FOREST : '#D1D5DB' }]}
+                  style={[styles.dot, { width: dotW, backgroundColor: i === index ? NEAR_GREEN : (isDark ? 'rgba(255,255,255,0.2)' : '#D1D5DB') }]}
                 />
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <Text style={styles.title}>{SLIDES[index].title}</Text>
-        <Text style={styles.body}>{SLIDES[index].body}</Text>
+        <Text style={[styles.title, { color: isDark ? '#FFFFFF' : '#000000' }]}>{SLIDES[index].title}</Text>
+        <Text style={[styles.body, { color: isDark ? '#A1A1AA' : '#6B7280' }]}>{SLIDES[index].body}</Text>
 
         <View style={styles.btnRow}>
           {isLast ? (
@@ -180,11 +181,11 @@ export default function Onboarding() {
                 accessibilityLabel="Get started"
               >
                 {connecting ? (
-                  <ActivityIndicator color={GOLD} />
+                  <ActivityIndicator color="#000000" />
                 ) : (
                   <>
                     <Text style={styles.btnText}>Get Started</Text>
-                    <Icon name="arrow-forward" size={16} color={GOLD} />
+                    <Icon name="arrow-forward" size={16} color="#000000" />
                   </>
                 )}
               </TouchableOpacity>
@@ -192,7 +193,7 @@ export default function Onboarding() {
                 style={styles.btnLater}
                 onPress={() => router.replace('/(tabs)')}
               >
-                <Text style={styles.btnLaterText}>I'll do this later</Text>
+                <Text style={[styles.btnLaterText, isDark && { color: '#8E8E93' }]}>I'll do this later</Text>
               </TouchableOpacity>
             </>
           ) : (
@@ -202,7 +203,7 @@ export default function Onboarding() {
               accessibilityLabel="Next"
             >
               <Text style={styles.btnText}>Next</Text>
-              <Icon name="arrow-forward" size={16} color={GOLD} />
+              <Icon name="arrow-forward" size={16} color="#000000" />
             </TouchableOpacity>
           )}
         </View>
@@ -259,7 +260,7 @@ function ImagePage({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: CREAM },
+  root: { flex: 1, backgroundColor: '#111111' },
 
   topBar: {
     position: 'absolute',
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   logoIcon: {
     width: 30, height: 30, borderRadius: 10,
-    backgroundColor: FOREST,
+    backgroundColor: NEAR_GREEN,
     alignItems: 'center', justifyContent: 'center',
   },
   logoText: { color: '#FFFFFF', fontSize: 20, fontWeight: '900', letterSpacing: -0.5 },
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
 
   card: {
     flex: 1,
-    backgroundColor: CREAM,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 28,
@@ -329,8 +330,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 48,
     borderRadius: 100,
   },
-  btnPrimary: { backgroundColor: FOREST },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  btnPrimary: { backgroundColor: NEAR_GREEN },
+  btnText: { color: '#000000', fontSize: 16, fontWeight: '700' },
   btnLater: { paddingVertical: 4 },
   btnLaterText: { color: '#9CA3AF', fontSize: 14 },
 });

@@ -18,7 +18,7 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
     <View className="items-center py-6 gap-3 px-4">
       {txState === 'signing' && (
         <>
-          <Icon name="sync-outline" size={38} color="#421F6D" spin />
+          <Icon name="sync-outline" size={38} color="#00C08B" spin />
           <Text className="text-charcoal dark:text-white font-semibold text-base text-center">
             Waiting for wallet signature…
           </Text>
@@ -28,7 +28,7 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
 
       {txState === 'confirming' && (
         <>
-          <Icon name="sync-outline" size={38} color="#421F6D" spin />
+          <Icon name="sync-outline" size={38} color="#00C08B" spin />
           <Text className="text-charcoal dark:text-white font-semibold text-base text-center">
             Confirming on-chain…
           </Text>
@@ -38,15 +38,15 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
 
       {txState === 'success' && (
         <>
-          <View className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/25 border-2 border-green-200 dark:border-green-700 items-center justify-center">
-            <Icon name="checkmark-circle" size={40} color="#4ADE80" pop />
+          <View className="w-16 h-16 rounded-full bg-green-50 dark:bg-[#00C08B]/15 border-2 border-green-200 dark:border-[#00C08B]/30 items-center justify-center">
+            <Icon name="checkmark-circle" size={40} color="#00C08B" pop />
           </View>
-          <Text className="text-primary dark:text-[#E8B4FF] font-black text-lg text-center">
+          <Text className="text-primary dark:text-[#00C08B] font-black text-lg text-center">
             {successMessage ?? 'Transaction confirmed!'}
           </Text>
           {txHash && (
             <View className="flex-row items-center gap-1.5 bg-white dark:bg-white/10 rounded-xl px-3 py-2">
-              <Icon name="link-outline" size={13} color="#C4B5FD" />
+              <Icon name="link-outline" size={13} color="#00C08B" />
               <Text className="text-muted dark:text-[#A1A1AA] text-xs font-mono">
                 {txHash.slice(0, 10)}…{txHash.slice(-8)}
               </Text>
@@ -57,7 +57,7 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
             onPress={onReset}
             accessibilityLabel="Close"
           >
-            <Text className="text-white font-bold">Done</Text>
+            <Text className="text-black font-bold">Done</Text>
           </TouchableOpacity>
         </>
       )}

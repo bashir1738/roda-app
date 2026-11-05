@@ -23,7 +23,7 @@ function makeSvg(transparentBg, scaleMultiplier) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
     ${bg}
     <!-- Transform from center (256, 256) to ensure the leaf stays centered when scaled -->
-    <g transform="translate(256 256) scale(${scaleMultiplier}) translate(-256 -256) translate(46 46) scale(0.82)" fill="#421F6D">
+    <g transform="translate(256 256) scale(${scaleMultiplier}) translate(-256 -256) translate(46 46) scale(0.82)" fill="#00C08B">
       <path d="${LEAF_PATH1}"/>
       <path d="${LEAF_PATH2}"/>
     </g>
@@ -40,13 +40,13 @@ async function renderIcon(size, opts, filename) {
 }
 
 async function run() {
-  // App icon (1024) — full purple bg
+  // App icon (1024) — white bg with NEAR green mark
   await renderIcon(1024, { transparentBg: false }, 'icon.png');
   // Adaptive icon foreground (1024) — transparent bg, larger safe-area scale
   await renderIcon(1024, { transparentBg: true, scale: 0.78 }, 'adaptive-icon.png');
-  // Splash (1024) — transparent bg (app.json will add purple), smaller mark
+  // Splash (1024) — transparent bg, smaller mark
   await renderIcon(1024, { transparentBg: true, scale: 0.9 }, 'splash-icon.png');
-  // Favicon (48) — full purple bg
+  // Favicon (48) — white bg with NEAR green mark
   await renderIcon(48, { transparentBg: false }, 'favicon.png');
   
   console.log('Done generating Roda icons.');

@@ -71,10 +71,20 @@ function AppContent() {
     return () => sub.remove();
   }, []);
 
+  const isDark = colorScheme === 'dark';
+
   return (
-    <View className={colorScheme === 'dark' ? 'dark flex-1' : 'flex-1'} style={{ flex: 1 }}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
+    <View
+      className={isDark ? 'dark flex-1 bg-[#111111]' : 'flex-1 bg-[#FDFBF7]'}
+      style={{ flex: 1, backgroundColor: isDark ? '#111111' : '#FDFBF7' }}
+    >
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: isDark ? '#111111' : '#FDFBF7' },
+        }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />

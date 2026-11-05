@@ -12,7 +12,7 @@ import { getNotificationsEnabled, setNotificationsEnabled } from '../../hooks/us
 function fmtAddr(addr: string) { return `${addr.slice(0, 6)}…${addr.slice(-4)}`; }
 
 function SettingRow({
-  icon, iconBg, iconColor = '#421F6D', label, labelColor = '#303030', right, isDark = false,
+  icon, iconBg, iconColor = '#00C08B', label, labelColor = '#303030', right, isDark = false,
 }: {
   icon: IconName;
   iconBg: string; iconColor?: string; label: string; labelColor?: string;
@@ -55,20 +55,20 @@ export default function ProfileTab() {
 
   if (!isConnected) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top']}>
         <View className="flex-row justify-end px-5 pt-3">
           <ProfileButton onPress={openSidebar} />
         </View>
         <View className="flex-1 items-center justify-center gap-4 px-10">
-          <View className="w-20 h-20 rounded-full bg-primary/10 dark:bg-[rgba(192,132,252,0.15)] items-center justify-center">
-            <Icon name="person-outline" size={36} color={isDark ? '#C084FC' : '#421F6D'} />
+          <View className="w-20 h-20 rounded-full bg-primary/10 dark:bg-[rgba(0,192,139,0.15)] items-center justify-center">
+            <Icon name="person-outline" size={36} color={isDark ? '#00C08B' : '#00C08B'} />
           </View>
           <Text className="text-charcoal dark:text-white text-xl font-black text-center">You're signed out</Text>
           <Text className="text-muted dark:text-[#A1A1AA] text-sm text-center leading-relaxed">
             Sign in with your email to see your profile and manage settings.
           </Text>
           <TouchableOpacity className="bg-primary rounded-full px-8 py-3.5 mt-2" onPress={connect}>
-            <Text className="text-white font-bold">Sign in</Text>
+            <Text className="text-black font-bold">Sign in</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -76,17 +76,17 @@ export default function ProfileTab() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top']}>
       <View className="flex-row justify-end px-5 pt-3">
         <ProfileButton onPress={openSidebar} />
       </View>
-      <ScrollView className="flex-1 bg-white dark:bg-[#121212]" contentContainerClassName="pb-12" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1 bg-white dark:bg-[#111111]" contentContainerClassName="pb-12" showsVerticalScrollIndicator={false}>
 
         {/* Hero */}
-        <View className="bg-white dark:bg-[#121212] px-5 pt-6 pb-14 items-center">
+        <View className="bg-white dark:bg-[#111111] px-5 pt-6 pb-14 items-center">
           <View className="w-20 h-20 rounded-full items-center justify-center mb-4"
             style={{ backgroundColor: isDark ? '#3A3A3C' : '#F3F4F6' }}>
-            <Icon name="person" size={38} color={isDark ? '#C084FC' : '#421F6D'} />
+            <Icon name="person" size={38} color={isDark ? '#00C08B' : '#00C08B'} />
           </View>
           {email ? (
             <Text
@@ -103,26 +103,26 @@ export default function ProfileTab() {
         </View>
 
         {/* Settings card */}
-        <View className="mx-4 -mt-8 bg-white dark:bg-[#121212] rounded-3xl overflow-hidden"
-          style={{ shadowColor: '#421F6D', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
+        <View className="mx-4 -mt-8 bg-white dark:bg-[#1C1C1E] border border-border/50 dark:border-white/10 rounded-3xl overflow-hidden"
+          style={{ shadowColor: '#000000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
 
           <SettingRow
             icon="moon-outline"
-            iconBg={isDark ? 'rgba(192,132,252,0.15)' : 'rgba(66,31,109,0.12)'}
-            iconColor={isDark ? '#C084FC' : '#421F6D'}
+            iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
+            iconColor={isDark ? '#00C08B' : '#00C08B'}
             label="Dark Mode"
             right={<Switch value={colorScheme === 'dark'} onValueChange={(val) => setColorScheme(val ? 'dark' : 'light')} />}
           />
           <SettingRow
             icon="notifications-outline"
-            iconBg={isDark ? 'rgba(192,132,252,0.15)' : 'rgba(66,31,109,0.12)'}
-            iconColor={isDark ? '#C084FC' : '#421F6D'}
+            iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
+            iconColor={isDark ? '#00C08B' : '#00C08B'}
             label="Push Notifications"
             right={
               <Switch
                 value={notifEnabled}
                 onValueChange={toggleNotifications}
-                trackColor={{ false: '#D4C4E8', true: '#421F6D' }}
+                trackColor={{ false: isDark ? '#3A3A3C' : '#BEEEDB', true: '#00C08B' }}
                 thumbColor="#FFFFFF"
               />
             }
@@ -141,11 +141,11 @@ export default function ProfileTab() {
         </View>
 
         {/* Network */}
-        <View className="mx-4 mt-4 bg-white dark:bg-[#121212] rounded-3xl px-5 py-4"
-          style={{ shadowColor: '#421F6D', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}>
+        <View className="mx-4 mt-4 bg-white dark:bg-[#1C1C1E] border border-border/50 dark:border-white/10 rounded-3xl px-5 py-4"
+          style={{ shadowColor: '#000000', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}>
           <Text className="text-muted dark:text-[#A1A1AA] text-xs uppercase tracking-widest mb-3">Network</Text>
           <View className="flex-row items-center gap-2.5">
-            <View className="w-2 h-2 rounded-full bg-green-400" />
+            <View className="w-2 h-2 rounded-full bg-[#00C08B]" />
             <Text className="text-charcoal dark:text-white text-sm font-semibold">NEAR Testnet</Text>
           </View>
         </View>

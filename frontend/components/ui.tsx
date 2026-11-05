@@ -79,8 +79,8 @@ export function buttonClasses(
   const base =
     "inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-sm font-medium transition-colors duration-200";
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary-light",
-    "primary-inverted": "bg-white text-primary hover:bg-lavender",
+    primary: "bg-primary text-black hover:bg-primary-light font-semibold",
+    "primary-inverted": "bg-white text-charcoal hover:bg-lavender font-semibold",
     secondary:
       "border border-border-subtle bg-transparent text-charcoal hover:bg-surface-sand",
     "secondary-inverted":

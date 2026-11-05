@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useColorScheme } from 'nativewind';
 import { useWallet } from '../providers/WalletContext';
 import { Icon } from './Icon';
 
@@ -9,6 +10,8 @@ function shortAddr(addr: string) {
 }
 
 export function WalletButton() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { address, isConnected, connect } = useWallet();
   const [copied, setCopied] = useState(false);
 
@@ -30,7 +33,7 @@ export function WalletButton() {
         <Icon
           name={copied ? 'checkmark-circle' : 'copy-outline'}
           size={13}
-          color={copied ? '#4ADE80' : '#6B6B6B'}
+          color={copied ? '#00C08B' : (isDark ? '#A1A1AA' : '#6B6B6B')}
         />
         <Text className="text-charcoal dark:text-white text-xs font-semibold">
           {copied ? 'Copied!' : shortAddr(address)}
@@ -41,12 +44,12 @@ export function WalletButton() {
 
   return (
     <TouchableOpacity
-      className="flex-row items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full"
+      className="flex-row items-center gap-1.5 bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 px-3 py-1.5 rounded-full"
       onPress={connect}
       accessibilityLabel="Sign in"
     >
-      <Icon name="log-in-outline" size={14} color="#421F6D" />
-      <Text className="text-primary text-xs font-semibold">Sign in</Text>
+      <Icon name="log-in-outline" size={14} color="#00C08B" />
+      <Text className="text-primary dark:text-[#00C08B] text-xs font-semibold">Sign in</Text>
     </TouchableOpacity>
   );
 }

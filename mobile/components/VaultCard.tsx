@@ -29,13 +29,13 @@ export function VaultCard({ vault, onClaim }: { vault: VaultData; onClaim: () =>
   const isDark = colorScheme === 'dark';
 
   return (
-    <View className="bg-white dark:bg-[#121212] border border-transparent dark:border-white/5 rounded-2xl p-5 mb-4"
+    <View className="bg-white dark:bg-[#1C1C1E] border border-border/50 dark:border-white/5 rounded-2xl p-5 mb-4"
       style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-row items-center gap-3">
           <View className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-white/10 items-center justify-center">
-            <Icon name={tier.icon as any} size={22} color={isDark ? '#C084FC' : '#421F6D'} />
+            <Icon name={tier.icon as any} size={22} color={isDark ? '#00C08B' : '#00C08B'} />
           </View>
           <View>
             <Text className="text-charcoal dark:text-white font-bold text-base">{tier.label} Vault</Text>
@@ -48,7 +48,7 @@ export function VaultCard({ vault, onClaim }: { vault: VaultData; onClaim: () =>
       </View>
 
       {/* Amount */}
-      <View className="bg-[#F8F9FA] dark:bg-[#1C1C1E] rounded-xl p-4 mb-4 mt-1">
+      <View className="bg-[#F8F9FA] dark:bg-[#111111] rounded-xl p-4 mb-4 mt-1">
         <Text className="text-muted dark:text-[#A1A1AA] text-[11px] uppercase tracking-wider mb-1">Current Balance</Text>
         <Text className="text-charcoal dark:text-white font-bold text-lg">${fmtUSDC(vault.currentBalanceUSDC)}</Text>
       </View>
@@ -58,25 +58,25 @@ export function VaultCard({ vault, onClaim }: { vault: VaultData; onClaim: () =>
         <View className="gap-1.5 mb-4">
           <View className="flex-row justify-between">
             <View className="flex-row items-center gap-1">
-              {vault.isMatured && <Icon name="checkmark" size={12} color="#16A34A" />}
+              {vault.isMatured && <Icon name="checkmark" size={12} color="#00C08B" />}
               <Text className="text-muted dark:text-[#A1A1AA] text-xs">
                 {vault.isMatured ? 'Matured' : timeLeft(vault.maturityTimestamp)}
               </Text>
             </View>
             <Text className="text-muted dark:text-[#A1A1AA] text-xs">{Math.round(pct * 100)}%</Text>
           </View>
-          <ProgressBar progress={pct} color={vault.isMatured ? '#4ADE80' : '#FFFFFF'} />
+          <ProgressBar progress={pct} color={vault.isMatured ? '#00C08B' : '#00C08B'} />
         </View>
       )}
 
       {/* Claim button */}
       {vault.isMatured && (
         <TouchableOpacity
-          className="bg-primary/10 dark:bg-white/10 border border-transparent dark:border-white/10 rounded-xl py-3 items-center flex-row justify-center gap-2 mt-2"
+          className="bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 rounded-xl py-3 items-center flex-row justify-center gap-2 mt-2"
           onPress={onClaim}
           accessibilityLabel={`Claim ${tier.label} vault`}
         >
-          <Text className="text-primary dark:text-white font-bold text-sm">
+          <Text className="text-primary dark:text-[#00C08B] font-bold text-sm">
             Claim ${fmtUSDC(vault.principalUSDC)}
           </Text>
         </TouchableOpacity>

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -18,6 +19,8 @@ interface AjoPotProps {
 }
 
 export function AjoPot({ fillPercent, size = 120, animated = true }: AjoPotProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const scale = useSharedValue(1);
   const target = Math.max(0, Math.min(100, fillPercent));
   const isFull = target >= 100;
@@ -48,11 +51,19 @@ export function AjoPot({ fillPercent, size = 120, animated = true }: AjoPotProps
   return (
     <View style={[styles.container, { width: size, height: size * 1.25 }]}>
       <Animated.View style={[styles.iconWrap, bankStyle]}>
-        <View style={[styles.iconBadge, { width: size * 0.88, height: size * 0.88, borderRadius: size * 0.44 }]}>
+        <View style={[
+          styles.iconBadge,
+          {
+            width: size * 0.88,
+            height: size * 0.88,
+            borderRadius: size * 0.44,
+            backgroundColor: isDark ? 'rgba(0,192,139,0.15)' : '#E6F9F3',
+          },
+        ]}>
           <Ionicons
             name="people"
             size={size * 0.7}
-            color="#421F6D"
+            color="#00C08B"
           />
         </View>
       </Animated.View>
@@ -80,24 +91,24 @@ const styles = StyleSheet.create({
   },
   iconBadge: {
     alignItems: 'center',
-    backgroundColor: '#E9D5FF',
-    borderColor: '#C084FC',
+    backgroundColor: '#E6F9F3',
+    borderColor: '#00C08B',
     borderWidth: 3,
     justifyContent: 'center',
-    shadowColor: '#C084FC',
+    shadowColor: '#00C08B',
     shadowOpacity: 0.45,
     shadowRadius: 12,
     elevation: 6,
   },
   progressTrack: {
-    backgroundColor: 'rgba(216, 180, 254, 0.18)',
+    backgroundColor: 'rgba(0, 192, 139, 0.18)',
     borderRadius: 6,
     height: 7,
     marginTop: 7,
     overflow: 'hidden',
   },
   progress: {
-    backgroundColor: '#A855F7',
+    backgroundColor: '#00C08B',
     borderRadius: 6,
     height: '100%',
   },

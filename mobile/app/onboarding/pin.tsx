@@ -5,6 +5,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
+import { useColorScheme } from 'nativewind';
 import { useAuth } from '../../contexts/AuthContext';
 import { PinPad, PIN_LENGTH } from '../../components/PinPad';
 import { Icon } from '../../components/Icon';
@@ -12,6 +13,8 @@ import { Icon } from '../../components/Icon';
 type Step = 'enter' | 'confirm' | 'done';
 
 export default function PinSetup() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const router = useRouter();
   const { setupPin } = useAuth();
 
@@ -63,19 +66,23 @@ export default function PinSetup() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top', 'bottom']}>
       
 
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 }}>
         {step !== 'done' && (
           <>
-            <View style={{ width: 64, height: 64, borderRadius: 22, backgroundColor: '#E8D8F8', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-              <Icon name="lock-closed-outline" size={30} color="#421F6D" />
+            <View style={{
+              width: 64, height: 64, borderRadius: 22,
+              backgroundColor: isDark ? 'rgba(0,192,139,0.15)' : '#E6F9F3',
+              alignItems: 'center', justifyContent: 'center', marginBottom: 20,
+            }}>
+              <Icon name="lock-closed-outline" size={30} color="#00C08B" />
             </View>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: '#303030', marginBottom: 8 }}>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: isDark ? '#FFFFFF' : '#303030', marginBottom: 8 }}>
               {step === 'enter' ? 'Create your PIN' : 'Confirm your PIN'}
             </Text>
-            <Text style={{ fontSize: 14, color: '#6B6B6B', textAlign: 'center', marginBottom: 36, lineHeight: 20 }}>
+            <Text style={{ fontSize: 14, color: isDark ? '#A1A1AA' : '#6B6B6B', textAlign: 'center', marginBottom: 36, lineHeight: 20 }}>
               {step === 'enter' ? 'Choose a 4-digit PIN to secure your account.' : 'Enter the same PIN again to confirm.'}
             </Text>
             <PinPad
@@ -91,17 +98,20 @@ export default function PinSetup() {
           <>
             <View
               style={{
-                width: 80, height: 80, borderRadius: 40, backgroundColor: '#F0FDF4',
-                borderWidth: 1.5, borderColor: '#BBF7D0', alignItems: 'center', justifyContent: 'center',
+                width: 80, height: 80, borderRadius: 40,
+                backgroundColor: isDark ? 'rgba(0,192,139,0.15)' : '#F0FDF4',
+                borderWidth: 1.5,
+                borderColor: isDark ? 'rgba(0,192,139,0.3)' : '#BBF7D0',
+                alignItems: 'center', justifyContent: 'center',
                 marginBottom: 24,
               }}
             >
-              <Icon name="checkmark" size={44} color="#16A34A" />
+              <Icon name="checkmark" size={44} color={isDark ? '#00C08B' : '#16A34A'} />
             </View>
-            <Text style={{ fontSize: 28, fontWeight: '800', color: '#303030', marginBottom: 8 }}>
+            <Text style={{ fontSize: 28, fontWeight: '800', color: isDark ? '#FFFFFF' : '#303030', marginBottom: 8 }}>
               All set!
             </Text>
-            <Text style={{ fontSize: 15, color: '#6B6B6B', textAlign: 'center', marginBottom: 36 }}>
+            <Text style={{ fontSize: 15, color: isDark ? '#A1A1AA' : '#6B6B6B', textAlign: 'center', marginBottom: 36 }}>
               Your PIN is secure. You'll use it to authorize transactions.
             </Text>
           </>

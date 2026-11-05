@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { VAULT_TIERS, type VaultTier } from '../hooks/useVaults';
 import { useDeposit } from '../hooks/useDeposit';
 import { TxStateView } from './TxStateView';
@@ -13,6 +14,8 @@ function fmtUSDC(n: bigint) {
 export function DepositModal({ tier, visible, onClose }: {
   tier: VaultTier; visible: boolean; onClose: () => void;
 }) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const t = VAULT_TIERS[tier];
   const { deposit, txState, txHash, error, reset, isPending } = useDeposit();
   const [rawAmt, setRawAmt] = useState('');
@@ -28,14 +31,14 @@ export function DepositModal({ tier, visible, onClose }: {
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
-      <View className="flex-1 bg-[#FDFBF7] dark:bg-[#121212]">
+      <View className="flex-1 bg-[#FDFBF7] dark:bg-[#111111]">
         {/* Header */}
-        <View className="flex-row justify-between items-center px-4 pt-5 pb-3 border-b border-border/50 dark:border-white/5 bg-white dark:bg-[#121212]">
+        <View className="flex-row justify-between items-center px-4 pt-5 pb-3 border-b border-border/50 dark:border-white/5 bg-white dark:bg-[#111111]">
           <TouchableOpacity onPress={handleClose} accessibilityLabel="Close">
             <Text className="text-muted dark:text-[#A1A1AA] text-base">Cancel</Text>
           </TouchableOpacity>
           <View className="flex-row items-center gap-2">
-            <Icon name={t.icon as any} size={20} color="#421F6D" />
+            <Icon name={t.icon as any} size={20} color="#00C08B" />
             <Text className="text-charcoal dark:text-white font-bold text-xl">{tier} Vault</Text>
           </View>
           <View style={{ width: 52 }} />
@@ -70,7 +73,7 @@ export function DepositModal({ tier, visible, onClose }: {
                 {quickFills.map((m, i) => (
                   <TouchableOpacity
                     key={m}
-                    className="flex-1 bg-white dark:bg-[#121212] border border-border dark:border-white/10 rounded-2xl py-2.5 items-center"
+                    className="flex-1 bg-white dark:bg-[#1C1C1E] border border-border dark:border-white/10 rounded-2xl py-2.5 items-center"
                     onPress={() => setRawAmt(String(m))}
                   >
                     <Text className="text-charcoal dark:text-white font-semibold text-sm">
@@ -116,14 +119,22 @@ export function DepositModal({ tier, visible, onClose }: {
 
               <TouchableOpacity
                 className={`rounded-full py-4 items-center flex-row justify-center gap-2 ${
-                  meetsMin ? 'bg-primary' : 'bg-primary/30'
+                  meetsMin ? 'bg-primary shadow-sm' : 'bg-primary/25 dark:bg-[#00C08B]/20'
                 }`}
                 onPress={() => deposit({ tier: t.tier, amountIn })}
                 disabled={!meetsMin || isPending}
                 accessibilityLabel="Sign and send deposit"
               >
-                <Icon name="wallet" size={18} color={meetsMin ? 'white' : 'rgba(255,255,255,0.5)'} />
-                <Text className={`font-bold text-base ${meetsMin ? 'text-white' : 'text-white/50'}`}>
+                <Icon
+                  name="wallet"
+                  size={18}
+                  color={meetsMin ? '#000000' : (isDark ? '#00C08B' : 'rgba(0,0,0,0.4)')}
+                />
+                <Text
+                  className={`font-bold text-base ${
+                    meetsMin ? 'text-black' : (isDark ? 'text-[#00C08B]/60' : 'text-black/40')
+                  }`}
+                >
                   {!meetsMin
                     ? t.minUSDC > 0
                       ? `Min ${t.minUSDC} USDC`

@@ -82,7 +82,7 @@ export function PrivateKeyModal({ visible, address, onClose }: Props) {
               </Text>
               {loading ? (
                 <View className="py-6 items-center">
-                  <ActivityIndicator size="small" color="#421F6D" />
+                  <ActivityIndicator size="small" color="#00C08B" />
                 </View>
               ) : error ? (
                 <Text className="text-red-500 text-sm leading-5">{error}</Text>
@@ -107,8 +107,8 @@ export function PrivateKeyModal({ visible, address, onClose }: Props) {
               style={{ opacity: !privateKey || loading ? 0.4 : 1 }}
               accessibilityLabel="Copy private key"
             >
-              <Icon name={copied ? 'checkmark-circle' : 'copy-outline'} size={16} color="#FFFFFF" />
-              <Text className="text-white font-bold text-sm">{copied ? 'Copied!' : 'Copy Key'}</Text>
+              <Icon name={copied ? 'checkmark-circle' : 'copy-outline'} size={16} color="#000000" />
+              <Text className="text-black font-bold text-sm">{copied ? 'Copied!' : 'Copy Key'}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="flex-1 bg-transparent border border-border dark:border-white/15 rounded-xl py-3.5 items-center justify-center"

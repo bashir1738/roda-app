@@ -43,7 +43,7 @@ interface TokenDef {
 }
 
 const TOKENS: TokenDef[] = [
-  { symbol: 'NEAR', name: 'NEAR',     bg: '#00EC97', fg: '#fff', label: 'N' },
+  { symbol: 'NEAR', name: 'NEAR',     bg: '#00C08B', fg: '#000', label: 'N' },
   { symbol: 'USDC', name: 'USD Coin', bg: '#2775CA', fg: '#fff', label: '$' },
 ];
 
@@ -122,7 +122,7 @@ function TokenRow({
       {/* Balance */}
       <View style={{ alignItems: 'flex-end' }}>
         {isLoading ? (
-          <ActivityIndicator size="small" color="#421F6D" />
+          <ActivityIndicator size="small" color="#00C08B" />
         ) : (
           <Text style={{ color: textPrimary, fontSize: 15, fontWeight: '700' }}>{formatted}</Text>
         )}
@@ -149,13 +149,13 @@ function AssetsHeader({
 }) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const textPrimary = isDark ? '#FFFFFF' : '#16141a';
+  const textPrimary = isDark ? '#FFFFFF' : '#000000';
   const textMuted   = isDark ? '#8E8E93' : '#6B6B6B';
   const cardBg      = isDark ? '#1C1C1E' : '#FFFFFF';
   const cardBorder  = isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC';
-  const chipActiveBg   = isDark ? '#C084FC' : '#16141a';
+  const chipActiveBg   = isDark ? '#00C08B' : '#000000';
   const chipInactiveBg = isDark ? '#2C2C2E' : '#F3F4F6';
-  const chipActiveBorder   = isDark ? '#C084FC' : '#16141a';
+  const chipActiveBorder   = isDark ? '#00C08B' : '#000000';
   const chipInactiveBorder = isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB';
 
   const { data: prices } = useTokenPrices();
@@ -163,7 +163,7 @@ function AssetsHeader({
   return (
     <>
       {/* Token list */}
-      <View style={{ marginHorizontal: 20, marginTop: 16, marginBottom: 4, backgroundColor: cardBg, borderRadius: 24, borderWidth: 1, borderColor: cardBorder, overflow: 'hidden', shadowColor: '#421F6D', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 }}>
+      <View style={{ marginHorizontal: 20, marginTop: 16, marginBottom: 4, backgroundColor: cardBg, borderRadius: 24, borderWidth: 1, borderColor: cardBorder, overflow: 'hidden', shadowColor: '#000000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.04, shadowRadius: 12, elevation: 2 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10 }}>
           <Icon name="layers-outline" size={13} color={textMuted} />
           <Text style={{ color: textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 }}>
@@ -215,6 +215,8 @@ function AssetsHeader({
 // ── Main tab ──────────────────────────────────────────────────────────────────
 
 export default function WalletTab() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { isConnected, address, walletKind, connect } = useWallet();
   const { openSidebar } = useProfileSidebar();
   const [active, setActive] = useState<Filter>('All');
@@ -244,9 +246,9 @@ export default function WalletTab() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#121212]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-[#111111]" edges={['top']}>
       {/* Header */}
-      <View className="bg-white dark:bg-[#121212] px-5 pt-3 pb-6">
+      <View className="bg-white dark:bg-[#111111] px-5 pt-3 pb-6">
         <View className="flex-row justify-between items-start">
           <View>
             <Text className="text-charcoal dark:text-white text-3xl font-bold tracking-tight mt-2">Wallet</Text>
@@ -268,8 +270,8 @@ export default function WalletTab() {
               className="flex-row items-center gap-4 mt-4 bg-white dark:bg-[#1C1C1E] border border-border/50 dark:border-white/5 rounded-full px-4 py-3" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 1 }}
               accessibilityLabel="Copy wallet address"
             >
-              <View className="w-10 h-10 rounded-full bg-border/50 dark:bg-white items-center justify-center">
-                <Icon name="wallet-outline" size={16} color="#16141a" />
+              <View className="w-10 h-10 rounded-full bg-border/50 dark:bg-white/10 items-center justify-center">
+                <Icon name="wallet-outline" size={16} color={isDark ? '#00C08B' : '#000000'} />
               </View>
               <Text className="flex-1 text-charcoal dark:text-white font-bold text-sm font-mono" numberOfLines={1}>
                 {fmtAddr(address)}
@@ -277,7 +279,7 @@ export default function WalletTab() {
               <Icon
                 name={copied ? 'checkmark' : 'copy-outline'}
                 size={16}
-                color={copied ? '#4ADE80' : '#6B6B6B'}
+                color={copied ? '#00C08B' : (isDark ? '#AEAEB2' : '#6B6B6B')}
               />
             </TouchableOpacity>
 
@@ -287,15 +289,15 @@ export default function WalletTab() {
                 onPress={() => setShowSend(true)}
                 className="flex-1 flex-row items-center justify-center gap-2 bg-primary rounded-full py-4 shadow-sm"
               >
-                <Icon name="arrow-up-outline" size={16} color="#421F6D" />
-                <Text className="text-white font-bold text-sm">Send</Text>
+                <Icon name="arrow-up-outline" size={16} color="#000000" />
+                <Text className="text-black font-bold text-sm">Send</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={copyAddress}
-                className="flex-1 flex-row items-center justify-center gap-2 bg-primary rounded-full py-4 shadow-sm"
+                className="flex-1 flex-row items-center justify-center gap-2 bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/30 dark:border-[#00C08B]/40 rounded-full py-4"
               >
-                <Icon name={copied ? 'checkmark' : 'arrow-down-outline'} size={16} color={copied ? '#4ADE80' : '#421F6D'} />
-                <Text className={copied ? 'text-green-400 font-bold text-sm' : 'text-white font-bold text-sm'}>
+                <Icon name={copied ? 'checkmark' : 'arrow-down-outline'} size={16} color="#00C08B" />
+                <Text className="text-primary dark:text-[#00C08B] font-bold text-sm">
                   {copied ? 'Copied!' : 'Receive'}
                 </Text>
               </TouchableOpacity>
@@ -304,7 +306,7 @@ export default function WalletTab() {
         )}
       </View>
 
-      <View className="flex-1 bg-white dark:bg-[#121212] overflow-hidden">
+      <View className="flex-1 bg-white dark:bg-[#111111] overflow-hidden">
         {!isConnected ? (
           <EmptyState
             icon="wallet-outline"
@@ -319,7 +321,7 @@ export default function WalletTab() {
             renderItem={({ item }) => <TransactionItem tx={item} />}
             showsVerticalScrollIndicator={false}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#421F6D" colors={['#421F6D']} />
+              <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#00C08B" colors={['#00C08B']} />
             }
             ListHeaderComponent={
               <AssetsHeader
@@ -358,13 +360,13 @@ function EmptyState({
   return (
     <View className="flex-1 items-center justify-center gap-3 px-10 py-10">
       <View className="w-16 h-16 rounded-full bg-primary/10 items-center justify-center">
-        <Icon name={icon} size={30} color="#421F6D" />
+        <Icon name={icon} size={30} color="#00C08B" />
       </View>
       <Text className="text-charcoal dark:text-white font-bold text-xl">{title}</Text>
       <Text className="text-muted dark:text-[#A1A1AA] text-sm text-center">{subtitle}</Text>
       {action && (
         <TouchableOpacity className="bg-primary rounded-full px-6 py-3 mt-1" onPress={action.onPress}>
-          <Text className="text-white font-bold">{action.label}</Text>
+          <Text className="text-black font-bold">{action.label}</Text>
         </TouchableOpacity>
       )}
     </View>

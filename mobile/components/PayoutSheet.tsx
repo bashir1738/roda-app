@@ -33,12 +33,12 @@ export function PayoutSheet({ target, visible, onClose }: PayoutSheetProps) {
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
-      <View className="flex-1 bg-white dark:bg-[#121212]">
+      <View className="flex-1 bg-white dark:bg-[#111111]">
         {/* Drag handle */}
-        <View className="w-9 h-1 rounded-full bg-border self-center mt-3 mb-2" />
+        <View className="w-9 h-1 rounded-full bg-border dark:bg-white/20 self-center mt-3 mb-2" />
 
         {/* Header */}
-        <View className="flex-row justify-between items-center px-4 py-3 border-b border-border dark:border-white/10 bg-white dark:bg-[#121212]">
+        <View className="flex-row justify-between items-center px-4 py-3 border-b border-border dark:border-white/10 bg-white dark:bg-[#111111]">
           <TouchableOpacity onPress={handleClose} accessibilityLabel="Close">
             <Icon name="close" size={22} color="#6B6B6B" />
           </TouchableOpacity>
@@ -68,7 +68,7 @@ export function PayoutSheet({ target, visible, onClose }: PayoutSheetProps) {
               </View>
 
               <View className="flex-row items-center gap-2 justify-center">
-                <Icon name="swap-horizontal-outline" size={15} color="#10B981" />
+                <Icon name="swap-horizontal-outline" size={15} color="#00C08B" />
                 <Text className="text-muted dark:text-[#A1A1AA] text-sm">
                   Transfers to your wallet — no swap needed
                 </Text>
@@ -80,8 +80,8 @@ export function PayoutSheet({ target, visible, onClose }: PayoutSheetProps) {
                 onPress={handleClaim}
                 accessibilityLabel="Confirm payout"
               >
-                <Icon name="cash" size={20} color="white" />
-                <Text className="text-white font-bold text-base">
+                <Icon name="cash" size={20} color="#000000" />
+                <Text className="text-black font-bold text-base">
                   Confirm Payout →
                 </Text>
               </TouchableOpacity>

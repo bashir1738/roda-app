@@ -45,11 +45,11 @@ export function TransactionItem({ tx }: { tx: Transaction }) {
 
   // Icon badge background — green for income, neutral for outgoing (dark-aware)
   const iconBg = meta.isGreen
-    ? 'rgba(74, 222, 128, 0.15)'
+    ? (isDark ? 'rgba(0, 192, 139, 0.15)' : 'rgba(0, 192, 139, 0.12)')
     : (isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6');
   const iconColor = meta.isGreen
-    ? '#22c55e'
-    : (isDark ? '#AEAEB2' : '#16141a');
+    ? '#00C08B'
+    : (isDark ? '#AEAEB2' : '#000000');
 
   return (
     <View
@@ -74,7 +74,7 @@ export function TransactionItem({ tx }: { tx: Transaction }) {
 
       <View className="items-end gap-0.5">
         {tx.amountUSDC > 0n ? (
-          <Text className={`font-extrabold text-base ${meta.incoming ? 'text-[#22c55e]' : 'text-charcoal dark:text-white'}`}>
+          <Text className={`font-extrabold text-base ${meta.incoming ? 'text-[#00C08B]' : 'text-charcoal dark:text-white'}`}>
             {meta.incoming ? '+' : '-'}${fmtUSDC(tx.amountUSDC)}
           </Text>
         ) : (

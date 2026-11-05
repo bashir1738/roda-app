@@ -12,8 +12,8 @@ export function NearMark({ size = 24, color }: { size?: number; color?: string }
       {!color && (
         <Defs>
           <LinearGradient id="nearMarkGradient" x1="0" y1="24" x2="24" y2="0">
-            <Stop offset="0" stopColor="#00EC97" />
-            <Stop offset="1" stopColor="#7DE2C5" />
+            <Stop offset="0" stopColor="#00C08B" />
+            <Stop offset="1" stopColor="#1AD9A4" />
           </LinearGradient>
         </Defs>
       )}
