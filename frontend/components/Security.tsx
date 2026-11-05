@@ -54,9 +54,11 @@ export function Security() {
           </div>
 
           <div className="divide-y-2 divide-charcoal border-2 border-charcoal bg-white px-6 shadow-[6px_6px_0_#111]">
-            {ASSURANCES.map((a) => (
-              <div key={a.title} className="py-8">
-                <h3 className="text-base font-medium text-charcoal">{a.title}</h3>
+            {ASSURANCES.map((a, index) => (
+              <div key={a.title} className={`-mx-6 px-6 py-8 ${
+                index === 0 ? "bg-butter" : index === 1 ? "bg-sky" : "bg-[#9BE7B2]"
+              }`}>
+                <h3 className="text-base font-bold text-charcoal">{a.title}</h3>
                 <p className="mt-2 max-w-md text-[14px] leading-6 text-muted">
                   {a.body}
                 </p>

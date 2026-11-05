@@ -40,22 +40,22 @@ export function VaultTiers() {
         />
 
         <div className="mt-20 grid gap-4 lg:grid-cols-3">
-          {TIERS.map((t) => (
+          {TIERS.map((t, index) => (
             <div
               key={t.name}
               className={`flex flex-col rounded-xl border-2 border-charcoal p-8 shadow-[6px_6px_0_#111] sm:p-10 ${
-                t.popular ? "bg-butter relative" : "bg-white"
+                t.popular ? "bg-butter relative" : index === 0 ? "bg-sky" : "bg-[#9BE7B2]"
               }`}
             >
               {t.popular && (
                 <div className="absolute -right-2 -top-4 border-2 border-charcoal bg-blush px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-charcoal">Popular</div>
               )}
               <div className="flex items-baseline justify-between">
-                <h3 className={`text-lg font-medium ${t.popular ? "text-primary" : "text-charcoal"}`}>
+                <h3 className={`text-lg font-medium ${t.popular ? "text-[#765500]" : "text-charcoal"}`}>
                   {t.name}
                 </h3>
                 {t.popular && (
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#765500]">
                     Popular
                   </span>
                 )}

@@ -37,7 +37,7 @@ export function AppPreview() {
               {/* Profile Header */}
               <div className="mt-5 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-[13px] font-bold text-primary">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-[13px] font-bold text-[#765500]">
                     A
                   </div>
                   <span className="text-[14px] font-bold text-charcoal">Hi, Amara</span>
@@ -58,7 +58,7 @@ export function AppPreview() {
               {/* Action Buttons */}
               <div className="mt-7 flex justify-between gap-3">
                 <div className="flex flex-1 flex-col items-center gap-1.5">
-                  <div className="flex h-12 w-full items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-12 w-full items-center justify-center rounded-xl bg-primary/10 text-[#765500]">
                     <TrendingUpIcon className="h-5 w-5" />
                   </div>
                   <span className="text-[10px] font-semibold text-charcoal">Add Money</span>
@@ -81,7 +81,7 @@ export function AppPreview() {
               <div className="mt-9 flex-1">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-[13px] font-bold text-charcoal">Recent Activity</p>
-                  <span className="text-[11px] font-bold text-primary">See All</span>
+                  <span className="text-[11px] font-bold text-[#765500]">See All</span>
                 </div>
                 
                 <div className="flex flex-col gap-5">
@@ -208,7 +208,7 @@ function Tab({
   return (
     <div
       className={`flex flex-col items-center gap-1 ${
-        active ? "text-primary" : "text-muted"
+        active ? "text-[#765500]" : "text-muted"
       }`}
     >
       {icon}
@@ -244,13 +244,13 @@ function MiniCircle({
     <div className="mb-2.5 rounded-xl border border-border-subtle bg-white p-3.5">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-          <CircleUsersIcon className="h-5 w-5 text-primary" />
+          <CircleUsersIcon className="h-5 w-5 text-[#765500]" />
         </div>
         <div className="flex-1">
           <p className="text-[12px] font-bold text-charcoal">{name}</p>
           <p className="text-[10px] text-muted">{members}</p>
         </div>
-        <p className="text-[12px] font-extrabold text-primary">{amount}</p>
+        <p className="text-[12px] font-extrabold text-[#765500]">{amount}</p>
       </div>
       <div className="mt-3 h-px overflow-hidden bg-border-subtle">
         <div

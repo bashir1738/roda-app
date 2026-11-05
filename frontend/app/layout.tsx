@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import localFont from "next/font/local";
+import { Syne } from "next/font/google";
 import "./globals.css";
-
-/* 
-// Uncomment this once you place your font file at frontend/app/fonts/KudaModena-Bold.woff2
-const modena = localFont({
-  src: "./fonts/KudaModena-Bold.woff2",
-  variable: "--font-kuda-modena",
-  display: "swap",
-});
-*/
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -32,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} h-full antialiased`}>
-      <body className={`${jakarta.className} min-h-full bg-white text-charcoal`}>
+    <html lang="en" className={`${jakarta.variable} ${syne.variable} h-full antialiased`}>
+      <body className={`${syne.className} min-h-full bg-white text-charcoal`}>
         {children}
         <CookiesNotification />
       </body>

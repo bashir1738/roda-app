@@ -16,7 +16,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b-2 border-charcoal bg-surface-sand/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b-2 border-charcoal bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-8xl items-center justify-between px-6 sm:px-10 lg:px-12">
         <a href="#" aria-label="Roda home">
           <Logo />
@@ -49,7 +49,7 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="border-t border-border-subtle bg-white px-6 py-6 md:hidden">
+        <div className="border-t border-charcoal bg-white px-6 py-6 md:hidden">
           <nav className="flex flex-col gap-4">
             {LINKS.map((l) => (
               <a

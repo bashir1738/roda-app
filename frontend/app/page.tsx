@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="bg-surface-sand">
+      <main className="bg-white">
         <Hero />
         <MarqueeTicker />
         <Stats />

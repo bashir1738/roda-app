@@ -32,7 +32,7 @@ export function Section({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-light">
+    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#765500]">
       {children}
     </span>
   );
@@ -122,8 +122,8 @@ export function Pill({
 }) {
   const tones = {
     neutral: "text-muted",
-    accent: "text-primary",
-    sage: "text-primary",
+    accent: "text-[#765500]",
+    sage: "text-[#765500]",
   } as const;
   return (
     <span

@@ -29,7 +29,7 @@ const FOOTER_NAV = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border-subtle bg-white pb-12 pt-16 sm:pt-20">
+    <footer className="border-t-2 border-charcoal bg-[#9BE7B2] pb-12 pt-16 sm:pt-20">
       <div className="mx-auto w-full max-w-8xl px-6 sm:px-10 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr] lg:gap-20">
           <div>

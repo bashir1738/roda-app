@@ -18,9 +18,10 @@ export function MarqueeTicker() {
 
         <div className="animate-marquee-left flex items-center gap-10 whitespace-nowrap">
           {items.map((text, idx) => (
-            <span key={idx} className="flex items-center gap-10 text-[13px] text-muted">
+            <span key={idx} className={`flex items-center gap-10 border-2 border-charcoal px-3 py-1 text-[13px] font-bold text-charcoal ${
+              idx % 4 === 0 ? "bg-butter" : idx % 4 === 1 ? "bg-blush" : idx % 4 === 2 ? "bg-sky" : "bg-[#9BE7B2]"
+            }`}>
               {text}
-              <span className="h-[3px] w-[3px] rounded-full bg-border-subtle" />
             </span>
           ))}
         </div>

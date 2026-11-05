@@ -58,14 +58,15 @@ export function Features() {
         />
 
         <div className="mt-20 grid gap-x-12 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => {
+          {FEATURES.map((f, index) => {
             const Icon = f.icon;
+            const colors = ["bg-butter", "bg-blush", "bg-sky", "bg-[#9BE7B2]", "bg-butter", "bg-blush"];
             return (
-              <div key={f.title} className="border-2 border-charcoal bg-white p-6 shadow-[5px_5px_0_#111]">
-                <div className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-butter">
+              <div key={f.title} className={`border-2 border-charcoal ${colors[index]} p-6 shadow-[5px_5px_0_#111]`}>
+                <div className="flex h-10 w-10 items-center justify-center border-2 border-charcoal bg-white">
                   <Icon className="h-5 w-5 text-charcoal" />
                 </div>
-                <h3 className="mt-5 text-lg font-medium tracking-tight text-primary">
+                <h3 className="mt-5 text-lg font-bold tracking-tight text-charcoal">
                   {f.title}
                 </h3>
                 <p className="mt-3 text-[14px] leading-6 text-muted">{f.body}</p>

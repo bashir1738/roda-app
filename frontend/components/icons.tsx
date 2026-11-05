@@ -140,7 +140,7 @@ export function NearIcon(props: IconProps) {
     <svg {...props} width={24} height={24} viewBox="0 0 24 24" fill="none">
       <defs>
         <linearGradient id="near-gradient" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#00C08B" />
+          <stop offset="0" stopColor="#FFD84D" />
           <stop offset="1" stopColor="#7DE2C5" />
         </linearGradient>
       </defs>

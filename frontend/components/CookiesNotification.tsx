@@ -31,7 +31,7 @@ export function CookiesNotification() {
         <div className="flex flex-col items-start gap-5 rounded-xl border-2 border-charcoal bg-white p-6 shadow-[6px_6px_0_#111]">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lavender/60">
-              <CookieIcon className="h-5 w-5 text-primary" />
+              <CookieIcon className="h-5 w-5 text-[#765500]" />
             </div>
             <h3 className="text-base font-semibold text-charcoal">Cookie Notice</h3>
           </div>
@@ -41,7 +41,7 @@ export function CookiesNotification() {
               We use cookies to provide necessary site functionality and improve your experience. By continuing, you agree to our use of cookies.{" "}
               <button 
                 onClick={() => setShowPrivacyModal(true)}
-                className="font-medium text-primary underline underline-offset-2 hover:text-primary-light"
+                className="font-medium text-[#765500] underline underline-offset-2 hover:text-charcoal"
               >
                 Privacy details
               </button>

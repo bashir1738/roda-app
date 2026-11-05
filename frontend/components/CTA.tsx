@@ -3,11 +3,12 @@ import { GetAppButton } from "./GetAppModal";
 
 export function CTA() {
   return (
-    <Section id="cta" className="relative overflow-hidden bg-white py-24 sm:py-32">
-      <div className="absolute left-1/2 top-1/2 -ml-24 -mt-24 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-lavender-glow/20 blur-3xl" />
+    <Section id="cta" className="relative overflow-hidden bg-butter py-24 sm:py-32">
+      <div className="absolute -right-20 top-10 h-48 w-48 rotate-12 border-2 border-charcoal bg-blush shadow-[6px_6px_0_#111]" />
+      <div className="absolute -bottom-16 left-10 h-40 w-40 -rotate-12 border-2 border-charcoal bg-sky shadow-[6px_6px_0_#111]" />
       <Container className="relative z-10">
         <div className="mx-auto max-w-xl text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary-light">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#765500]">
             Get started
           </p>
           <h2 className="mt-5 text-[2rem] font-semibold leading-[1.15] tracking-tight text-charcoal sm:text-4xl lg:text-[2.75rem]">
