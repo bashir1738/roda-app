@@ -3,6 +3,7 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   Share,
   RefreshControl,
@@ -305,14 +306,20 @@ function WalletHeader({
         <Text style={[styles.activityTitle, { color: textPrimary }]}>Recent Activity</Text>
       </View>
 
-      {/* Filter Chips */}
-      <View style={styles.filterRow}>
+      {/* Filter Chips in a single straight scrollable line */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterScrollView}
+        contentContainerStyle={styles.filterScrollContent}
+      >
         {FILTERS.map((f) => {
           const isSelected = activeFilter === f;
           return (
             <TouchableOpacity
               key={f}
               onPress={() => onSelectFilter(f)}
+              activeOpacity={0.75}
               style={[
                 styles.filterChip,
                 isSelected
@@ -342,7 +349,7 @@ function WalletHeader({
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -716,11 +723,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.3,
   },
-  filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+  filterScrollView: {
+    marginHorizontal: -16,
     marginBottom: 8,
+  },
+  filterScrollContent: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   filterChip: {
     flexDirection: 'row',
