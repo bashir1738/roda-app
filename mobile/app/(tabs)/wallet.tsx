@@ -43,12 +43,12 @@ interface TokenDef {
 }
 
 const TOKENS: TokenDef[] = [
-  { symbol: 'NEAR', name: 'NEAR',     bg: '#00C08B', fg: '#fff', label: 'N' },
+  { symbol: 'NEAR', name: 'NEAR',     bg: '#00EC97', fg: '#fff', label: 'N' },
   { symbol: 'USDC', name: 'USD Coin', bg: '#2775CA', fg: '#fff', label: '$' },
 ];
 
 function AssetIcon({ token, size }: { token: TokenDef; size: number }) {
-  const innerSize = Math.round(size * 0.58);
+  const innerSize = Math.round(size * 0.56);
   return (
     <View style={{
       width: size, height: size, borderRadius: size / 2,
@@ -57,7 +57,7 @@ function AssetIcon({ token, size }: { token: TokenDef; size: number }) {
       overflow: 'hidden',
     }}>
       {token.symbol === 'NEAR' ? (
-        <NearMark size={innerSize} color="#FFFFFF" />
+        <NearMark size={innerSize} color="#262626" />
       ) : (
         <Text style={{ color: token.fg, fontSize: Math.round(size * 0.38), fontWeight: '900' }}>{token.label}</Text>
       )}
@@ -252,7 +252,7 @@ export default function WalletTab() {
             <Text className="text-charcoal dark:text-white text-3xl font-bold tracking-tight mt-2">Wallet</Text>
             <Text className="text-muted dark:text-[#A1A1AA] text-sm mt-1">
               {isConnected
-                ? walletKind === 'mwa'
+                ? walletKind === 'meteor'
                   ? 'Meteor wallet assets and activity'
                   : 'Your on-chain activity'
                 : 'Connect to get started'}

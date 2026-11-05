@@ -49,8 +49,7 @@
         }
       ],
       "expo-background-fetch",
-      "expo-task-manager",
-      "expo-mail-composer"
+      "expo-task-manager"
     ],
     "experiments": {
       "typedRoutes": false
