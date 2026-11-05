@@ -5,7 +5,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWallet } from '../providers/WalletContext';
-import { isMagicEnabled, revealMagicPrivateKey } from '../lib/magic';
+import { isMagicEnabled } from '../lib/magic';
+import { loadNearKey } from '../lib/nearKey';
+import { getStoredEmail } from '../lib/wallet';
+import * as MailComposer from 'expo-mail-composer';
 import { getNotificationsEnabled, setNotificationsEnabled } from '../hooks/useNotifications';
 import { useColorScheme } from 'nativewind';
 import { Icon, IconName } from './Icon';
@@ -89,12 +92,47 @@ export function ProfileSidebar({ visible, onClose }: Props) {
     ],
   );
 
-  const exportPrivateKey = async () => {
+  const exportPrivateKey = () => {
+    Alert.alert(
+      'Export Private Key',
+      'This will open your email app with your wallet private key in the message. Anyone with this key controls your funds. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Export', style: 'destructive', onPress: sendPrivateKeyEmail },
+      ],
+    );
+  };
+
+  const sendPrivateKeyEmail = async () => {
     setExportingKey(true);
     try {
-      await revealMagicPrivateKey();
+      const keyPair = await loadNearKey();
+      if (!keyPair) {
+        Alert.alert('No key found', 'This wallet has no local private key to export.');
+        return;
+      }
+      const privateKey = keyPair.toString();
+      const to = (await getStoredEmail()) ?? undefined;
+      const subject = 'Roda wallet private key backup';
+      const body =
+        'Your Roda wallet private key is below. Keep it secret and safe — anyone with this key controls your funds.\n\n' +
+        `Account: ${address ?? 'unknown'}\n` +
+        `Private key: ${privateKey}\n\n` +
+        'If you did not request this, delete this email immediately.';
+
+      const available = await MailComposer.isAvailableAsync();
+      if (!available) {
+        Alert.alert('Mail unavailable', 'No email account is configured on this device.');
+        return;
+      }
+      await MailComposer.composeAsync({
+        recipients: to ? [to] : [],
+        subject,
+        body,
+      });
     } catch (error) {
-      console.error('Magic private-key export failed:', error);
+      console.error('Private-key email export failed:', error);
+      Alert.alert('Export failed', 'Could not open the email composer. Please try again.');
     } finally {
       setExportingKey(false);
     }
@@ -185,14 +223,14 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                     />
                   }
                 />
-                {walletKind === 'magic' && isMagicEnabled && (
+                {(walletKind === 'device' || (walletKind === 'magic' && isMagicEnabled)) && (
                   <TouchableOpacity onPress={exportPrivateKey} disabled={exportingKey}>
                     <SidebarRow
                       isDark={isDark}
-                      icon="lock-closed-outline"
+                      icon="mail-outline"
                       iconBg={isDark ? 'rgba(192,132,252,0.18)' : 'rgba(66,31,109,0.12)'}
                       iconColor={isDark ? '#C084FC' : '#421F6D'}
-                      label={exportingKey ? 'Verifying…' : 'Export Private Key'}
+                      label={exportingKey ? 'Opening email…' : 'Email Private Key'}
                       right={<Icon name="chevron-forward" size={16} color={isDark ? '#AEAEB2' : '#6B6B6B'} />}
                     />
                   </TouchableOpacity>
