@@ -56,6 +56,30 @@ try {
   require('fast-text-encoding');
 } catch {}
 
+try {
+  const nodeUtil = typeof process !== 'undefined' && (process as any).versions?.node ? require('node:util') : null;
+  const TE = g.TextEncoder || (typeof TextEncoder !== 'undefined' ? TextEncoder : undefined) || nodeUtil?.TextEncoder;
+  const TD = g.TextDecoder || (typeof TextDecoder !== 'undefined' ? TextDecoder : undefined) || nodeUtil?.TextDecoder;
+  if (TE) {
+    g.TextEncoder = TE;
+    if (typeof globalThis !== 'undefined') (globalThis as any).TextEncoder = TE;
+    if (typeof window !== 'undefined') (window as any).TextEncoder = TE;
+    try {
+      const utilPkg = require('util');
+      if (utilPkg && !utilPkg.TextEncoder) utilPkg.TextEncoder = TE;
+    } catch {}
+  }
+  if (TD) {
+    g.TextDecoder = TD;
+    if (typeof globalThis !== 'undefined') (globalThis as any).TextDecoder = TD;
+    if (typeof window !== 'undefined') (window as any).TextDecoder = TD;
+    try {
+      const utilPkg = require('util');
+      if (utilPkg && !utilPkg.TextDecoder) utilPkg.TextDecoder = TD;
+    } catch {}
+  }
+} catch {}
+
 // ── 3. Native secure RNG (works only in real dev/prod builds) ─────────────────
 try {
   require('react-native-get-random-values');

@@ -1,7 +1,6 @@
-use near_sdk::borsh::{BorshDeserialize, BorshSerialize, BorshStorageKey};
-use near_sdk::collections::LookupMap;
+use borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::AccountId;
+use near_sdk::{AccountId, BorshStorageKey};
 
 /// Storage prefixes for all contract collections.
 #[derive(BorshStorageKey, BorshSerialize)]
@@ -35,6 +34,7 @@ pub struct Config {
 
 /// Savings vault tier (mirrors the original Anchor enum).
 #[derive(BorshDeserialize, BorshSerialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[borsh(use_discriminant = true)]
 pub enum VaultTier {
     Flex = 0,
     Weekly = 1,
@@ -92,6 +92,7 @@ pub struct Vault {
 
 /// Lifecycle state of a rotating savings circle.
 #[derive(BorshDeserialize, BorshSerialize, Clone, Copy, PartialEq, Eq, Debug)]
+#[borsh(use_discriminant = true)]
 pub enum CircleStatus {
     Active = 0,
     Completed = 1,

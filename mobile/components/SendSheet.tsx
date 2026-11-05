@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { isValidAddress } from '../constants/roda';
+import { utils } from 'near-api-js';
+import { isValidAddress, usdcToRaw } from '../constants/roda';
 import { transferNear, transferToken } from '../lib/contract';
 import { useWallet } from '../providers/WalletContext';
 import { friendlyError } from '../lib/sendTx';
@@ -27,10 +28,18 @@ export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () 
     setPending(true);
     setError(null);
     try {
-      const decimals = token === 'USDC' ? 6 : 24;
-      const raw = BigInt(Math.round(numeric * 10 ** decimals)).toString();
-      if (token === 'NEAR') await transferNear(address, recipient.trim(), raw);
-      else await transferToken(address, recipient.trim(), raw);
+      if (token === 'NEAR') {
+        const raw = utils.format.parseNearAmount(amount.trim());
+        if (!raw) {
+          setError('Invalid NEAR amount.');
+          setPending(false);
+          return;
+        }
+        await transferNear(address, recipient.trim(), raw);
+      } else {
+        const raw = usdcToRaw(numeric).toString();
+        await transferToken(address, recipient.trim(), raw);
+      }
       setRecipient('');
       setAmount('');
       onClose();

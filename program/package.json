@@ -4,7 +4,7 @@
   "private": true,
   "description": "Build and test scripts for the Roda NEAR contracts",
   "scripts": {
-    "build": "cargo build --target wasm32-unknown-unknown --release -p roda && cargo build --target wasm32-unknown-unknown --release -p roda-token",
+    "build": "cargo build --target wasm32-unknown-unknown --release && cargo build --manifest-path token/Cargo.toml --target wasm32-unknown-unknown --release && cp -f token/target/wasm32-unknown-unknown/release/roda_token.wasm target/wasm32-unknown-unknown/release/roda_token.wasm",
     "test": "cargo test -p roda && cargo test -p roda-token && node scripts/test-logic.js",
     "setup": "node scripts/setup-testnet.js",
     "set-token": "node scripts/set-token.js",

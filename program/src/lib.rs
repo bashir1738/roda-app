@@ -3,12 +3,9 @@ mod events;
 mod ft;
 mod state;
 
-use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
-use near_sdk::json_types::U128;
-use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, near, require, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseOrValue,
+    env, near, require, AccountId, Gas, NearToken, PanicOnDefault, Promise,
     PromiseResult,
 };
 
@@ -58,7 +55,7 @@ fn ft_transfer_promise(token: &AccountId, receiver: &AccountId, amount: u64) -> 
         })
         .to_string(),
         NearToken::from_yoctonear(1), // 1 yoctoNEAR required by NEP-141
-        Gas(GAS_FT_TRANSFER),
+        Gas::from_gas(GAS_FT_TRANSFER),
     )
 }
 
@@ -201,7 +198,7 @@ impl RodaContract {
                 serde_json::json!({ "vault_id": vault_id, "owner": owner, "amount": amount })
                     .to_string(),
                 NearToken::from_yoctonear(0),
-                Gas(GAS_CALLBACK),
+                Gas::from_gas(GAS_CALLBACK),
             ))
     }
 
@@ -392,7 +389,7 @@ impl RodaContract {
                 "on_payout".to_string(),
                 serde_json::json!({ "circle_code": circle_code }).to_string(),
                 NearToken::from_yoctonear(0),
-                Gas(GAS_CALLBACK),
+                Gas::from_gas(GAS_CALLBACK),
             ))
     }
 
@@ -515,13 +512,13 @@ impl RodaContract {
             })
             .to_string(),
             NearToken::from_yoctonear(0),
-            Gas(GAS_FT_MINT),
+            Gas::from_gas(GAS_FT_MINT),
         )
         .then(Promise::new(env::current_account_id()).function_call(
             "on_faucet".to_string(),
             serde_json::json!({ "user": user, "prev": prev }).to_string(),
             NearToken::from_yoctonear(0),
-            Gas(GAS_CALLBACK),
+            Gas::from_gas(GAS_CALLBACK),
         ))
     }
 
@@ -538,7 +535,7 @@ impl RodaContract {
                 "on_collect_fees".to_string(),
                 serde_json::json!({ "amount": amount }).to_string(),
                 NearToken::from_yoctonear(0),
-                Gas(GAS_CALLBACK),
+                Gas::from_gas(GAS_CALLBACK),
             ))
     }
 
@@ -549,7 +546,7 @@ impl RodaContract {
         require_callback();
         let pending = match self.payout_pending.get(&circle_code) {
             Some(p) => p,
-            None => return noop(),
+            None => return noop_promise(),
         };
 
         if !promise_succeeded() {
@@ -560,7 +557,7 @@ impl RodaContract {
                 self.circles.insert(&circle_code, &c);
             }
             env::log_str(&format!("RodaError:PayoutTransferFailed:{}", circle_code));
-            return noop();
+            return noop_promise();
         }
 
         // Commit state transition.
@@ -605,11 +602,11 @@ impl RodaContract {
                     "on_fee".to_string(),
                     serde_json::json!({ "amount": pending.fee }).to_string(),
                     NearToken::from_yoctonear(0),
-                    Gas(GAS_CALLBACK),
+                    Gas::from_gas(GAS_CALLBACK),
                 ),
             );
         }
-        noop()
+        noop_promise()
     }
 
     /// Fee transfer outcome: credit `fees_owed` on failure so it can be retried.
@@ -820,12 +817,12 @@ impl RodaContract {
 }
 
 /// Fulfilled-but-empty promise used for callback chains.
-fn noop() -> Promise {
+fn noop_promise() -> Promise {
     Promise::new(env::current_account_id()).function_call(
         "noop".to_string(),
         "{}".to_string(),
         NearToken::from_yoctonear(0),
-        Gas(1_000_000_000_000), // 1 TGas
+        Gas::from_tgas(1),
     )
 }
 

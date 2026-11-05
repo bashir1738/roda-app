@@ -16,17 +16,25 @@ type ViewQueryResult = {
 export async function viewContract<T>(
   methodName: string,
   args: Record<string, unknown> = {},
+  contractId: string = CONTRACT_ID,
 ): Promise<T> {
   const connection = (await getNear()).connection;
   const result = await connection.provider.query<ViewQueryResult>({
     request_type: 'call_function',
-    account_id: CONTRACT_ID,
+    account_id: contractId,
     method_name: methodName,
     args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     finality: 'final',
   });
   const bytes = Uint8Array.from(result.result);
   return JSON.parse(new TextDecoder().decode(bytes)) as T;
+}
+
+export async function viewToken<T>(
+  methodName: string,
+  args: Record<string, unknown> = {},
+): Promise<T> {
+  return viewContract<T>(methodName, args, FT_ID);
 }
 
 export async function getNearAccount(accountId: string): Promise<Account> {

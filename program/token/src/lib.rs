@@ -1,16 +1,19 @@
-use near_contract_standards::fungible_token::core::{FungibleTokenCore, FungibleTokenResolver};
+use borsh::BorshSerialize;
+use near_contract_standards::fungible_token::core::FungibleTokenCore;
 use near_contract_standards::fungible_token::metadata::{
     FungibleTokenMetadata, FungibleTokenMetadataProvider,
 };
 use near_contract_standards::fungible_token::receiver::FungibleTokenReceiver;
+use near_contract_standards::fungible_token::resolver::FungibleTokenResolver;
 use near_contract_standards::fungible_token::FungibleToken;
 use near_contract_standards::storage_management::{
     StorageBalance, StorageBalanceBounds, StorageManagement,
 };
-use near_sdk::borsh::{BorshDeserialize, BorshSerialize, BorshStorageKey};
 use near_sdk::collections::LazyOption;
 use near_sdk::json_types::U128;
-use near_sdk::{env, near, require, AccountId, PanicOnDefault, PromiseOrValue};
+use near_sdk::{
+    env, near, require, AccountId, BorshStorageKey, NearToken, PanicOnDefault, PromiseOrValue,
+};
 
 pub const FT_METADATA_SPEC: &str = "ft-1.0.0";
 
@@ -186,7 +189,7 @@ impl StorageManagement for RodaToken {
     }
 
     #[payable]
-    fn storage_withdraw(&mut self, amount: Option<U128>) -> StorageBalance {
+    fn storage_withdraw(&mut self, amount: Option<NearToken>) -> StorageBalance {
         self.ft.storage_withdraw(amount)
     }
 

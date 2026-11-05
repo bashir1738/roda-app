@@ -5,7 +5,7 @@ use near_sdk::{env, near, AccountId, PromiseOrValue};
 
 use crate::events;
 use crate::state::{CircleStatus, VaultTier};
-use crate::{now, RodaContract};
+use crate::{now, RodaContract, RodaContractExt};
 
 /// Message payload carried by `ft_transfer_call` into this contract.
 #[derive(Deserialize)]
@@ -33,7 +33,7 @@ impl FungibleTokenReceiver for RodaContract {
 
         let parsed: TransferMsg = match serde_json::from_str(&msg) {
             Ok(m) => m,
-            Err(_) => return PromiseOrValue::Value(U128(amount)),
+            Err(_) => return PromiseOrValue::Value(U128(amount.into())),
         };
 
         let applied = match parsed {
@@ -45,7 +45,7 @@ impl FungibleTokenReceiver for RodaContract {
             PromiseOrValue::Value(U128(0))
         } else {
             // Validation failed — return everything to the sender.
-            PromiseOrValue::Value(U128(amount))
+            PromiseOrValue::Value(U128(amount.into()))
         }
     }
 }

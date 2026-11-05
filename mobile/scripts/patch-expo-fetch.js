@@ -43,18 +43,11 @@ const target = candidates.find((c) => fs.existsSync(c)) || null;
 
 const MARK = '/* roda:restore-url-canparse */';
 
-if (!target || !fs.existsSync(target)) {
-  console.log('[patch-expo-fetch] @expo/cli fetch.js not found, skipping');
-  process.exit(0);
-}
-
-const src = fs.readFileSync(target, 'utf8');
-if (src.includes(MARK)) {
-  process.exit(0);
-}
-
-const anchor = '});\n\n//# sourceMappingURL=fetch.js.map';
-const patch = `});
+if (target && fs.existsSync(target)) {
+  const src = fs.readFileSync(target, 'utf8');
+  if (!src.includes(MARK)) {
+    const anchor = '});\n\n//# sourceMappingURL=fetch.js.map';
+    const patch = `});
 
 ${MARK}
 if (typeof globalThis.URL.canParse !== 'function') {
@@ -66,10 +59,31 @@ if (typeof globalThis.URL.canParse !== 'function') {
 
 //# sourceMappingURL=fetch.js.map`;
 
-if (!src.includes(anchor)) {
-  console.error('[patch-expo-fetch] anchor not found — @expo/cli layout changed; skipping');
-  process.exit(0);
+    if (src.includes(anchor)) {
+      fs.writeFileSync(target, src.replace(anchor, patch));
+      console.log('[patch-expo-fetch] patched', target);
+    }
+  }
 }
 
-fs.writeFileSync(target, src.replace(anchor, patch));
-console.log('[patch-expo-fetch] patched', target);
+// Also patch npm package `util` if present so react-dom-server SSR gets TextEncoder/TextDecoder
+const utilTarget = path.join(nm, 'util', 'util.js');
+if (fs.existsSync(utilTarget)) {
+  const utilSrc = fs.readFileSync(utilTarget, 'utf8');
+  const UTIL_MARK = '/* roda:restore-text-encoder */';
+  if (!utilSrc.includes(UTIL_MARK)) {
+    const utilPatch = `
+${UTIL_MARK}
+try {
+  const _nodeUtil = require('node:util');
+  exports.TextEncoder = exports.TextEncoder || _nodeUtil.TextEncoder || (typeof TextEncoder !== 'undefined' ? TextEncoder : undefined);
+  exports.TextDecoder = exports.TextDecoder || _nodeUtil.TextDecoder || (typeof TextDecoder !== 'undefined' ? TextDecoder : undefined);
+} catch {
+  if (typeof TextEncoder !== 'undefined') exports.TextEncoder = TextEncoder;
+  if (typeof TextDecoder !== 'undefined') exports.TextDecoder = TextDecoder;
+}
+`;
+    fs.appendFileSync(utilTarget, utilPatch);
+    console.log('[patch-expo-fetch] patched util/util.js with TextEncoder/TextDecoder');
+  }
+}
