@@ -11,7 +11,7 @@ export function MarqueeTicker() {
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
 
   return (
-    <section className="overflow-hidden border-y border-border-subtle py-5">
+    <section className="overflow-hidden border-y border-border-subtle bg-surface-sand py-5">
       <div className="relative flex w-full select-none overflow-hidden">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />

@@ -9,7 +9,7 @@ const STATS = [
 
 export function Stats() {
   return (
-    <section className="bg-white py-20 sm:py-24">
+    <section className="bg-surface-sand py-20 sm:py-24">
       <Container>
         <div className="grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4 lg:gap-12">
           {STATS.map((s, index) => {

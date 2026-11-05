@@ -58,22 +58,22 @@ export function AppPreview() {
               {/* Action Buttons */}
               <div className="mt-7 flex justify-between gap-3">
                 <div className="flex flex-1 flex-col items-center gap-1.5">
-                  <div className="flex h-12 w-full items-center justify-center rounded-xl bg-primary/10 text-[#765500]">
+                  <div className="flex h-12 w-full items-center justify-center rounded-lg border-2 border-charcoal bg-[#00C08B] text-charcoal shadow-[3px_3px_0_#111]">
                     <TrendingUpIcon className="h-5 w-5" />
                   </div>
-                  <span className="text-[10px] font-semibold text-charcoal">Add Money</span>
+                  <span className="text-[10px] font-extrabold text-charcoal">Add Money</span>
                 </div>
                 <div className="flex flex-1 flex-col items-center gap-1.5">
-                  <div className="flex h-12 w-full items-center justify-center rounded-xl bg-border-subtle/50 text-charcoal">
+                  <div className="flex h-12 w-full items-center justify-center rounded-lg border-2 border-charcoal bg-butter text-charcoal shadow-[3px_3px_0_#111]">
                     <WalletIcon className="h-5 w-5" />
                   </div>
-                  <span className="text-[10px] font-semibold text-charcoal">Transfer</span>
+                  <span className="text-[10px] font-extrabold text-charcoal">Transfer</span>
                 </div>
                 <div className="flex flex-1 flex-col items-center gap-1.5">
-                  <div className="flex h-12 w-full items-center justify-center rounded-xl bg-border-subtle/50 text-charcoal">
+                  <div className="flex h-12 w-full items-center justify-center rounded-lg border-2 border-charcoal bg-sky text-charcoal shadow-[3px_3px_0_#111]">
                     <CircleUsersIcon className="h-5 w-5" />
                   </div>
-                  <span className="text-[10px] font-semibold text-charcoal">Circles</span>
+                  <span className="text-[10px] font-extrabold text-charcoal">Circles</span>
                 </div>
               </div>
 

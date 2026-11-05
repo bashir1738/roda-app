@@ -30,7 +30,7 @@ const TIERS = [
 
 export function VaultTiers() {
   return (
-    <Section id="vaults" className="bg-white">
+    <Section id="vaults" className="bg-surface-sand">
       <Container>
         <SectionHeading
           align="center"

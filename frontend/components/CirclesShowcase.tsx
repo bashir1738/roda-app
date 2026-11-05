@@ -8,7 +8,7 @@ const POINTS = [
 
 export function CirclesShowcase() {
   return (
-    <Section id="circles" className="bg-white">
+    <Section id="circles" className="bg-surface-sand">
       <Container className="grid items-start gap-16 lg:grid-cols-2 lg:gap-24">
         <div className="order-2 lg:order-1">
           <div className="rounded-xl border-2 border-charcoal bg-white p-7 shadow-[7px_7px_0_#111] sm:p-9">

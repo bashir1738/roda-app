@@ -11,7 +11,7 @@ const HIGHLIGHTS = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative overflow-hidden bg-surface-sand">
       <div className="pointer-events-none absolute -left-10 top-24 h-28 w-28 -rotate-12 border-2 border-charcoal bg-blush shadow-[6px_6px_0_#111] sm:h-36 sm:w-36" />
       <div className="pointer-events-none absolute bottom-10 right-1/3 h-16 w-16 rotate-12 border-2 border-charcoal bg-sky shadow-[5px_5px_0_#111]" />
       <Container className="relative z-10 grid items-center gap-16 pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:pt-32 lg:pb-32">
@@ -19,7 +19,9 @@ export function Hero() {
           <h1 className="text-[3rem] font-semibold leading-[1.05] tracking-tight text-charcoal sm:text-6xl lg:text-[4.5rem]">
             Save together.
             <br />
-            <span className="inline-block bg-[#00C08B] px-2 text-charcoal">Grow together.</span>
+            <span className="inline-block -rotate-1 border-2 border-charcoal bg-[#00C08B] px-2 text-charcoal shadow-[6px_6px_0_#111]">
+              Grow together.
+            </span>
           </h1>
 
           <p className="mt-6 max-w-md border-l-4 border-[#9BE7B2] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
