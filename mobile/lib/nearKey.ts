@@ -5,7 +5,9 @@ const KEY_STORE = 'roda_near_key_v1';
 
 export async function loadNearKey(): Promise<KeyPair | null> {
   const encoded = await SecureStore.getItemAsync(KEY_STORE);
-  return encoded ? KeyPair.fromString(encoded) : null;
+  return encoded
+    ? KeyPair.fromString(encoded as Parameters<typeof KeyPair.fromString>[0])
+    : null;
 }
 
 export async function createNearKey(): Promise<KeyPair> {

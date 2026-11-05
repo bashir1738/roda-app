@@ -33,7 +33,7 @@ function loadEnv() {
 async function main() {
   const env = loadEnv();
   const network = env.NEAR_NETWORK || 'testnet';
-  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.near.org';
+  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.fastnear.com';
   const keyStore = new keyStores.UnencryptedFileSystemKeyStore(
     path.join(require('os').homedir(), '.near-credentials')
   );

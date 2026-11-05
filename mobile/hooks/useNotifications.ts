@@ -15,8 +15,8 @@ let taskDefined = false;
 
 async function runChecks(Notifications: any) {
   // Runs in a background task — no React context available.
-  const { getStoredAddress } = require('../lib/wallet');
-  const { viewContract } = require('../lib/contract');
+  const { getStoredAddress } = require('../lib/wallet') as typeof import('../lib/wallet');
+  const { viewContract } = require('../lib/contract') as typeof import('../lib/contract');
 
   const address = await getStoredAddress();
   if (!address) return;

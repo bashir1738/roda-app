@@ -43,7 +43,7 @@ async function main() {
   const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : {};
 
   const network = env.NEAR_NETWORK || state.network || 'testnet';
-  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.near.org';
+  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.fastnear.com';
   const roda = args.roda || env.NEAR_RODA_ACCOUNT_ID || state.roda;
   const token = args.token || env.NEAR_TOKEN_ACCOUNT_ID || state.token;
   const faucet = (args.faucet || env.NEAR_FAUCET_ENABLED || 'true').toLowerCase() === 'true';

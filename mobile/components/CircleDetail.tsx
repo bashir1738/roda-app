@@ -88,7 +88,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
     Promise.all(circle.members.map(async (member) => {
       try {
         const resolved = await resolveRecipient(member);
-        return [member, resolved.name] as const;
+        return [member, resolved.name ?? null] as const;
       } catch {
         return [member, null] as const;
       }

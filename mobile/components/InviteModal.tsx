@@ -31,7 +31,7 @@ function InvitedRow({ addr, onRemove }: { addr: string; onRemove: () => void }) 
 
   useEffect(() => {
     resolveRecipient(addr)
-      .then((resolved) => setName(resolved.name))
+      .then((resolved) => setName(resolved.name ?? null))
       .catch(() => {});
   }, [addr]);
 

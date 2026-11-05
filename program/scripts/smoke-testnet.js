@@ -83,7 +83,7 @@ async function main() {
   const state = JSON.parse(fs.readFileSync(path.join(__dirname, 'testnet-state.json'), 'utf8'));
 
   const network = state.network || env.NEAR_NETWORK || 'testnet';
-  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.near.org';
+  const nodeUrl = env.NEAR_NODE_URL || 'https://rpc.testnet.fastnear.com';
   const roda = state.roda || env.NEAR_RODA_ACCOUNT_ID;
   const token = state.token || env.NEAR_TOKEN_ACCOUNT_ID;
   const aliceId = args.alice;

@@ -1,19 +1,24 @@
-import { Account, NearToken, type Near } from 'near-api-js';
+import { Account, type Near } from 'near-api-js';
+import { Buffer } from 'buffer';
 
 import { CONTRACT_ID, FT_ID } from '../constants/roda';
 import { getNear } from './near';
 
 export type NearView = Record<string, unknown> | unknown[] | string | number | null;
 
+type ViewQueryResult = {
+  block_height: number;
+  block_hash: string;
+  result: number[];
+  logs: string[];
+};
+
 export async function viewContract<T>(
   methodName: string,
   args: Record<string, unknown> = {},
 ): Promise<T> {
   const connection = (await getNear()).connection;
-  const result = await connection.provider.query<{
-    result: number[];
-    logs: string[];
-  }>({
+  const result = await connection.provider.query<ViewQueryResult>({
     request_type: 'call_function',
     account_id: CONTRACT_ID,
     method_name: methodName,
@@ -42,7 +47,7 @@ export async function callContract(
     methodName,
     args,
     gas: BigInt(gas),
-    attachedDeposit: NearToken.fromYoctonear(attachedDeposit),
+    attachedDeposit: BigInt(attachedDeposit),
   });
   return result.transaction.hash;
 }
@@ -61,7 +66,7 @@ export async function transferToken(
       ? { receiver_id: receiverId, amount, msg }
       : { receiver_id: receiverId, amount, memo: null },
     gas: BigInt('100000000000000'),
-    attachedDeposit: NearToken.fromYoctonear('1'),
+    attachedDeposit: 1n,
   });
   return result.transaction.hash;
 }
@@ -72,6 +77,6 @@ export async function transferNear(
   amount: string,
 ): Promise<string> {
   const account = await getNearAccount(accountId);
-  const result = await account.sendMoney(receiverId, NearToken.fromYoctonear(amount));
+  const result = await account.sendMoney(receiverId, BigInt(amount));
   return result.transaction.hash;
 }

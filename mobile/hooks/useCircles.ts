@@ -34,6 +34,15 @@ export function useCircles() {
   });
   return { circles: data ?? [], isLoading };
 }
-export function useCircleMembers() {
-  return useQuery({ queryKey: ['circleMembers'], enabled: false, queryFn: async () => [] });
+export interface CircleMemberInfo {
+  address: string;
+  paidRound: number;
+}
+
+export function useCircleMembers(address?: string, members?: string[]) {
+  return useQuery<CircleMemberInfo[]>({
+    queryKey: ['circleMembers', address, members],
+    enabled: false,
+    queryFn: async () => [],
+  });
 }
