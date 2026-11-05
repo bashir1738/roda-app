@@ -53,14 +53,15 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: isDark ? '#8E8E93' : '#71717A',
         tabBarItemStyle: { height: TAB_H, justifyContent: 'center', paddingTop: 8 },
         tabBarStyle: {
-            backgroundColor: isDark ? '#171717' : '#FFFDF8',
-            borderTopColor: isDark ? '#FFFFFF' : '#111111',
-            borderTopWidth: 2,
-            height,
-            paddingBottom,
-            elevation: 0,
-            shadowColor: 'transparent',
-          },
+          backgroundColor: isDark ? '#111111' : '#FFFFFF',
+          borderTopWidth: 0,
+          borderTopColor: 'transparent',
+          height,
+          paddingBottom,
+          elevation: 0,
+          shadowOpacity: 0,
+          shadowColor: 'transparent',
+        },
       }}
     >
       <Tabs.Screen
