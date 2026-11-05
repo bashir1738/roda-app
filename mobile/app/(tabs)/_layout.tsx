@@ -10,8 +10,8 @@ function TabIcon({
 }: { iconActive: IconName; iconInactive: IconName; label: string; focused: boolean }) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const ACTIVE   = isDark ? '#00C08B' : '#000000';
-  const INACTIVE = isDark ? '#8E8E93' : '#A1A1AA';
+  const ACTIVE   = '#00C08B';
+  const INACTIVE = isDark ? '#8E8E93' : '#71717A';
   
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', width: 64, gap: 4 }}>
@@ -49,19 +49,18 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
+        tabBarActiveTintColor: '#00C08B',
+        tabBarInactiveTintColor: isDark ? '#8E8E93' : '#71717A',
         tabBarItemStyle: { height: TAB_H, justifyContent: 'center', paddingTop: 8 },
         tabBarStyle: {
-          backgroundColor: isDark ? '#111111' : '#FFFFFF',
-          borderTopColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-          borderTopWidth: 1,
-          height,
-          paddingBottom,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-        },
+            backgroundColor: isDark ? '#171717' : '#FFFDF8',
+            borderTopColor: isDark ? '#FFFFFF' : '#111111',
+            borderTopWidth: 2,
+            height,
+            paddingBottom,
+            elevation: 0,
+            shadowColor: 'transparent',
+          },
       }}
     >
       <Tabs.Screen
