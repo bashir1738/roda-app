@@ -1,7 +1,12 @@
 export const CLUSTER = 'testnet' as const;
 export const NEAR_NETWORK = process.env.EXPO_PUBLIC_NEAR_NETWORK ?? 'testnet';
+export const TESTNET_RPC_ENDPOINTS = [
+  'https://test.rpc.fastnear.com',
+  'https://rpc.testnet.fastnear.com',
+  'https://rpc.testnet.near.org',
+] as const;
 export const NEAR_RPC_URL =
-  process.env.EXPO_PUBLIC_NEAR_RPC_URL ?? 'https://rpc.testnet.fastnear.com';
+  process.env.EXPO_PUBLIC_NEAR_RPC_URL ?? TESTNET_RPC_ENDPOINTS[0];
 export const CONTRACT_ID =
   process.env.EXPO_PUBLIC_CONTRACT_ID ?? 'roda.testnet';
 export const FT_ID =

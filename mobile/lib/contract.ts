@@ -19,13 +19,17 @@ export async function viewContract<T>(
   contractId: string = CONTRACT_ID,
 ): Promise<T> {
   const connection = (await getNear()).connection;
-  const result = await connection.provider.query<ViewQueryResult>({
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`viewContract timeout: ${methodName}`)), 6000),
+  );
+  const queryPromise = connection.provider.query<ViewQueryResult>({
     request_type: 'call_function',
     account_id: contractId,
     method_name: methodName,
     args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
     finality: 'final',
   });
+  const result = await Promise.race([queryPromise, timeoutPromise]);
   const bytes = Uint8Array.from(result.result);
   return JSON.parse(new TextDecoder().decode(bytes)) as T;
 }
