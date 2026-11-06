@@ -1,46 +1,11 @@
-import Image from "next/image";
 import { Container, Section, Button } from "./ui";
 import { GetAppButton } from "./GetAppModal";
 
 export function CTA() {
   return (
     <Section id="cta" className="relative overflow-hidden bg-butter py-24 sm:py-32">
-      {/* Floating Card 1: /vault-3d.jpg (Left floating accent) */}
-      <div className="pointer-events-none absolute -left-12 top-10 hidden h-44 w-40 -rotate-12 overflow-hidden border-2 border-charcoal bg-white shadow-[7px_7px_0_#111] md:block lg:left-8 lg:h-52 lg:w-48">
-        <div className="relative h-32 w-full overflow-hidden bg-surface-sand lg:h-38">
-          <Image
-            src="/vault-3d.jpg"
-            alt="On-chain savings vault pot"
-            fill
-            sizes="192px"
-            className="object-cover"
-          />
-        </div>
-        <div className="border-t-2 border-charcoal bg-[#9BE7B2] px-2.5 py-1.5 text-center">
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-charcoal">
-            🔒 On-Chain Solo Vaults
-          </p>
-        </div>
-      </div>
-
-      {/* Floating Card 2: /step-wallet.jpg (Right floating accent) */}
-      <div className="pointer-events-none absolute -right-12 bottom-8 hidden h-44 w-40 rotate-12 overflow-hidden border-2 border-charcoal bg-white shadow-[7px_7px_0_#111] md:block lg:right-8 lg:h-52 lg:w-48">
-        <div className="relative h-32 w-full overflow-hidden lg:h-38">
-          <Image
-            src="/step-wallet.jpg"
-            alt="Mobile wallet savings interface"
-            fill
-            sizes="192px"
-            className="object-cover"
-          />
-        </div>
-        <div className="border-t-2 border-charcoal bg-sky px-2.5 py-1.5 text-center">
-          <p className="text-[10px] font-extrabold uppercase tracking-wider text-charcoal">
-            📱 Start In 60 Seconds
-          </p>
-        </div>
-      </div>
-
+      <div className="absolute -right-20 top-10 h-48 w-48 rotate-12 border-2 border-charcoal bg-blush shadow-[6px_6px_0_#111]" />
+      <div className="absolute -bottom-16 left-10 h-40 w-40 -rotate-12 border-2 border-charcoal bg-sky shadow-[6px_6px_0_#111]" />
       <Container className="relative z-10">
         <div className="mx-auto max-w-xl text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#765500]">
