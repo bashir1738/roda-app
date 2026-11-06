@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
+
 import { VaultCard } from '../../components/VaultCard';
 import { DepositModal } from '../../components/DepositModal';
 import { PayoutSheet } from '../../components/PayoutSheet';
@@ -11,15 +21,31 @@ import { useVaults, type VaultData } from '../../hooks/useVaults';
 import { useWallet } from '../../providers/WalletContext';
 import { VAULT_TIERS, type VaultTier } from '../../hooks/useVaults';
 import { useRefresh } from '../../hooks/useRefresh';
-import Svg, { LinearGradient, Stop, Rect, Path, Defs } from 'react-native-svg';
-import { Icon } from '../../components/Icon';
+import { Icon, type IconName } from '../../components/Icon';
 
 const TIER_KEYS: VaultTier[] = ['Flex', 'Weekly', 'Monthly', '6 Months', '1 Year'];
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.8;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = Math.min(SCREEN_WIDTH * 0.76, 290);
+
+const TIER_ICONS: Record<VaultTier, IconName> = {
+  Flex: 'infinite-outline',
+  Weekly: 'calendar-outline',
+  Monthly: 'time-outline',
+  '6 Months': 'trending-up-outline',
+  '1 Year': 'trophy-outline',
+};
+
+const TIER_BADGES: Partial<Record<VaultTier, string>> = {
+  Flex: 'Flexible',
+  Weekly: 'Popular',
+  '1 Year': 'Long Term',
+};
 
 function fmtUSDC(n: bigint) {
-  return (Number(n) / 1_000_000).toLocaleString('en-US', { minimumFractionDigits: 2 });
+  return (Number(n) / 1_000_000).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 export default function SaveTab() {
@@ -29,137 +55,496 @@ export default function SaveTab() {
   const { vaults, isLoading } = useVaults();
   const { openSidebar } = useProfileSidebar();
   const { refreshing, refresh } = useRefresh();
+
   const [depositTier, setDepositTier] = useState<VaultTier | null>(null);
   const [claimVault, setClaimVault] = useState<VaultData | null>(null);
+  const [balanceHidden, setBalanceHidden] = useState(false);
 
   const totalBalance = vaults.reduce((s, v) => s + v.currentBalanceUSDC, 0n);
 
+  const screenBg = isDark ? '#111111' : '#FDFBF7';
+  const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC';
+  const textPrimary = isDark ? '#FFFFFF' : '#000000';
+  const textMuted = isDark ? '#8E8E93' : '#6B6B6B';
+
   return (
-    <View className="flex-1 bg-[#FDFBF7] dark:bg-[#111111]">
-      <SafeAreaView className="flex-1" edges={['top']}>
-        {/* Header */}
-        <View className="px-5 pt-3 pb-2">
-          <View className="flex-row justify-end items-center mb-6">
-            <ProfileButton onPress={openSidebar} />
+    <SafeAreaView style={[styles.root, { backgroundColor: screenBg }]} edges={['top']}>
+      {/* ── Top Bar ── */}
+      <View style={[styles.topBar, { backgroundColor: screenBg }]}>
+        <View>
+          <Text style={[styles.screenTitle, { color: textPrimary }]}>Save</Text>
+          <Text style={[styles.screenSubtitle, { color: textMuted }]}>
+            Solo savings vaults & fixed yield
+          </Text>
+        </View>
+        <ProfileButton onPress={openSidebar} />
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refresh}
+            tintColor="#00C08B"
+            colors={['#00C08B']}
+          />
+        }
+      >
+        {/* ── Minimalist Portfolio Overview Hero ── */}
+        <View
+          style={[
+            styles.heroCard,
+            {
+              backgroundColor: cardBg,
+              borderColor: cardBorder,
+            },
+          ]}
+        >
+          <View style={styles.heroLabelRow}>
+            <Text style={[styles.heroLabel, { color: textMuted }]}>Total Saved</Text>
+            <TouchableOpacity
+              onPress={() => setBalanceHidden((h) => !h)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Icon
+                name={balanceHidden ? 'eye-off-outline' : 'eye-outline'}
+                size={16}
+                color={textMuted}
+              />
+            </TouchableOpacity>
           </View>
 
-          {/* Portfolio Overview */}
-          <View className="items-center mb-6">
-            <Text className="text-muted dark:text-[#A1A1AA] text-sm font-bold uppercase tracking-wider mb-2">Total Savings</Text>
-            <Text className="text-charcoal dark:text-white text-5xl font-bold tracking-tighter">
-              ${fmtUSDC(totalBalance)}
+          <View style={styles.balanceRow}>
+            <Text style={[styles.balanceText, { color: textPrimary }]}>
+              {balanceHidden ? '••••••••' : `$${fmtUSDC(totalBalance)}`}
             </Text>
+            {isLoading && (
+              <ActivityIndicator size="small" color="#00C08B" style={styles.balanceLoader} />
+            )}
           </View>
+
+          {vaults.length > 0 && (
+            <Text style={[styles.heroSubtext, { color: textMuted }]}>
+              {vaults.length} active {vaults.length === 1 ? 'vault' : 'vaults'}
+            </Text>
+          )}
         </View>
 
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="pb-8"
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#00C08B" colors={['#00C08B']} />
-          }
-        >
-          {/* Deck Layout for Vaults */}
-          <View className="mt-2">
-            <View className="px-5 mb-4 flex-row justify-between items-end">
-              <Text className="text-charcoal dark:text-white text-xl font-bold tracking-tight">Open a Vault</Text>
-            </View>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="px-5"
-              snapToInterval={CARD_WIDTH + 16}
-              decelerationRate="fast"
-            >
-              {TIER_KEYS.map((key, i) => {
-                const t = VAULT_TIERS[key];
-                const gradients: Record<VaultTier, string[]> = {
-                  Flex: isDark ? ['#2C2C2E', '#1C1C1E'] : ['#FFFFFF', '#FDFBF7'],
-                  Weekly: ['#00C08B', '#008761'],
-                  Monthly: ['#1C1C1E', '#000000'],
-                  '6 Months': ['#008761', '#004D37'],
-                  '1 Year': ['#7C2D12', '#451A03'],
-                };
-                const isDarkCard = isDark || key !== 'Flex';
-                const grad = gradients[key];
-
-                return (
-                  <TouchableOpacity
-                    key={key}
-                    activeOpacity={0.9}
-                    onPress={() => setDepositTier(key)}
-                    style={{ width: CARD_WIDTH, height: 200, marginRight: 16, borderRadius: 30, overflow: 'hidden', elevation: 5, shadowColor: '#000000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20 }}
-                  >
-                    <Svg width="100%" height="100%" style={{ position: 'absolute' }}>
-                      <Defs>
-                        <LinearGradient id={`grad-${key}`} x1="0" y1="0" x2="1" y2="1">
-                          <Stop offset="0" stopColor={grad[0]} />
-                          <Stop offset="1" stopColor={grad[1]} />
-                        </LinearGradient>
-                      </Defs>
-                      <Rect width="100%" height="100%" fill={`url(#grad-${key})`} />
-                      <Path d="M 0 100 Q 150 0 300 150 L 300 200 L 0 200 Z" fill="#FFFFFF" opacity={0.03} />
-                    </Svg>
-                    
-                    <View className="p-6 flex-1 justify-between">
-                      <View className="flex-row justify-between items-start">
-                        <View className={`w-12 h-12 rounded-2xl items-center justify-center ${isDarkCard ? 'bg-white/10' : 'bg-primary/10'}`}>
-                          <Icon name={t.icon as any} size={24} color={isDarkCard ? '#FFFFFF' : '#00C08B'} />
-                        </View>
-                        {key === 'Weekly' && (
-                          <View className="bg-black/25 border border-white/20 px-3 py-1 rounded-full">
-                            <Text className="text-white text-[10px] font-bold uppercase tracking-wider">Popular</Text>
-                          </View>
-                        )}
-                      </View>
-                      <View>
-                        <Text className={`text-3xl font-bold tracking-tight mb-1 ${isDarkCard ? 'text-white' : 'text-charcoal'}`}>{key}</Text>
-                        <Text className={`text-sm font-medium ${isDarkCard ? 'text-white/70' : 'text-muted'}`}>
-                          {t.lockDays > 0 ? `${t.lockDays}-day lock` : 'Withdraw anytime'} • Min ${t.minUSDC}
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
+        {/* ── Choose a Plan Carousel ── */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: textPrimary }]}>Choose a Plan</Text>
+            <Text style={[styles.sectionSubtitle, { color: textMuted }]}>
+              Lock funds for consistency or save with flexible access
+            </Text>
           </View>
 
-          {/* Active vaults */}
-          {isConnected && (
-            <View className="mt-8 px-5">
-              <Text className="text-charcoal dark:text-white text-xl font-bold tracking-tight mb-4">Your Vaults</Text>
-              {isLoading ? (
-                <ActivityIndicator color="#00C08B" />
-              ) : vaults.length === 0 ? (
-                <View className="items-center py-12 bg-white dark:bg-[#1C1C1E] rounded-3xl border border-border/50 dark:border-white/5 shadow-sm">
-                  <Icon name="leaf-outline" size={40} color={isDark ? '#00C08B' : '#BEEEDB'} />
-                  <Text className="text-muted dark:text-[#A1A1AA] text-base font-medium mt-3">No active vaults</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselContainer}
+            snapToInterval={CARD_WIDTH + 14}
+            decelerationRate="fast"
+          >
+            {TIER_KEYS.map((key) => {
+              const t = VAULT_TIERS[key];
+              const iconName = TIER_ICONS[key];
+              const badgeLabel = TIER_BADGES[key];
+              const isPopular = key === 'Weekly';
+
+              return (
+                <TouchableOpacity
+                  key={key}
+                  activeOpacity={0.88}
+                  onPress={() => setDepositTier(key)}
+                  style={[
+                    styles.planCard,
+                    {
+                      width: CARD_WIDTH,
+                      backgroundColor: cardBg,
+                      borderColor: isPopular ? '#00C08B' : cardBorder,
+                      borderWidth: isPopular ? 1.5 : 1,
+                    },
+                  ]}
+                >
+                  {/* Card Header */}
+                  <View style={styles.planHeader}>
+                    <View
+                      style={[
+                        styles.planIconCircle,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(0,192,139,0.12)'
+                            : 'rgba(0,192,139,0.1)',
+                        },
+                      ]}
+                    >
+                      <Icon name={iconName} size={22} color="#00C08B" />
+                    </View>
+
+                    {badgeLabel && (
+                      <View
+                        style={[
+                          styles.planBadge,
+                          {
+                            backgroundColor: isPopular
+                              ? '#00C08B'
+                              : isDark
+                              ? 'rgba(255,255,255,0.08)'
+                              : '#F3F4F6',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.planBadgeText,
+                            { color: isPopular ? '#000000' : textMuted },
+                          ]}
+                        >
+                          {badgeLabel}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Plan Content */}
+                  <View style={styles.planContent}>
+                    <Text style={[styles.planTitle, { color: textPrimary }]}>{t.name}</Text>
+                    <Text style={[styles.planLockText, { color: textMuted }]}>
+                      {t.lockDays > 0 ? `${t.lockDays}-day commitment` : 'Withdraw anytime'}
+                    </Text>
+                    <Text style={[styles.planMinText, { color: textMuted }]}>
+                      {t.minUSDC > 0 ? `Minimum deposit $${t.minUSDC} USDC` : 'No minimum deposit'}
+                    </Text>
+                  </View>
+
+                  {/* Action Pill */}
+                  <View
+                    style={[
+                      styles.planActionPill,
+                      {
+                        backgroundColor: isDark ? '#141416' : '#F7F6F2',
+                        borderColor: cardBorder,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.planActionText, { color: textPrimary }]}>Open Vault</Text>
+                    <Icon name="arrow-forward" size={14} color="#00C08B" />
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* ── Active Vaults Section ── */}
+        {isConnected && (
+          <View style={styles.activeVaultsSection}>
+            <View style={styles.activeHeaderRow}>
+              <Text style={[styles.activeSectionTitle, { color: textPrimary }]}>Your Vaults</Text>
+              {vaults.length > 0 && (
+                <View
+                  style={[
+                    styles.vaultCountBadge,
+                    { backgroundColor: isDark ? 'rgba(0,192,139,0.12)' : 'rgba(0,192,139,0.1)' },
+                  ]}
+                >
+                  <Text style={styles.vaultCountText}>
+                    {vaults.length} {vaults.length === 1 ? 'Active' : 'Active'}
+                  </Text>
                 </View>
-              ) : (
-                vaults.map((v) => <VaultCard key={v.id} vault={v} onClaim={() => setClaimVault(v)} />)
               )}
             </View>
-          )}
-        </ScrollView>
 
-        {depositTier && (
-          <DepositModal tier={depositTier} visible={!!depositTier} onClose={() => setDepositTier(null)} />
+            {isLoading ? (
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator color="#00C08B" />
+              </View>
+            ) : vaults.length === 0 ? (
+              /* Serene Empty State */
+              <View
+                style={[
+                  styles.emptyCard,
+                  {
+                    backgroundColor: cardBg,
+                    borderColor: cardBorder,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.emptyIconCircle,
+                    { backgroundColor: isDark ? 'rgba(0,192,139,0.12)' : 'rgba(0,192,139,0.08)' },
+                  ]}
+                >
+                  <Icon name="leaf-outline" size={28} color="#00C08B" />
+                </View>
+                <Text style={[styles.emptyTitle, { color: textPrimary }]}>
+                  No active vaults yet
+                </Text>
+                <Text style={[styles.emptySubtitle, { color: textMuted }]}>
+                  Choose a plan above to lock in your savings and put your money to work with zero stress.
+                </Text>
+              </View>
+            ) : (
+              vaults.map((v) => (
+                <VaultCard key={v.id} vault={v} onClaim={() => setClaimVault(v)} />
+              ))
+            )}
+          </View>
         )}
-        {claimVault && (
-          <PayoutSheet
-            target={{
-              type: 'vault',
-              vaultId: claimVault.id,
-              availableUSDC: claimVault.currentBalanceUSDC,
-              label: `${claimVault.tierKey} Vault #${claimVault.id}`,
-            }}
-            visible={!!claimVault}
-            onClose={() => setClaimVault(null)}
-          />
-        )}
-      </SafeAreaView>
-    </View>
+      </ScrollView>
+
+      {/* Deposit Modal Sheet */}
+      {depositTier && (
+        <DepositModal
+          tier={depositTier}
+          visible={!!depositTier}
+          onClose={() => setDepositTier(null)}
+        />
+      )}
+
+      {/* Claim Payout Sheet */}
+      {claimVault && (
+        <PayoutSheet
+          target={{
+            type: 'vault',
+            vaultId: claimVault.id,
+            availableUSDC: claimVault.currentBalanceUSDC,
+            label: `${claimVault.tierKey} Vault #${claimVault.id}`,
+          }}
+          visible={!!claimVault}
+          onClose={() => setClaimVault(null)}
+        />
+      )}
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  screenSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+
+  // Hero Card
+  heroCard: {
+    marginHorizontal: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 22,
+    marginTop: 4,
+    marginBottom: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  heroLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  heroLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  balanceText: {
+    fontSize: 38,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  balanceLoader: {
+    marginLeft: 4,
+  },
+  heroSubtext: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 8,
+  },
+
+  // Plan Carousel
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  sectionSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  carouselContainer: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  planCard: {
+    borderRadius: 24,
+    padding: 18,
+    justifyContent: 'space-between',
+    minHeight: 185,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  planIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 100,
+  },
+  planBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  planContent: {
+    marginBottom: 14,
+  },
+  planTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  planLockText: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: 3,
+  },
+  planMinText: {
+    fontSize: 12,
+    fontWeight: '400',
+    marginTop: 2,
+  },
+  planActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderRadius: 100,
+    borderWidth: 1,
+  },
+  planActionText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  // Active Vaults
+  activeVaultsSection: {
+    paddingHorizontal: 16,
+  },
+  activeHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    marginBottom: 12,
+  },
+  activeSectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  vaultCountBadge: {
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 100,
+  },
+  vaultCountText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#00C08B',
+  },
+  loaderContainer: {
+    paddingVertical: 32,
+    alignItems: 'center',
+  },
+
+  // Empty state
+  emptyCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingVertical: 36,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  emptyIconCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
+    maxWidth: 260,
+  },
+});

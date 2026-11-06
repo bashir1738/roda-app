@@ -30,9 +30,9 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
         <>
           <Icon name="sync-outline" size={38} color="#00C08B" spin />
           <Text className="text-charcoal dark:text-white font-semibold text-base text-center">
-            Confirming on-chain…
+            Confirming on NEAR…
           </Text>
-          <Text className="text-muted dark:text-[#A1A1AA] text-sm">This takes ~15 seconds</Text>
+          <Text className="text-muted dark:text-[#A1A1AA] text-sm">Fast 1-second finality</Text>
         </>
       )}
 

@@ -1,7 +1,6 @@
 export class NearAddress {
   constructor(private readonly value: string) {}
   toString() { return this.value; }
-  toBase58() { return this.value; }
 }
 
 export async function resolveRecipient(input: string): Promise<{

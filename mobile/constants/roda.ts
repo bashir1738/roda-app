@@ -90,7 +90,7 @@ export const FREQUENCY_PRESETS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Truncate a base58 address for display: 8gSe4…qF9S */
+/** Truncate a NEAR account ID or address for display */
 export const shortAddress = (address?: string | null, head = 4, tail = 4) =>
   address ? `${address.slice(0, head)}…${address.slice(-tail)}` : '';
 

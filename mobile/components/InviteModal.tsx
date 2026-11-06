@@ -79,7 +79,7 @@ export function InviteModal({ visible, circle, onClose }: Props) {
     const value = input.trim();
     let addr: string;
     try {
-      addr = (await resolveRecipient(value)).address.toBase58();
+      addr = (await resolveRecipient(value)).address.toString();
     } catch {
       setInputError('Enter a valid NEAR account ID');
       return;

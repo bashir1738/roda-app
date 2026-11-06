@@ -1,23 +1,17 @@
 /**
- * Meteor is the only external wallet bridge in this pass. The SDK supplies
- * the account and transaction signer when its native bridge is available.
+ * Deprecated alias for backwards compatibility.
+ * Use lib/nearWalletConnect.ts for external NEAR wallet connections.
  */
-export interface MeteorWallet {
-  accountId: string;
-  signAndSendTransaction: (transaction: unknown) => Promise<{ hash: string }>;
+import {
+  connectExternalNearWallet,
+  disconnectExternalNearWallet,
+} from './nearWalletConnect';
+
+export async function connectMeteor() {
+  const result = await connectExternalNearWallet('meteor');
+  return { accountId: result.accountId };
 }
 
-let active: MeteorWallet | null = null;
-
-export async function connectMeteor(): Promise<MeteorWallet> {
-  const meteor = (globalThis as typeof globalThis & {
-    meteor?: { connect: () => Promise<MeteorWallet> };
-  }).meteor;
-  if (!meteor) throw new Error('Meteor wallet is not available on this device.');
-  active = await meteor.connect();
-  return active;
-}
-
-export async function disconnectMeteor(): Promise<void> {
-  active = null;
+export async function disconnectMeteor() {
+  await disconnectExternalNearWallet();
 }

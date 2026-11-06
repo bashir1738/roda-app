@@ -1,20 +1,35 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ProgressBar } from './ProgressBar';
 import { Badge } from './Badge';
-import { VAULT_TIERS, type VaultData } from '../hooks/useVaults';
-import { Icon } from './Icon';
+import { VAULT_TIERS, type VaultData, type VaultTier } from '../hooks/useVaults';
+import { Icon, type IconName } from './Icon';
 import { useColorScheme } from 'nativewind';
 
+const TIER_ICONS: Record<VaultTier, IconName> = {
+  Flex: 'infinite-outline',
+  Weekly: 'calendar-outline',
+  Monthly: 'time-outline',
+  '6 Months': 'trending-up-outline',
+  '1 Year': 'trophy-outline',
+};
+
 function fmtUSDC(n: bigint) {
-  return (Number(n) / 1_000_000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (Number(n) / 1_000_000).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 function timeLeft(ts: number) {
   const d = ts - Date.now() / 1000;
   if (d <= 0) return 'Matured';
   const days = Math.floor(d / 86400);
-  return days === 0 ? `${Math.floor(d / 3600)}h remaining` : `${days}d remaining`;
+  if (days === 0) {
+    const hours = Math.floor(d / 3600);
+    return hours <= 1 ? 'Under an hour left' : `${hours}h remaining`;
+  }
+  return `${days}d remaining`;
 }
 
 function lockPct(v: VaultData) {
@@ -28,59 +43,194 @@ export function VaultCard({ vault, onClaim }: { vault: VaultData; onClaim: () =>
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
+  const iconName = TIER_ICONS[vault.tierKey] ?? 'leaf-outline';
+  const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC';
+  const textPrimary = isDark ? '#FFFFFF' : '#000000';
+  const textMuted = isDark ? '#8E8E93' : '#6B6B6B';
+  const innerBg = isDark ? '#141416' : '#F7F6F2';
+
   return (
-    <View className="bg-white dark:bg-[#1C1C1E] border border-border/50 dark:border-white/5 rounded-2xl p-5 mb-4"
-      style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: cardBg,
+          borderColor: cardBorder,
+        },
+      ]}
+    >
       {/* Header */}
-      <View className="flex-row justify-between items-start mb-4">
-        <View className="flex-row items-center gap-3">
-          <View className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-white/10 items-center justify-center">
-            <Icon name={tier.icon as any} size={22} color={isDark ? '#00C08B' : '#00C08B'} />
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View
+            style={[
+              styles.iconCircle,
+              { backgroundColor: isDark ? 'rgba(0,192,139,0.12)' : 'rgba(0,192,139,0.1)' },
+            ]}
+          >
+            <Icon name={iconName} size={20} color="#00C08B" />
           </View>
           <View>
-            <Text className="text-charcoal dark:text-white font-bold text-base">{tier.label} Vault</Text>
-            <Text className="text-muted dark:text-[#A1A1AA] text-xs">
-              {tier.lockDays > 0 ? `${tier.lockDays}-day lock` : 'Withdraw anytime'}
+            <Text style={[styles.title, { color: textPrimary }]}>{tier.label} Vault</Text>
+            <Text style={[styles.subtitle, { color: textMuted }]}>
+              {tier.lockDays > 0 ? `${tier.lockDays}-day lock commitment` : 'Withdraw anytime'}
             </Text>
           </View>
         </View>
         <Badge variant={vault.isMatured ? 'matured' : 'locked'} size="sm" />
       </View>
 
-      {/* Amount */}
-      <View className="bg-[#F8F9FA] dark:bg-[#111111] rounded-xl p-4 mb-4 mt-1">
-        <Text className="text-muted dark:text-[#A1A1AA] text-[11px] uppercase tracking-wider mb-1">Current Balance</Text>
-        <Text className="text-charcoal dark:text-white font-bold text-lg">${fmtUSDC(vault.currentBalanceUSDC)}</Text>
+      {/* Balance Block */}
+      <View style={[styles.balanceBlock, { backgroundColor: innerBg }]}>
+        <Text style={[styles.balanceLabel, { color: textMuted }]}>CURRENT BALANCE</Text>
+        <Text style={[styles.balanceValue, { color: textPrimary }]}>
+          ${fmtUSDC(vault.currentBalanceUSDC)} <Text style={[styles.currencyUnit, { color: textMuted }]}>USDC</Text>
+        </Text>
       </View>
 
-      {/* Lock progress */}
-      {vault.lockDuration > 0 && (
-        <View className="gap-1.5 mb-4">
-          <View className="flex-row justify-between">
-            <View className="flex-row items-center gap-1">
-              {vault.isMatured && <Icon name="checkmark" size={12} color="#00C08B" />}
-              <Text className="text-muted dark:text-[#A1A1AA] text-xs">
-                {vault.isMatured ? 'Matured' : timeLeft(vault.maturityTimestamp)}
+      {/* Lock Progress */}
+      {vault.lockDuration > 0 && !vault.isMatured && (
+        <View style={styles.progressContainer}>
+          <View style={styles.progressRow}>
+            <View style={styles.progressLeft}>
+              <Icon name="time-outline" size={13} color={textMuted} />
+              <Text style={[styles.progressText, { color: textMuted }]}>
+                {timeLeft(vault.maturityTimestamp)}
               </Text>
             </View>
-            <Text className="text-muted dark:text-[#A1A1AA] text-xs">{Math.round(pct * 100)}%</Text>
+            <Text style={[styles.progressPct, { color: textMuted }]}>
+              {Math.round(pct * 100)}%
+            </Text>
           </View>
-          <ProgressBar progress={pct} color={vault.isMatured ? '#00C08B' : '#00C08B'} />
+          <ProgressBar
+            progress={pct}
+            color="#00C08B"
+            trackColor={isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}
+            height={5}
+          />
         </View>
       )}
 
-      {/* Claim button */}
+      {/* Claim Button */}
       {vault.isMatured && (
         <TouchableOpacity
-          className="bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 rounded-xl py-3 items-center flex-row justify-center gap-2 mt-2"
           onPress={onClaim}
+          activeOpacity={0.85}
+          style={styles.claimButton}
           accessibilityLabel={`Claim ${tier.label} vault`}
         >
-          <Text className="text-primary dark:text-[#00C08B] font-bold text-sm">
-            Claim ${fmtUSDC(vault.principalUSDC)}
+          <Icon name="checkmark-circle" size={16} color="#000000" />
+          <Text style={styles.claimButtonText}>
+            Claim ${fmtUSDC(vault.principalUSDC)} USDC
           </Text>
         </TouchableOpacity>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  subtitle: {
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  balanceBlock: {
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 12,
+  },
+  balanceLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    marginBottom: 4,
+  },
+  balanceValue: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  currencyUnit: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  progressContainer: {
+    gap: 6,
+    marginTop: 2,
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  progressLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  progressPct: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  claimButton: {
+    backgroundColor: '#00C08B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13,
+    borderRadius: 100,
+    marginTop: 8,
+    shadowColor: '#00C08B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  claimButtonText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+});

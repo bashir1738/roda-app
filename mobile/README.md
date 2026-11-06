@@ -4,17 +4,14 @@ The `mobile/` package is an Expo React Native client for the Roda NEAR
 contracts. It reads contract views over NEAR JSON-RPC and signs account calls
 with one of the supported wallet flows:
 
-1. **Create an in-app wallet** — a NEAR keypair is generated and stored in
+1. **Create an in-app wallet** — an Ed25519 NEAR keypair is generated and stored in
    Expo SecureStore.
-2. **Continue with email** — Magic verifies the email, then the app uses the
-   same local key model (Pattern A). A one-time backup code flow is the
-   recovery UX for this key and must be completed before the email session is
-   considered finished.
-3. **Connect Meteor** — Meteor supplies the account and transaction signer
-   through its mobile bridge.
-
-NEAR Connect is intentionally a documented follow-up. Email-key restore via a
-backend is also future work; no backend exists in this repository.
+2. **Continue with email** — Magic verifies the email via passwordless OTP, then the app uses the
+   same local key model (Pattern A). A one-time backup code flow provides the
+   recovery UX for this key.
+3. **Connect External NEAR Wallets** — MyNearWallet, Meteor Wallet, and HERE Wallet
+   connect via secure in-app web auth sessions (`openAuthSessionAsync`) with custom URL
+   redirects (`roda://wallet-callback`), authorizing contract access keys on NEAR.
 
 ## Development
 
