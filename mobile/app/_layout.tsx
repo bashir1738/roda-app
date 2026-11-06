@@ -27,11 +27,14 @@ applyGlobalFont();
 
 // RN 0.86 deprecation notice fired by third-party navigation/modal animations
 // (expo-router stack card, react-native-modal) — cosmetic only.
-LogBox.ignoreLogs(['InteractionManager has been deprecated']);
+LogBox.ignoreLogs([
+  'InteractionManager has been deprecated',
+  'InteractionManager has been removed',
+]);
 
 export { ErrorBoundary } from 'expo-router';
 
-export const unstable_settings = { initialRouteName: 'index' };
+export const unstable_settings = { anchor: 'index' };
 
 SplashScreen.preventAutoHideAsync();
 

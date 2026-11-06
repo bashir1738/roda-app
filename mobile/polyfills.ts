@@ -156,3 +156,48 @@ if (typeof window !== 'undefined') {
     (window as any).dispatchEvent = () => false;
   }
 }
+
+// ── 8. InteractionManager polyfill for RN 0.86+ ───────────────────────────────
+// React Native 0.86 removed InteractionManager from core and throws an Invariant
+// error in dev mode when accessed. Polyfill it so libraries like react-native-modal
+// continue working smoothly without crashing.
+try {
+  const RN = require('react-native');
+  if (RN) {
+    const imPolyfill = {
+      createInteractionHandle: () => 1,
+      clearInteractionHandle: () => {},
+      runAfterInteractions: (task?: any) => {
+        let timer: any = null;
+        let cancel = () => {};
+        const promise = new Promise((resolve) => {
+          timer = setTimeout(() => {
+            resolve(typeof task === 'function' ? task() : undefined);
+          }, 0);
+          cancel = () => clearTimeout(timer);
+        });
+        return {
+          then: promise.then.bind(promise),
+          done: (...args: any[]) => (promise as any).done?.(...args),
+          cancel,
+        };
+      },
+      setDeadline: () => {},
+      addListener: () => ({ remove: () => {} }),
+      Events: { interactionStart: 'interactionStart', interactionComplete: 'interactionComplete' },
+    };
+
+    try {
+      Object.defineProperty(RN, 'InteractionManager', {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: imPolyfill,
+      });
+    } catch {
+      try {
+        RN.InteractionManager = imPolyfill;
+      } catch {}
+    }
+  }
+} catch {}

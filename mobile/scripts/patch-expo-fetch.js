@@ -87,3 +87,57 @@ try {
     console.log('[patch-expo-fetch] patched util/util.js with TextEncoder/TextDecoder');
   }
 }
+
+// Patch react-native to prevent InteractionManager removal invariant error in RN 0.86+ DEV mode
+const rnTarget = path.join(nm, 'react-native', 'index.js');
+if (fs.existsSync(rnTarget)) {
+  let rnSrc = fs.readFileSync(rnTarget, 'utf8');
+  const RN_MARK = '/* roda:safe-interaction-manager */';
+  if (!rnSrc.includes(RN_MARK) && rnSrc.includes("'InteractionManager has been removed from react-native core")) {
+    const throwingGetter = /Object\.defineProperty\(module\.exports,\s*'InteractionManager',\s*\{[\s\S]*?invariant\([\s\S]*?'InteractionManager has been removed[\s\S]*?\}\s*\);/;
+    const safeDefinition = `${RN_MARK}
+  const _imSafe = {
+    createInteractionHandle: () => 1,
+    clearInteractionHandle: () => {},
+    runAfterInteractions: (task) => {
+      let timer = setTimeout(() => task && task(), 0);
+      return { then: (cb) => Promise.resolve().then(cb), done: () => {}, cancel: () => clearTimeout(timer) };
+    },
+    setDeadline: () => {},
+    addListener: () => ({ remove: () => {} }),
+    Events: { interactionStart: 'interactionStart', interactionComplete: 'interactionComplete' },
+  };
+  Object.defineProperty(module.exports, 'InteractionManager', {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value: _imSafe,
+  });`;
+
+    if (throwingGetter.test(rnSrc)) {
+      rnSrc = rnSrc.replace(throwingGetter, safeDefinition);
+      fs.writeFileSync(rnTarget, rnSrc);
+      console.log('[patch-expo-fetch] patched react-native/index.js with safe InteractionManager');
+    }
+  }
+}
+
+// Patch react-native-modal to safely handle removed InteractionManager
+const modalTarget = path.join(nm, 'react-native-modal', 'dist', 'modal.js');
+if (fs.existsSync(modalTarget)) {
+  let modalSrc = fs.readFileSync(modalTarget, 'utf8');
+  const MODAL_MARK = '/* roda:safe-modal-interaction */';
+  if (!modalSrc.includes(MODAL_MARK)) {
+    modalSrc = modalSrc.replace(
+      /InteractionManager\.createInteractionHandle\(\)/g,
+      '(InteractionManager.createInteractionHandle ? InteractionManager.createInteractionHandle() : 1)',
+    );
+    modalSrc = modalSrc.replace(
+      /InteractionManager\.clearInteractionHandle\((.*?)\)/g,
+      '(InteractionManager.clearInteractionHandle ? InteractionManager.clearInteractionHandle($1) : undefined)',
+    );
+    modalSrc = `${MODAL_MARK}\n${modalSrc}`;
+    fs.writeFileSync(modalTarget, modalSrc);
+    console.log('[patch-expo-fetch] patched react-native-modal/dist/modal.js');
+  }
+}

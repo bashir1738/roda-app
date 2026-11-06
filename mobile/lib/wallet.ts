@@ -20,6 +20,15 @@ export interface NearWallet {
 }
 
 export async function loadWallet(): Promise<NearWallet | null> {
+  const storedEmail = await getStoredEmail();
+  const storedKind = await getStoredWalletKind();
+
+  // Email wallets are deterministic. Re-derive them on startup so the
+  // authenticated email remains the source of truth for the wallet identity.
+  if (storedEmail && storedKind !== 'meteor' && storedKind !== 'device') {
+    return getOrCreateWalletForEmail(storedEmail);
+  }
+
   const accountId = await getStoredAddress();
   if (!accountId) return null;
   const keyPair = await loadNearKey();

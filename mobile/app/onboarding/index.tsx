@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, Animated, useWindowDimensions,
-  ActivityIndicator, StyleSheet,
+  ActivityIndicator, StyleSheet, FlatList,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -52,7 +52,7 @@ export default function Onboarding() {
 
   const scrollX     = useRef(new Animated.Value(0)).current;
   const scrollXDots = useRef(new Animated.Value(0)).current;
-  const listRef     = useRef<Animated.FlatList<Slide>>(null);
+  const listRef     = useRef<FlatList<Slide>>(null);
 
   const [index, setIndex]         = useState(0);
   const [connecting, setConnecting] = useState(false);
