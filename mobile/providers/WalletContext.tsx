@@ -4,10 +4,13 @@ import { setNearKey } from '../lib/near';
 import {
   clearWallet,
   deviceAccountId,
+  getOrCreateWalletForEmail,
   getStoredEmail,
+  getStoredWalletKind,
   loadWallet,
   saveActiveAddress,
   saveEmail,
+  saveWalletKind,
   type NearWallet,
 } from '../lib/wallet';
 import { getMagic, isMagicEnabled, loginWithMagicEmail } from '../lib/magic';
@@ -21,7 +24,7 @@ import { CLUSTER } from '../constants/roda';
 
 const WALLET_INACTIVITY_MS = 15 * 60 * 1000;
 export type TxState = 'idle' | 'signing' | 'confirming' | 'success' | 'error';
-export type WalletKind = 'device' | 'magic' | 'mynearwallet' | 'meteor' | 'here';
+export type WalletKind = 'magic' | 'meteor' | 'device';
 
 interface WalletContextValue {
   address?: string;
@@ -83,9 +86,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           if (restored.keyPair) {
             await setNearKey(restored.accountId, restored.keyPair);
           }
+          const savedKind = (await getStoredWalletKind()) as WalletKind | null;
+          const savedEmail = await getStoredEmail();
           setWallet(restored);
-          setWalletKind('device');
-          setEmail((await getStoredEmail()) ?? undefined);
+          setWalletKind(savedKind ?? (savedEmail ? 'magic' : 'device'));
+          setEmail(savedEmail ?? undefined);
         }
         setIsReady(true);
       })
@@ -95,6 +100,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const activate = useCallback(async (next: NearWallet, kind: WalletKind) => {
     if (next.keyPair) await setNearKey(next.accountId, next.keyPair);
     await saveActiveAddress(next.accountId);
+    await saveWalletKind(kind);
     setWallet(next);
     setWalletKind(kind);
   }, []);
@@ -107,34 +113,34 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithEmail = useCallback(
     async (typedEmail: string) => {
+      let emailToUse = typedEmail.trim().toLowerCase();
       setIsLoggingIn(true);
       try {
         if (isMagicEnabled) {
-          await loginWithMagicEmail(typedEmail);
+          await loginWithMagicEmail(emailToUse);
+          try {
+            const meta = await getMagic().user.getInfo();
+            if (meta?.email) {
+              emailToUse = meta.email.trim().toLowerCase();
+            }
+          } catch (e) {
+            console.warn('Could not retrieve Magic user metadata:', e);
+          }
         } else {
-          // Dev fallback: when Magic publishable key is not yet set in .env.local,
-          // allow testing the full recovery code and local NEAR key creation flow.
           console.warn(
-            'Magic publishable key not configured — using local NEAR key with recovery backup code.',
+            'Magic publishable key not configured — using deterministic local NEAR key.',
           );
         }
-        // Pattern A: Magic authenticates the email; the NEAR key remains local in SecureStore.
-        const current = await loadWallet();
-        const next =
-          current ??
-          (await (async () => {
-            const key = await (await import('../lib/nearKey')).createNearKey();
-            return { accountId: await deviceAccountId(key), keyPair: key };
-          })());
-        setPendingEmailWallet(next);
-        setBackupCode(await createRecoveryCode());
-        setEmail(typedEmail.trim());
-        await saveEmail(typedEmail.trim());
+
+        const next = await getOrCreateWalletForEmail(emailToUse);
+        await activate(next, 'magic');
+        setEmail(emailToUse);
+        await saveEmail(emailToUse);
       } finally {
         setIsLoggingIn(false);
       }
     },
-    [activate, createDeviceWallet],
+    [activate],
   );
 
   const finishMagicLogin = useCallback(
@@ -150,11 +156,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   );
 
   const connectExternal = useCallback(
-    async (provider: NearWalletProvider = 'mynearwallet') => {
+    async (provider: NearWalletProvider = 'meteor') => {
       const connected = await connectExternalNearWallet(provider);
       await activate(
         { accountId: connected.accountId, keyPair: connected.keyPair },
-        connected.provider,
+        'meteor',
       );
       setLoginVisible(false);
     },
@@ -163,9 +169,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const disconnect = useCallback(
     async (preserveEmail = false) => {
-      if (walletKind === 'magic' && isMagicEnabled) await getMagic().user.logout();
-      if (walletKind === 'meteor' || walletKind === 'mynearwallet' || walletKind === 'here') {
-        await disconnectExternalNearWallet();
+      if (walletKind === 'magic' && isMagicEnabled) {
+        try {
+          await getMagic().user.logout();
+        } catch (e) {
+          console.warn('Magic logout error:', e);
+        }
+      }
+      if (walletKind === 'meteor') {
+        try {
+          await disconnectExternalNearWallet();
+        } catch (e) {
+          console.warn('Meteor disconnect error:', e);
+        }
       }
       await clearWallet(preserveEmail);
       setWallet(undefined);

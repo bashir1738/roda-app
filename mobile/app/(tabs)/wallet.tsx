@@ -403,13 +403,7 @@ export default function WalletTab() {
             {isConnected
               ? walletKind === 'meteor'
                 ? 'Meteor Wallet'
-                : walletKind === 'mynearwallet'
-                ? 'MyNearWallet'
-                : walletKind === 'here'
-                ? 'HERE Wallet'
-                : walletKind === 'magic'
-                ? 'Magic Account'
-                : 'NEAR Account'
+                : 'Magic Account'
               : 'Connect to get started'}
           </Text>
         </View>

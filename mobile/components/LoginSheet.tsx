@@ -7,24 +7,25 @@ import {
   TextInput,
   KeyboardAvoidingView,
   ScrollView,
+  Keyboard,
+  Alert,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { useColorScheme } from 'nativewind';
 import { useWallet } from '../providers/WalletContext';
 import { getStoredEmail } from '../lib/wallet';
-import { isMagicEnabled } from '../lib/magic';
 import { type NearWalletProvider } from '../lib/nearWalletConnect';
-import { friendlyError } from '../lib/sendTx';
-import { Icon, type IconName } from './Icon';
+import { friendlyError, isUserRejection } from '../lib/sendTx';
+import { Icon } from './Icon';
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
 export function LoginSheet() {
   const {
     loginVisible,
+    connect,
     closeLogin,
     loginWithEmail,
-    createDeviceWallet,
     connectNearWallet,
     isLoggingIn,
     backupCode,
@@ -54,32 +55,28 @@ export function LoginSheet() {
   };
 
   const onSubmit = async () => {
+    const trimmed = email.trim();
+    if (!trimmed || !valid) return;
     setError(null);
+    Keyboard.dismiss();
+    // Dismiss the modal immediately so Magic's OTP interface is clear and ready on screen
+    closeLogin();
     try {
-      await loginWithEmail(email);
-    } catch (e) {
-      setError(friendlyError(e));
+      await loginWithEmail(trimmed);
+    } catch (e: any) {
+      if (!isUserRejection(e) && !/cancel|closed/i.test(String(e?.message || e))) {
+        Alert.alert('Sign In', friendlyError(e), [
+          { text: 'Try Again', onPress: () => connect() },
+        ]);
+      }
     }
   };
 
-  const onConnectWallet = async (provider: NearWalletProvider) => {
+  const onConnectWallet = async (provider: NearWalletProvider = 'meteor') => {
     setError(null);
     setConnectingProvider(provider);
     try {
       await connectNearWallet(provider);
-      closeLogin();
-    } catch (e) {
-      setError(friendlyError(e));
-    } finally {
-      setConnectingProvider(null);
-    }
-  };
-
-  const onCreateWallet = async () => {
-    setError(null);
-    setConnectingProvider('device');
-    try {
-      await createDeviceWallet();
       closeLogin();
     } catch (e) {
       setError(friendlyError(e));
@@ -124,7 +121,7 @@ export function LoginSheet() {
                 Welcome to Roda
               </Text>
               <Text className="text-muted dark:text-[#A1A1AA] text-xs text-center mt-1 px-4 leading-relaxed">
-                Connect your NEAR account via Magic email, in-app key, or external wallet.
+                Create or sign in to your wallet with email, or connect Meteor wallet.
               </Text>
             </View>
 
@@ -161,10 +158,10 @@ export function LoginSheet() {
               </View>
             ) : (
               <View className="gap-3">
-                {/* 1. Email Sign-In (Magic) */}
+                {/* 1. Continue with Email (Magic Link) */}
                 <View className="gap-2">
                   <Text className="text-muted dark:text-[#A1A1AA] text-xs font-bold uppercase tracking-wider">
-                    Continue with Email
+                    Email (Magic Link)
                   </Text>
                   <TextInput
                     className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-[#1C1C1E] border border-[#BEEEDB] dark:border-white/15 px-4 py-3.5 rounded-2xl"
@@ -181,7 +178,7 @@ export function LoginSheet() {
                     autoComplete="email"
                   />
                   <TouchableOpacity
-                    className="bg-primary rounded-full py-3.5 items-center justify-center flex-row gap-2"
+                    className="bg-primary rounded-full py-3.5 items-center justify-center flex-row gap-2 mt-1"
                     onPress={onSubmit}
                     disabled={!valid || busy}
                     style={{ opacity: !valid || busy ? 0.35 : 1 }}
@@ -199,56 +196,12 @@ export function LoginSheet() {
                 <View className="flex-row items-center gap-3 my-2">
                   <View className="flex-1 h-[1px] bg-border dark:bg-white/10" />
                   <Text className="text-muted dark:text-[#8E8E93] text-[11px] font-bold uppercase">
-                    or connect with
+                    or
                   </Text>
                   <View className="flex-1 h-[1px] bg-border dark:bg-white/10" />
                 </View>
 
-                {/* 2. Create In-App NEAR Wallet */}
-                <TouchableOpacity
-                  className="flex-row items-center justify-between p-3.5 rounded-2xl border border-primary/30 dark:border-[#00C08B]/30 bg-primary/5 dark:bg-[#00C08B]/10"
-                  onPress={onCreateWallet}
-                  disabled={busy}
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-xl bg-primary/20 items-center justify-center">
-                      <Icon name="key-outline" size={20} color="#00C08B" />
-                    </View>
-                    <View>
-                      <Text className="text-charcoal dark:text-white font-bold text-sm">
-                        Create In-App Wallet
-                      </Text>
-                      <Text className="text-muted dark:text-[#A1A1AA] text-xs">
-                        Instant self-custody NEAR keypair
-                      </Text>
-                    </View>
-                  </View>
-                  <Icon name="chevron-forward" size={18} color="#00C08B" />
-                </TouchableOpacity>
-
-                {/* 3. MyNearWallet */}
-                <TouchableOpacity
-                  className="flex-row items-center justify-between p-3.5 rounded-2xl border border-border dark:border-white/10 bg-[#F8F9FA] dark:bg-[#1C1C1E]"
-                  onPress={() => onConnectWallet('mynearwallet')}
-                  disabled={busy}
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-xl bg-charcoal/5 dark:bg-white/10 items-center justify-center">
-                      <Icon name="wallet-outline" size={20} color={isDark ? '#FFFFFF' : '#000000'} />
-                    </View>
-                    <View>
-                      <Text className="text-charcoal dark:text-white font-bold text-sm">
-                        MyNearWallet
-                      </Text>
-                      <Text className="text-muted dark:text-[#A1A1AA] text-xs">
-                        Community standard NEAR web wallet
-                      </Text>
-                    </View>
-                  </View>
-                  <Icon name="chevron-forward" size={18} color={isDark ? '#8E8E93' : '#6B6B6B'} />
-                </TouchableOpacity>
-
-                {/* 4. Meteor Wallet */}
+                {/* 2. Connect Meteor Wallet */}
                 <TouchableOpacity
                   className="flex-row items-center justify-between p-3.5 rounded-2xl border border-border dark:border-white/10 bg-[#F8F9FA] dark:bg-[#1C1C1E]"
                   onPress={() => onConnectWallet('meteor')}
@@ -260,7 +213,7 @@ export function LoginSheet() {
                     </View>
                     <View>
                       <Text className="text-charcoal dark:text-white font-bold text-sm">
-                        Meteor Wallet
+                        Connect Meteor Wallet
                       </Text>
                       <Text className="text-muted dark:text-[#A1A1AA] text-xs">
                         NEAR browser & mobile wallet
@@ -270,30 +223,8 @@ export function LoginSheet() {
                   <Icon name="chevron-forward" size={18} color={isDark ? '#8E8E93' : '#6B6B6B'} />
                 </TouchableOpacity>
 
-                {/* 5. HERE Wallet */}
-                <TouchableOpacity
-                  className="flex-row items-center justify-between p-3.5 rounded-2xl border border-border dark:border-white/10 bg-[#F8F9FA] dark:bg-[#1C1C1E]"
-                  onPress={() => onConnectWallet('here')}
-                  disabled={busy}
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-xl bg-charcoal/5 dark:bg-white/10 items-center justify-center">
-                      <Icon name="shield-checkmark-outline" size={20} color={isDark ? '#FFFFFF' : '#000000'} />
-                    </View>
-                    <View>
-                      <Text className="text-charcoal dark:text-white font-bold text-sm">
-                        HERE Wallet
-                      </Text>
-                      <Text className="text-muted dark:text-[#A1A1AA] text-xs">
-                        Mobile self-custody NEAR wallet
-                      </Text>
-                    </View>
-                  </View>
-                  <Icon name="chevron-forward" size={18} color={isDark ? '#8E8E93' : '#6B6B6B'} />
-                </TouchableOpacity>
-
                 {/* Not Now button */}
-                <TouchableOpacity className="py-2 items-center" onPress={onClose}>
+                <TouchableOpacity className="py-2.5 items-center mt-1" onPress={onClose}>
                   <Text className="text-muted dark:text-[#A1A1AA] text-xs font-semibold">
                     Not now
                   </Text>

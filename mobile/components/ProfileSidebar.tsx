@@ -312,16 +312,7 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                     </View>
 
                     <Text style={[styles.profileSubText, { color: textMuted }]}>
-                      {email ??
-                        (walletKind === 'meteor'
-                          ? 'Meteor Wallet'
-                          : walletKind === 'mynearwallet'
-                          ? 'MyNearWallet'
-                          : walletKind === 'here'
-                          ? 'HERE Wallet'
-                          : walletKind === 'device'
-                          ? 'In-App NEAR Wallet'
-                          : 'NEAR Account')}
+                      {email ?? (walletKind === 'meteor' ? 'Meteor Wallet' : 'Magic Account')}
                     </Text>
                   </View>
                 </View>
