@@ -1,40 +1,99 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, Animated, TouchableOpacity, Dimensions,
-  TouchableWithoutFeedback, ScrollView, Switch, Alert, StyleSheet,
+  View,
+  Text,
+  Animated,
+  TouchableOpacity,
+  Dimensions,
+  TouchableWithoutFeedback,
+  ScrollView,
+  Switch,
+  Alert,
+  StyleSheet,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Clipboard from 'expo-clipboard';
+import { useColorScheme } from 'nativewind';
+
 import { useWallet } from '../providers/WalletContext';
 import { isMagicEnabled } from '../lib/magic';
 import { PrivateKeyModal } from './PrivateKeyModal';
 import { getNotificationsEnabled, setNotificationsEnabled } from '../hooks/useNotifications';
-import { useColorScheme } from 'nativewind';
-import { Icon, IconName } from './Icon';
+import { useDisplayName } from '../hooks/useDisplayName';
+import { ClaimNameButton } from './ClaimNameButton';
+import { Icon, type IconName } from './Icon';
 
-const SIDEBAR_WIDTH = Dimensions.get('window').width * 0.86;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-function SidebarRow({
-  icon, iconBg, iconColor = '#00C08B', label, labelColor, right, isDark,
-}: {
-  icon: IconName;
-  iconBg: string; iconColor?: string; label: string; labelColor?: string;
-  right: React.ReactNode; isDark: boolean;
-}) {
-  const isAlert = !!labelColor;
-  return (
-    <View style={[styles.row, { borderBottomColor: isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC' }]}>
-      <View style={[styles.rowIcon, { backgroundColor: iconBg }]}>
-        <Icon name={icon} size={18} color={iconColor} />
-      </View>
-      <Text style={[styles.rowLabel, { color: isAlert ? labelColor : (isDark ? '#FFFFFF' : '#303030') }]}>
-        {label}
-      </Text>
-      {right}
-    </View>
-  );
+function fmtAddr(addr: string) {
+  if (!addr) return '';
+  if (addr.length <= 16) return addr;
+  return `${addr.slice(0, 8)}…${addr.slice(-6)}`;
 }
 
-function fmtAddr(addr: string) { return `${addr.slice(0, 6)}…${addr.slice(-4)}`; }
+interface SidebarRowProps {
+  icon: IconName;
+  iconBg?: string;
+  iconColor?: string;
+  title: string;
+  subtitle?: string;
+  titleColor?: string;
+  right?: React.ReactNode;
+  onPress?: () => void;
+  isLast?: boolean;
+  isDark: boolean;
+}
+
+function SidebarRow({
+  icon,
+  iconBg,
+  iconColor = '#00C08B',
+  title,
+  subtitle,
+  titleColor,
+  right,
+  onPress,
+  isLast = false,
+  isDark,
+}: SidebarRowProps) {
+  const defaultBg = isDark ? 'rgba(0,192,139,0.12)' : 'rgba(0,192,139,0.1)';
+  const borderCol = isDark ? 'rgba(255,255,255,0.06)' : '#F0ECE4';
+  const textPrimary = titleColor ?? (isDark ? '#FFFFFF' : '#000000');
+  const textMuted = isDark ? '#8E8E93' : '#6B6B6B';
+
+  const content = (
+    <View
+      style={[
+        styles.row,
+        !isLast && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: borderCol },
+      ]}
+    >
+      <View style={[styles.rowIcon, { backgroundColor: iconBg ?? defaultBg }]}>
+        <Icon name={icon} size={18} color={iconColor} />
+      </View>
+      <View style={styles.rowTextCol}>
+        <Text style={[styles.rowTitle, { color: textPrimary }]}>{title}</Text>
+        {!!subtitle && <Text style={[styles.rowSubtitle, { color: textMuted }]}>{subtitle}</Text>}
+      </View>
+      {right ?? (
+        onPress ? (
+          <Icon name="chevron-forward" size={16} color={isDark ? '#636366' : '#C7C7CC'} />
+        ) : null
+      )}
+    </View>
+  );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
+}
 
 interface Props {
   visible: boolean;
@@ -42,16 +101,18 @@ interface Props {
 }
 
 export function ProfileSidebar({ visible, onClose }: Props) {
-  const slideAnim = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
+  const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const [mounted, setMounted] = useState(false);
 
-  const { address, isConnected, disconnect, connect } = useWallet();
-  const { walletKind } = useWallet();
+  const { address, isConnected, disconnect, connect, walletKind, email } = useWallet();
+  const { onChainName, localName } = useDisplayName(address);
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [keyModalVisible, setKeyModalVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     getNotificationsEnabled().then(setNotifEnabled).catch(() => {});
@@ -60,15 +121,20 @@ export function ProfileSidebar({ visible, onClose }: Props) {
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      slideAnim.setValue(SIDEBAR_WIDTH);
+      slideAnim.setValue(SCREEN_WIDTH);
       overlayAnim.setValue(0);
       Animated.parallel([
-        Animated.spring(slideAnim, { toValue: 0, useNativeDriver: true, tension: 65, friction: 11 }),
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 70,
+          friction: 12,
+        }),
         Animated.timing(overlayAnim, { toValue: 0.5, duration: 250, useNativeDriver: true }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(slideAnim, { toValue: SIDEBAR_WIDTH, duration: 220, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: SCREEN_WIDTH, duration: 220, useNativeDriver: true }),
         Animated.timing(overlayAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
       ]).start(() => setMounted(false));
     }
@@ -78,135 +144,306 @@ export function ProfileSidebar({ visible, onClose }: Props) {
     const enabled = await setNotificationsEnabled(value);
     setNotifEnabled(enabled);
     if (value && !enabled) {
-      Alert.alert('Notifications unavailable', 'Enable notifications in your device Settings and use a development build.');
+      Alert.alert(
+        'Notifications Unavailable',
+        'Enable notifications in device Settings to receive circle reminders and payout alerts.',
+      );
     }
   };
 
-  const confirmDisconnect = () => Alert.alert(
-    'Sign out', 'You can sign back in anytime with the same social account.',
-    [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign out', style: 'destructive', onPress: () => { onClose(); setTimeout(disconnect, 300); } },
-    ],
-  );
+  const copyAddress = async () => {
+    if (!address) return;
+    try {
+      await Clipboard.setStringAsync(address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
+  const openExplorer = () => {
+    if (!address) return;
+    const url = `https://testnet.nearblocks.io/address/${address}`;
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Cannot open link', 'Please visit testnet.nearblocks.io directly.');
+    });
+  };
+
+  const confirmDisconnect = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: () => {
+            onClose();
+            setTimeout(disconnect, 250);
+          },
+        },
+      ],
+    );
+  };
 
   if (!mounted) return null;
 
-  const bg = isDark ? '#1C1C1E' : '#FFFFFF';
-  const cardBg = isDark ? '#2C2C2E' : '#FFFFFF';
+  // Colors
+  const bg = isDark ? '#111111' : '#FDFBF7';
+  const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
   const cardBorder = isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC';
-  const sectionLabelColor = isDark ? '#8E8E93' : '#6B6B6B';
-  const addrColor = isDark ? '#8E8E93' : '#6B6B6B';
-  const closeBtnBg = isDark ? '#3A3A3C' : '#F0EBE0';
-  const avatarBg = isDark ? '#3A3A3C' : '#F3F4F6';
-  const headerBorderColor = isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC';
+  const textPrimary = isDark ? '#FFFFFF' : '#000000';
+  const textMuted = isDark ? '#8E8E93' : '#6B6B6B';
+  const backBtnBg = isDark ? '#1C1C1E' : '#FFFFFF';
+  const backBtnBorder = isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB';
+
+  const displayName = onChainName ? `@${onChainName}` : localName ? `@${localName}` : null;
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      {/* Dimmed overlay */}
+      {/* Dimmed backdrop (shown during slide transition) */}
       <TouchableWithoutFeedback onPress={onClose}>
-        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: overlayAnim }]} />
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: '#000000', opacity: overlayAnim },
+          ]}
+        />
       </TouchableWithoutFeedback>
 
-      {/* Sidebar panel */}
+      {/* Full-Page Panel */}
       <Animated.View style={[styles.panel, { transform: [{ translateX: slideAnim }] }]}>
-        <SafeAreaView style={{ flex: 1, backgroundColor: bg }} edges={['top', 'bottom']}>
-          {/* Header */}
-          <View style={[styles.header, { borderBottomColor: headerBorderColor }]}>
-            <View style={styles.headerLeft}>
-              <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
-                <Icon name="person" size={20} color={isDark ? '#00C08B' : '#00C08B'} />
-              </View>
-              <Text style={[styles.addrText, { color: addrColor }]} numberOfLines={1}>
-                {address ? fmtAddr(address) : 'Wallet'}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: closeBtnBg }]}>
-              <Icon name="close" size={18} color={isDark ? '#AEAEB2' : '#6B6B6B'} />
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: bg }]} edges={['top', 'bottom']}>
+          {/* Top Bar Header */}
+          <View style={styles.topBar}>
+            <TouchableOpacity
+              onPress={onClose}
+              activeOpacity={0.7}
+              style={[
+                styles.backBtn,
+                { backgroundColor: backBtnBg, borderColor: backBtnBorder },
+              ]}
+              accessibilityLabel="Back"
+            >
+              <Icon name="arrow-back" size={18} color={textPrimary} />
             </TouchableOpacity>
+
+            <Text style={[styles.topBarTitle, { color: textPrimary }]}>Profile</Text>
+
+            {/* Spacer to keep title centered */}
+            <View style={styles.backBtnPlaceholder} />
           </View>
 
           {!isConnected ? (
-            <View style={styles.signedOut}>
-              <View style={[styles.signedOutIcon, isDark && { backgroundColor: 'rgba(0,192,139,0.15)' }]}>
-                <Icon name="person-outline" size={32} color={isDark ? '#00C08B' : '#00C08B'} />
+            /* Signed Out View */
+            <View style={styles.signedOutContainer}>
+              <View style={styles.signedOutIconCircle}>
+                <Icon name="person-outline" size={38} color="#00C08B" />
               </View>
-              <Text style={[styles.signedOutTitle, { color: isDark ? '#FFFFFF' : '#303030' }]}>You're signed out</Text>
-              <Text style={[styles.signedOutSub, { color: isDark ? '#8E8E93' : '#6B6B6B' }]}>
-                Sign in to manage your profile and settings.
+              <Text style={[styles.signedOutTitle, { color: textPrimary }]}>Welcome to Roda</Text>
+              <Text style={[styles.signedOutSub, { color: textMuted }]}>
+                Connect your NEAR wallet to view your profile, manage savings circles, and customize your settings.
               </Text>
-              <TouchableOpacity style={styles.signInBtn} onPress={connect}>
-                <Text style={styles.signInText}>Sign in</Text>
+              <TouchableOpacity
+                style={styles.signInButton}
+                onPress={() => {
+                  onClose();
+                  connect();
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.signInButtonText}>Connect Wallet</Text>
               </TouchableOpacity>
-            </View>
-          ) : (
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-              <Text style={[styles.sectionLabel, { color: sectionLabelColor }]}>Settings</Text>
-              <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
-                {/* Dark Mode Toggle */}
+
+              {/* Theme toggle available when signed out */}
+              <View
+                style={[
+                  styles.card,
+                  styles.signedOutThemeCard,
+                  { backgroundColor: cardBg, borderColor: cardBorder },
+                ]}
+              >
                 <SidebarRow
                   isDark={isDark}
                   icon="moon-outline"
-                  iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
-                  iconColor={isDark ? '#00C08B' : '#00C08B'}
-                  label="Dark Mode"
+                  title="Dark Mode"
+                  isLast
                   right={
                     <Switch
                       value={isDark}
                       onValueChange={(v) => setColorScheme(v ? 'dark' : 'light')}
-                      trackColor={{ false: '#BEEEDB', true: '#00C08B' }}
+                      trackColor={{ false: isDark ? '#3A3A3C' : '#E5E7EB', true: '#00C08B' }}
                       thumbColor="#FFFFFF"
                     />
                   }
                 />
-                {/* Notifications */}
+              </View>
+            </View>
+          ) : (
+            /* Signed In Full Page Content */
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              {/* ── User Profile Hero Card ── */}
+              <View
+                style={[
+                  styles.profileHeroCard,
+                  { backgroundColor: cardBg, borderColor: cardBorder },
+                ]}
+              >
+                <View style={styles.profileHeroRow}>
+                  {/* Avatar */}
+                  <View style={styles.avatarCircle}>
+                    <Icon name="person" size={26} color="#00C08B" />
+                  </View>
+
+                  {/* Profile Info */}
+                  <View style={styles.profileInfoCol}>
+                    <View style={styles.nameRow}>
+                      <Text style={[styles.profileNameText, { color: textPrimary }]} numberOfLines={1}>
+                        {displayName ?? 'Smart Account'}
+                      </Text>
+                      {!!onChainName && (
+                        <View style={styles.verifiedBadge}>
+                          <Icon name="checkmark-circle" size={15} color="#00C08B" />
+                        </View>
+                      )}
+                    </View>
+
+                    <Text style={[styles.profileSubText, { color: textMuted }]}>
+                      {email ?? (walletKind === 'meteor' ? 'Meteor Wallet' : 'NEAR Account')}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Address Pill */}
+                {address && (
+                  <TouchableOpacity
+                    onPress={copyAddress}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.addressPill,
+                      {
+                        backgroundColor: isDark ? '#141416' : '#F7F6F2',
+                        borderColor: cardBorder,
+                      },
+                    ]}
+                  >
+                    <Icon
+                      name={copied ? 'checkmark-circle' : 'wallet-outline'}
+                      size={13}
+                      color={copied ? '#00C08B' : textMuted}
+                    />
+                    <Text
+                      style={[
+                        styles.addressPillText,
+                        { color: copied ? '#00C08B' : textPrimary },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {copied ? 'Address Copied!' : fmtAddr(address)}
+                    </Text>
+                    <Icon
+                      name={copied ? 'checkmark' : 'copy-outline'}
+                      size={13}
+                      color={copied ? '#00C08B' : textMuted}
+                    />
+                  </TouchableOpacity>
+                )}
+
+                {/* Claim Name Banner (shown only if local name exists and not on-chain) */}
+                <ClaimNameButton />
+              </View>
+
+              {/* ── Settings (Only What Is Needed) ── */}
+              <Text style={[styles.sectionLabel, { color: textMuted }]}>SETTINGS</Text>
+              <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBorder }]}>
+                {/* 1. Dark Mode */}
+                <SidebarRow
+                  isDark={isDark}
+                  icon="moon-outline"
+                  title="Dark Mode"
+                  subtitle="Switch between light and dark themes"
+                  right={
+                    <Switch
+                      value={isDark}
+                      onValueChange={(v) => setColorScheme(v ? 'dark' : 'light')}
+                      trackColor={{ false: isDark ? '#3A3A3C' : '#E5E7EB', true: '#00C08B' }}
+                      thumbColor="#FFFFFF"
+                    />
+                  }
+                />
+
+                {/* 2. Notifications */}
                 <SidebarRow
                   isDark={isDark}
                   icon="notifications-outline"
-                  iconBg={isDark ? 'rgba(0,192,139,0.15)' : 'rgba(0,192,139,0.12)'}
-                  iconColor={isDark ? '#00C08B' : '#00C08B'}
-                  label="Push Notifications"
+                  title="Push Notifications"
+                  subtitle="Circle reminders and payout alerts"
                   right={
                     <Switch
                       value={notifEnabled}
                       onValueChange={toggleNotifications}
-                      trackColor={{ false: isDark ? '#3A3A3C' : '#BEEEDB', true: '#00C08B' }}
+                      trackColor={{ false: isDark ? '#3A3A3C' : '#E5E7EB', true: '#00C08B' }}
                       thumbColor="#FFFFFF"
                     />
                   }
                 />
+
+                {/* 3. Export Private Key (device/magic wallet) */}
                 {(walletKind === 'device' || (walletKind === 'magic' && isMagicEnabled)) && (
-                  <TouchableOpacity onPress={() => setKeyModalVisible(true)}>
-                    <SidebarRow
-                      isDark={isDark}
-                      icon="lock-closed-outline"
-                      iconBg={isDark ? 'rgba(0,192,139,0.18)' : 'rgba(0,192,139,0.12)'}
-                      iconColor={isDark ? '#00C08B' : '#00C08B'}
-                      label="Export Private Key"
-                      right={<Icon name="chevron-forward" size={16} color={isDark ? '#AEAEB2' : '#6B6B6B'} />}
-                    />
-                  </TouchableOpacity>
-                )}
-                {/* Sign out */}
-                <TouchableOpacity onPress={confirmDisconnect}>
                   <SidebarRow
                     isDark={isDark}
-                    icon="log-out-outline"
-                    iconBg={isDark ? 'rgba(249,115,22,0.15)' : 'rgba(193,68,14,0.10)'}
-                    iconColor={isDark ? '#F97316' : '#C1440E'}
-                    label="Sign out"
-                    labelColor={isDark ? '#F97316' : '#C1440E'}
-                    right={<Icon name="chevron-forward" size={16} color={isDark ? '#F97316' : '#C1440E'} />}
+                    icon="key-outline"
+                    title="Export Private Key"
+                    subtitle="Backup your secret recovery key"
+                    onPress={() => setKeyModalVisible(true)}
                   />
-                </TouchableOpacity>
+                )}
+
+                {/* 4. View on Explorer */}
+                <SidebarRow
+                  isDark={isDark}
+                  icon="open-outline"
+                  title="View on Explorer"
+                  subtitle="nearblocks.io testnet"
+                  onPress={openExplorer}
+                  isLast
+                />
               </View>
 
-         
+              {/* ── Sign Out Button ── */}
+              <TouchableOpacity
+                onPress={confirmDisconnect}
+                activeOpacity={0.8}
+                style={[
+                  styles.signOutButton,
+                  {
+                    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.12)' : '#FEF2F2',
+                    borderColor: isDark ? 'rgba(239, 68, 68, 0.25)' : '#FEE2E2',
+                  },
+                ]}
+              >
+                <View style={styles.signOutIconCircle}>
+                  <Icon name="log-out-outline" size={17} color="#EF4444" />
+                </View>
+                <Text style={styles.signOutText}>Sign Out</Text>
+                <Icon name="chevron-forward" size={16} color="#EF4444" />
+              </TouchableOpacity>
+
+              {/* Subtle Footer */}
+              <View style={styles.footerContainer}>
+                <Text style={[styles.footerText, { color: textMuted }]}>
+                  Roda · NEAR Protocol Testnet
+                </Text>
+              </View>
             </ScrollView>
           )}
         </SafeAreaView>
       </Animated.View>
 
+      {/* Private Key Modal */}
       <PrivateKeyModal
         visible={keyModalVisible}
         address={address}
@@ -222,61 +459,275 @@ export function ProfileButton({ onPress }: { onPress: () => void }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.profileBtn, { backgroundColor: isDark ? '#3A3A3C' : '#F3F4F6' }]}
+      activeOpacity={0.75}
+      style={[
+        styles.profileBtn,
+        {
+          backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+          borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#EDE6DC',
+        },
+      ]}
       accessibilityLabel="Open profile"
     >
-      <Icon name="person" size={18} color={isDark ? '#00C08B' : '#00C08B'} />
+      <Icon name="person" size={17} color="#00C08B" />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   panel: {
-    position: 'absolute', right: 0, top: 0, bottom: 0,
-    width: SIDEBAR_WIDTH,
-    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 20,
-    shadowOffset: { width: -4, height: 0 }, elevation: 10,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: '100%',
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 16,
   },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16,
-    borderBottomWidth: 1,
+  safeArea: {
+    flex: 1,
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
-  avatar: {
-    width: 40, height: 40, borderRadius: 20,
-    alignItems: 'center', justifyContent: 'center',
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 14,
   },
-  addrText: { fontSize: 11, fontFamily: 'monospace', marginTop: 1, flex: 1 },
-  closeBtn: {
-    width: 32, height: 32, borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  sectionLabel: {
-    fontSize: 11, fontWeight: '700',
-    textTransform: 'uppercase', letterSpacing: 1.2,
-    marginTop: 20, marginBottom: 8, marginHorizontal: 20,
-  },
-  card: {
-    marginHorizontal: 16,
-    borderRadius: 16, overflow: 'hidden',
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
   },
-  row: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  backBtnPlaceholder: {
+    width: 38,
+    height: 38,
   },
-  rowIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
-  rowLabel: { flex: 1, fontSize: 14, fontWeight: '600' },
-  signedOut: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, paddingHorizontal: 32 },
-  signedOutIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,192,139,0.08)', alignItems: 'center', justifyContent: 'center' },
-  signedOutTitle: { fontSize: 16, fontWeight: '800', textAlign: 'center' },
-  signedOutSub: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
-  signInBtn: { backgroundColor: '#00C08B', borderRadius: 100, paddingHorizontal: 32, paddingVertical: 14, marginTop: 4 },
-  signInText: { color: '#000000', fontWeight: '700', fontSize: 14 },
+  topBarTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 48,
+  },
+
+  // Profile Hero Card
+  profileHeroCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  profileHeroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    marginBottom: 14,
+  },
+  avatarCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(0,192,139,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInfoCol: {
+    flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  profileNameText: {
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  verifiedBadge: {
+    marginLeft: 2,
+  },
+  profileSubText: {
+    fontSize: 13,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  addressPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 100,
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  addressPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: 'monospace',
+  },
+
+  // Section Headers
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    marginBottom: 10,
+    marginHorizontal: 4,
+  },
+  card: {
+    borderRadius: 24,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 1,
+    marginBottom: 18,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 15,
+  },
+  rowIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  rowTextCol: {
+    flex: 1,
+    marginRight: 8,
+  },
+  rowTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  rowSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '400',
+  },
+
+  // Sign out button
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginTop: 4,
+  },
+  signOutIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  signOutText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#EF4444',
+  },
+
+  // Footer
+  footerContainer: {
+    alignItems: 'center',
+    marginTop: 28,
+  },
+  footerText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+
+  // Signed out screen
+  signedOutContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  signedOutIconCircle: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(0,192,139,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  signedOutTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  signedOutSub: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 28,
+  },
+  signInButton: {
+    backgroundColor: '#00C08B',
+    paddingVertical: 14,
+    paddingHorizontal: 36,
+    borderRadius: 100,
+    shadowColor: '#00C08B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 32,
+  },
+  signInButtonText: {
+    color: '#000000',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  signedOutThemeCard: {
+    width: '100%',
+  },
+
   profileBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
 });

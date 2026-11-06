@@ -60,7 +60,7 @@ export default function Splash() {
 
   return (
     <View className="flex-1 bg-primary items-center justify-center">
-      
+      <StatusBar style="light" />
 
       <Animated.View style={{ opacity: logoOpacity, transform: [{ scale: logoScale }] }} className="items-center">
         {/* Logo mark */}
@@ -74,20 +74,25 @@ export default function Splash() {
 
       {/* Wordmark */}
       <Animated.Text
-        style={{ opacity: wordOpacity, transform: [{ translateY: wordTranslate }] }}
-        className="text-black text-5xl font-black tracking-tight"
+        style={{ opacity: wordOpacity, transform: [{ translateY: wordTranslate }], color: '#FFFFFF' }}
+        className="text-white text-5xl font-black tracking-tight"
       >
         Roda
       </Animated.Text>
 
       {/* Tagline */}
-      <Animated.Text style={{ opacity: taglineOpacity }} className="text-black/70 text-sm font-semibold mt-2">
+      <Animated.Text
+        style={{ opacity: taglineOpacity, color: 'rgba(255, 255, 255, 0.9)' }}
+        className="text-white/90 text-sm font-semibold mt-2"
+      >
         Rotating savings, reimagined
       </Animated.Text>
 
       {/* Footer mark */}
       <Animated.View style={{ opacity: taglineOpacity }} className="absolute bottom-12 items-center">
-        <Text className="text-black/50 text-xs font-semibold">Powered by NEAR</Text>
+        <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }} className="text-white/80 text-xs font-semibold">
+          Powered by NEAR
+        </Text>
       </Animated.View>
     </View>
   );
