@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { buttonClasses, type ButtonVariant } from "./ui";
 import { Logo } from "./Logo";
 import { CloseIcon, DownloadIcon } from "./icons";
+
+const subscribe = () => () => {};
 
 export function GetAppButton({
   children = "Get app",
@@ -38,8 +40,7 @@ function GetAppModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   useEffect(() => {
     if (!open) return;

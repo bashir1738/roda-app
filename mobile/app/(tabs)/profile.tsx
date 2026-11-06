@@ -193,13 +193,17 @@ export default function ProfileTab() {
           >
             <View style={styles.profileHeroRow}>
               <View style={styles.avatarCircle}>
-                <Icon name="person" size={26} color="#00C08B" />
+                <Icon name="person" size={24} color="#00C08B" />
               </View>
 
               <View style={styles.profileInfoCol}>
                 <View style={styles.nameRow}>
-                  <Text style={[styles.profileNameText, { color: textPrimary }]} numberOfLines={1}>
-                    {displayName ?? 'Smart Account'}
+                  <Text
+                    style={[styles.profileNameText, { color: textPrimary }]}
+                    numberOfLines={1}
+                    ellipsizeMode="middle"
+                  >
+                    {email || displayName || (walletKind === 'meteor' ? 'Meteor Wallet' : 'NEAR Account')}
                   </Text>
                   {!!onChainName && (
                     <View style={styles.verifiedBadge}>
@@ -208,9 +212,11 @@ export default function ProfileTab() {
                   )}
                 </View>
 
-                <Text style={[styles.profileSubText, { color: textMuted }]}>
-                  {email ?? (walletKind === 'meteor' ? 'Meteor Wallet' : 'Magic Account')}
-                </Text>
+                {displayName && email && (
+                  <Text style={[styles.profileSubText, { color: textMuted }]}>
+                    {displayName}
+                  </Text>
+                )}
               </View>
             </View>
 
@@ -394,8 +400,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   profileNameText: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '700',
     letterSpacing: -0.3,
   },
   verifiedBadge: {

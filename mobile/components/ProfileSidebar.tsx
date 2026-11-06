@@ -11,6 +11,8 @@ import {
   Alert,
   StyleSheet,
   Linking,
+  BackHandler,
+  PanResponder,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
@@ -104,6 +106,9 @@ export function ProfileSidebar({ visible, onClose }: Props) {
   const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const [mounted, setMounted] = useState(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const isClosingRef = useRef(false);
 
   const { address, isConnected, disconnect, connect, walletKind, email } = useWallet();
   const { onChainName, localName } = useDisplayName(address);
@@ -113,6 +118,142 @@ export function ProfileSidebar({ visible, onClose }: Props) {
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [keyModalVisible, setKeyModalVisible] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Android hardware / gesture back listener
+  useEffect(() => {
+    if (!visible) return;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (keyModalVisible) {
+        setKeyModalVisible(false);
+        return true;
+      }
+      onClose();
+      return true;
+    });
+    return () => backHandler.remove();
+  }, [visible, keyModalVisible, onClose]);
+
+  // Touch Swipe Back Responder (iOS edge swipe + direct horizontal drag on Android/iOS)
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
+
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        const { dx, dy } = gestureState;
+        const { pageX, pageY } = evt.nativeEvent;
+
+        // Must be swiping right
+        if (dx <= 6) return false;
+
+        // Left edge swipe (classic iOS swipe back)
+        if (pageX <= 50 && Math.abs(dx) > Math.abs(dy)) {
+          return true;
+        }
+
+        // Top bar header swipe
+        if (pageY <= 110 && Math.abs(dx) > Math.abs(dy)) {
+          return true;
+        }
+
+        // General horizontal right swipe
+        return dx > 16 && Math.abs(dx) > Math.abs(dy) * 1.5;
+      },
+
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => {
+        const { dx, dy } = gestureState;
+        const { pageX, pageY } = evt.nativeEvent;
+
+        if (dx <= 6) return false;
+
+        // Left edge swipe (capture before ScrollView disallows intercept)
+        if (pageX <= 50 && Math.abs(dx) > Math.abs(dy)) {
+          return true;
+        }
+
+        // Top bar header swipe
+        if (pageY <= 110 && Math.abs(dx) > Math.abs(dy)) {
+          return true;
+        }
+
+        // General horizontal right swipe
+        return dx > 16 && Math.abs(dx) > Math.abs(dy) * 1.5;
+      },
+
+      onPanResponderGrant: () => {
+        slideAnim.stopAnimation();
+      },
+
+      onPanResponderMove: (evt, gestureState) => {
+        const newX = Math.max(0, gestureState.dx);
+        slideAnim.setValue(newX);
+        const progress = Math.max(0, Math.min(1, 1 - newX / SCREEN_WIDTH));
+        overlayAnim.setValue(0.5 * progress);
+      },
+
+      onPanResponderRelease: (evt, gestureState) => {
+        const { dx, vx } = gestureState;
+        const shouldDismiss = dx > SCREEN_WIDTH * 0.22 || vx > 0.35;
+
+        if (shouldDismiss) {
+          const remaining = SCREEN_WIDTH - Math.max(0, dx);
+          const velocity = Math.max(0.6, Math.abs(vx));
+          const duration = Math.min(200, Math.max(90, remaining / velocity));
+
+          isClosingRef.current = true;
+          Animated.parallel([
+            Animated.timing(slideAnim, {
+              toValue: SCREEN_WIDTH,
+              duration,
+              useNativeDriver: true,
+            }),
+            Animated.timing(overlayAnim, {
+              toValue: 0,
+              duration,
+              useNativeDriver: true,
+            }),
+          ]).start(() => {
+            onCloseRef.current();
+            setMounted(false);
+            isClosingRef.current = false;
+          });
+        } else {
+          // Snap back open
+          Animated.parallel([
+            Animated.spring(slideAnim, {
+              toValue: 0,
+              useNativeDriver: true,
+              tension: 80,
+              friction: 12,
+            }),
+            Animated.timing(overlayAnim, {
+              toValue: 0.5,
+              duration: 150,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+      },
+
+      onPanResponderTerminate: () => {
+        Animated.parallel([
+          Animated.spring(slideAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+            tension: 80,
+            friction: 12,
+          }),
+          Animated.timing(overlayAnim, {
+            toValue: 0.5,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      },
+
+      onPanResponderTerminationRequest: () => false,
+    })
+  ).current;
 
   useEffect(() => {
     getNotificationsEnabled().then(setNotifEnabled).catch(() => {});
@@ -133,6 +274,7 @@ export function ProfileSidebar({ visible, onClose }: Props) {
         Animated.timing(overlayAnim, { toValue: 0.5, duration: 250, useNativeDriver: true }),
       ]).start();
     } else {
+      if (isClosingRef.current) return;
       Animated.parallel([
         Animated.timing(slideAnim, { toValue: SCREEN_WIDTH, duration: 220, useNativeDriver: true }),
         Animated.timing(overlayAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
@@ -212,7 +354,10 @@ export function ProfileSidebar({ visible, onClose }: Props) {
       </TouchableWithoutFeedback>
 
       {/* Full-Page Panel */}
-      <Animated.View style={[styles.panel, { transform: [{ translateX: slideAnim }] }]}>
+      <Animated.View
+        style={[styles.panel, { transform: [{ translateX: slideAnim }] }]}
+        {...panResponder.panHandlers}
+      >
         <SafeAreaView style={[styles.safeArea, { backgroundColor: bg }]} edges={['top', 'bottom']}>
           {/* Top Bar Header */}
           <View style={styles.topBar}>
@@ -295,14 +440,18 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                 <View style={styles.profileHeroRow}>
                   {/* Avatar */}
                   <View style={styles.avatarCircle}>
-                    <Icon name="person" size={26} color="#00C08B" />
+                    <Icon name="person" size={24} color="#00C08B" />
                   </View>
 
                   {/* Profile Info */}
                   <View style={styles.profileInfoCol}>
                     <View style={styles.nameRow}>
-                      <Text style={[styles.profileNameText, { color: textPrimary }]} numberOfLines={1}>
-                        {displayName ?? 'Smart Account'}
+                      <Text
+                        style={[styles.profileNameText, { color: textPrimary }]}
+                        numberOfLines={1}
+                        ellipsizeMode="middle"
+                      >
+                        {email || displayName || (walletKind === 'meteor' ? 'Meteor Wallet' : 'NEAR Account')}
                       </Text>
                       {!!onChainName && (
                         <View style={styles.verifiedBadge}>
@@ -311,9 +460,11 @@ export function ProfileSidebar({ visible, onClose }: Props) {
                       )}
                     </View>
 
-                    <Text style={[styles.profileSubText, { color: textMuted }]}>
-                      {email ?? (walletKind === 'meteor' ? 'Meteor Wallet' : 'Magic Account')}
-                    </Text>
+                    {displayName && email && (
+                      <Text style={[styles.profileSubText, { color: textMuted }]}>
+                        {displayName}
+                      </Text>
+                    )}
                   </View>
                 </View>
 
@@ -557,8 +708,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   profileNameText: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '700',
     letterSpacing: -0.3,
   },
   verifiedBadge: {

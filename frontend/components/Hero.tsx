@@ -1,21 +1,26 @@
 import { Container, Button } from "./ui";
 import { GetAppButton } from "./GetAppModal";
 import { AppPreview } from "./AppPreview";
-import Image from "next/image";
 
 const HIGHLIGHTS = [
   "No account or maintenance fees",
-  "On-chain payouts",
-  "One flat 0.3% payout fee",
+  "Automated on-chain payouts",
+  "One flat 0.3% pot fee",
 ];
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-surface-sand">
+      {/* Neo-brutalist decorative backdrop shapes */}
       <div className="pointer-events-none absolute -left-10 top-24 h-28 w-28 -rotate-12 border-2 border-charcoal bg-blush shadow-[6px_6px_0_#111] sm:h-36 sm:w-36" />
       <div className="pointer-events-none absolute bottom-10 right-1/3 h-16 w-16 rotate-12 border-2 border-charcoal bg-sky shadow-[5px_5px_0_#111]" />
-      <Container className="relative z-10 grid items-center gap-16 pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:pt-32 lg:pb-32">
-        <div className="roda-rise max-w-xl pb-20 lg:pb-0">
+
+      <Container className="relative z-10 grid items-center gap-16 pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:pt-28 lg:pb-28">
+        <div className="roda-rise max-w-xl pb-12 lg:pb-0">
+          <div className="mb-4 inline-flex items-center gap-2 border-2 border-charcoal bg-white px-3 py-1 text-[12px] font-bold text-charcoal shadow-[3px_3px_0_#111]">
+            Live on NEAR Protocol
+          </div>
+
           <h1 className="text-[3rem] font-semibold leading-[1.05] tracking-tight text-charcoal sm:text-6xl lg:text-[4.5rem]">
             Save together.
             <br />
@@ -24,13 +29,13 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mt-6 max-w-md border-l-4 border-[#9BE7B2] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
+          <p className="mt-6 max-w-md border-l-4 border-[#00C08B] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
             Roda brings ajo and esusu rotating savings onchain. Join a trusted
             circle, follow automated payouts, and keep your keys — without
             the paperwork.
           </p>
 
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <GetAppButton
               variant="primary"
               className="!bg-[#00C08B] hover:!bg-[#1AD9A4]"
@@ -46,7 +51,7 @@ export function Hero() {
             </Button>
           </div>
 
-          <ul className="mt-12 flex flex-wrap gap-x-8 gap-y-4 border-t-2 border-charcoal pt-8">
+          <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-4 border-t-2 border-charcoal pt-6">
             {HIGHLIGHTS.map((h, index) => (
               <li key={h} className="flex items-center gap-2 text-[14px] font-medium text-charcoal">
                 <span className={`h-3 w-3 border-2 border-charcoal ${
@@ -58,18 +63,11 @@ export function Hero() {
           </ul>
         </div>
 
-        {/* Right side with the AppPreview */}
+        {/* Right side with AppPreview */}
         <div className="roda-rise relative flex justify-center pb-12 lg:pb-0">
-          <div className="absolute right-0 top-12 h-64 w-52 rotate-6 overflow-hidden border-2 border-charcoal bg-butter shadow-[7px_7px_0_#111] sm:right-6">
-            <Image
-              src="/slide2.jpg"
-              alt="Friends building savings together"
-              fill
-              sizes="208px"
-              className="object-cover mix-blend-multiply"
-            />
-            <div className="absolute inset-0 bg-butter/35" />
-          </div>
+          <div className="absolute left-1/2 top-0 z-0 h-56 w-48 -translate-x-1/2 rotate-6 border-2 border-charcoal bg-butter shadow-[7px_7px_0_#111] sm:h-64 sm:w-56" />
+
+          {/* Center Phone Mockup */}
           <div className="relative z-10 mx-auto w-full max-w-[280px] sm:max-w-[320px] transition-transform duration-700 hover:-translate-y-2">
             <AppPreview />
           </div>

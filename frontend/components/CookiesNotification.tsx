@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { CookieIcon, CloseIcon } from "./icons";
 
-export function CookiesNotification() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+const subscribe = () => () => {};
 
-  useEffect(() => {
-    // Forcing it to always show for now so you can see it!
-    setIsVisible(true);
-  }, []);
+export function CookiesNotification() {
+  const [isVisible, setIsVisible] = useState(true);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   if (!isVisible) return null;
 
@@ -77,8 +74,7 @@ function PrivacyModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   useEffect(() => {
     if (!open) return;
