@@ -22,6 +22,7 @@ import { useWallet } from '../../providers/WalletContext';
 import { VAULT_TIERS, type VaultTier } from '../../hooks/useVaults';
 import { useRefresh } from '../../hooks/useRefresh';
 import { Icon, type IconName } from '../../components/Icon';
+import { Skeleton, VaultCardSkeleton } from '../../components/Skeleton';
 
 const TIER_KEYS: VaultTier[] = ['Flex', 'Weekly', 'Monthly', '6 Months', '1 Year'];
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -118,11 +119,12 @@ export default function SaveTab() {
           </View>
 
           <View style={styles.balanceRow}>
-            <Text style={[styles.balanceText, { color: textPrimary }]}>
-              {balanceHidden ? '••••••••' : `$${fmtUSDC(totalBalance)}`}
-            </Text>
-            {isLoading && (
-              <ActivityIndicator size="small" color="#00C08B" style={styles.balanceLoader} />
+            {isLoading && vaults.length === 0 ? (
+              <Skeleton width={150} height={42} borderRadius={10} />
+            ) : (
+              <Text style={[styles.balanceText, { color: textPrimary }]}>
+                {balanceHidden ? '••••••••' : `$${fmtUSDC(totalBalance)}`}
+              </Text>
             )}
           </View>
 
@@ -260,8 +262,9 @@ export default function SaveTab() {
             </View>
 
             {isLoading ? (
-              <View style={styles.loaderContainer}>
-                <ActivityIndicator color="#00C08B" />
+              <View>
+                <VaultCardSkeleton />
+                <VaultCardSkeleton />
               </View>
             ) : vaults.length === 0 ? (
               /* Serene Empty State */

@@ -13,6 +13,7 @@ import { useWallet } from '../../providers/WalletContext';
 import { useRefresh } from '../../hooks/useRefresh';
 import { useColorScheme } from 'nativewind';
 import { Icon } from '../../components/Icon';
+import { Skeleton, CircleCardSkeleton } from '../../components/Skeleton';
 
 export default function CirclesTab() {
   const { isConnected } = useWallet();
@@ -99,9 +100,18 @@ export default function CirclesTab() {
               </Text>
             </View>
           ) : isLoading ? (
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator color="#00C08B" size="large" />
-            </View>
+            <ScrollView
+              className="flex-1 px-5 pt-3"
+              contentContainerClassName="pb-8"
+              showsVerticalScrollIndicator={false}
+            >
+              <View className="mb-4">
+                <Skeleton width={140} height={20} borderRadius={6} />
+              </View>
+              <CircleCardSkeleton />
+              <CircleCardSkeleton />
+              <CircleCardSkeleton />
+            </ScrollView>
           ) : (
             <ScrollView
               className="flex-1"

@@ -15,6 +15,7 @@ import { DepositModal } from '../../components/DepositModal';
 import { CreateCircleWizard } from '../../components/CreateCircleWizard';
 import { useCreateCircle } from '../../hooks/useCreateCircle';
 import { Icon } from '../../components/Icon';
+import { Skeleton, HomeActivitySkeleton } from '../../components/Skeleton';
 
 function fmtUSDC(n: bigint) {
   return (Number(n) / 1_000_000).toLocaleString('en-US', { minimumFractionDigits: 2 });
@@ -78,9 +79,13 @@ export default function HomeTab() {
             </View>
             
             <View className="flex-row items-center justify-center gap-3">
-              <Text className="font-display text-charcoal dark:text-white text-5xl text-center">
-                {balanceHidden ? '••••••' : `$${fmtUSDC(totalSaved)}`}
-              </Text>
+              {isLoading && isConnected && circles.length === 0 ? (
+                <Skeleton width={180} height={48} borderRadius={14} />
+              ) : (
+                <Text className="font-display text-charcoal dark:text-white text-5xl text-center">
+                  {balanceHidden ? '••••••' : `$${fmtUSDC(totalSaved)}`}
+                </Text>
+              )}
               <TouchableOpacity onPress={() => setBalanceHidden((h) => !h)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Icon name={balanceHidden ? 'eye-off-outline' : 'eye-outline'} size={24} color={isDark ? '#8E8E93' : '#6B6B6B'} />
               </TouchableOpacity>
@@ -159,8 +164,10 @@ export default function HomeTab() {
                 </TouchableOpacity>
               </View>
             ) : isLoading ? (
-              <View className="py-10 items-center">
-                <ActivityIndicator color="#00C08B" />
+              <View className="flex-col">
+                <HomeActivitySkeleton />
+                <HomeActivitySkeleton />
+                <HomeActivitySkeleton />
               </View>
             ) : circles.length === 0 ? (
               <View className="items-center py-10 bg-white dark:bg-[#1C1C1E] rounded-3xl border border-border/50 dark:border-white/5">
