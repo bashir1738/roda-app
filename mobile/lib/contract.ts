@@ -37,8 +37,15 @@ export async function viewContract<T>(
 export async function viewToken<T>(
   methodName: string,
   args: Record<string, unknown> = {},
+  tokenId: string = FT_ID,
 ): Promise<T> {
-  return viewContract<T>(methodName, args, FT_ID);
+  return viewContract<T>(methodName, args, tokenId);
+}
+
+export async function getConfiguredTokenId(): Promise<string> {
+  const config = await viewContract<{ token_id: string }>('get_config');
+  if (!config.token_id) throw new Error('The savings contract has no token configured.');
+  return config.token_id;
 }
 
 export async function getNearAccount(accountId: string): Promise<Account> {
@@ -69,10 +76,11 @@ export async function transferToken(
   receiverId: string,
   amount: string,
   msg?: string,
+  tokenId: string = FT_ID,
 ): Promise<string> {
   const account = await getNearAccount(accountId);
   const result = await account.functionCall({
-    contractId: FT_ID,
+    contractId: tokenId,
     methodName: msg ? 'ft_transfer_call' : 'ft_transfer',
     args: msg
       ? { receiver_id: receiverId, amount, msg }

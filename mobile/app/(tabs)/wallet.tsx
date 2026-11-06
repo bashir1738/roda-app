@@ -69,6 +69,7 @@ interface ListHeaderProps {
   address?: string;
   near: bigint;
   usdc: bigint;
+  usdcError?: string;
   prices?: { near: number; usdc: number };
   balancesLoading: boolean;
   copied: boolean;
@@ -82,6 +83,7 @@ function WalletHeader({
   address,
   near,
   usdc,
+  usdcError,
   prices,
   balancesLoading,
   copied,
@@ -299,6 +301,11 @@ function WalletHeader({
             </Text>
           </View>
         </View>
+        {usdcError && (
+          <Text style={[styles.assetError, { color: isDark ? '#FF9F9F' : '#B42318' }]}>
+            {usdcError}
+          </Text>
+        )}
       </View>
 
       {/* ── Recent Activity Section Header ── */}
@@ -368,7 +375,13 @@ export default function WalletTab() {
   const [refreshing, setRefreshing] = useState(false);
 
   const { txs, refresh: refreshTxs } = useTransactionHistory(address);
-  const { near, usdc, isLoading: balancesLoading, refetch: refetchBalances } = useBalance();
+  const {
+    near,
+    usdc,
+    usdcError,
+    isLoading: balancesLoading,
+    refetch: refetchBalances,
+  } = useBalance();
   const { data: prices } = useTokenPrices();
 
   const refresh = async () => {
@@ -447,6 +460,7 @@ export default function WalletTab() {
               address={address}
               near={near}
               usdc={usdc}
+              usdcError={usdcError}
               prices={prices}
               balancesLoading={balancesLoading}
               copied={copied}
@@ -707,6 +721,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
     fontWeight: '500',
+  },
+  assetError: {
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 4,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
