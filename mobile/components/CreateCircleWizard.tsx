@@ -46,7 +46,8 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
   };
   const close = () => { reset(); onClose(); };
 
-  const canNext = [name.trim().length > 0, parseFloat(amount) > 0, true][step];
+  const isNameValid = name.trim().length >= 3 && name.trim().length <= 32;
+  const canNext = [isNameValid, parseFloat(amount) > 0, true][step];
 
   const create = async () => {
     setCreating(true);
@@ -127,9 +128,12 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
                     placeholderTextColor="#6B6B6B"
                     value={name}
                     onChangeText={setName}
-                    maxLength={40}
+                    maxLength={32}
                     autoFocus
                   />
+                  {name.trim().length > 0 && name.trim().length < 3 && (
+                    <Text className="text-red-500 text-xs px-2 -mt-3">Circle name must be at least 3 characters.</Text>
+                  )}
                   <View className="bg-primary/5 border border-primary/15 rounded-2xl p-3 flex-row gap-2">
                     <Icon name="information-circle-outline" size={16} color="#00C08B" />
                     <Text className="text-muted dark:text-[#A1A1AA] text-xs flex-1 leading-5">

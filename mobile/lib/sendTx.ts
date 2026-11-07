@@ -5,11 +5,20 @@ const RODA_MESSAGES: Record<string, string> = {
   Unauthorized: 'This wallet is not allowed to do that.',
   InvalidContribution: 'Contribution must match the circle amount exactly.',
   InvalidFrequency: 'Round frequency must be at least 60 seconds.',
+  InvalidCircleName: 'Circle name must be between 3 and 32 characters.',
+  InvalidCircleCode: 'Circle code must be 6 digits (100000–999999).',
+  InvalidMemberCount: 'Member count must be between 2 and 12 members.',
   CircleFull: 'This circle is full.',
+  CircleNotJoinable: 'Cannot join circle (round already started or you already joined).',
+  CircleCodeTaken: 'A circle with this code already exists. Please try another code.',
+  AlreadyPaid: 'You have already contributed to this round.',
+  NotAllPaid: 'All members must contribute before claiming the payout.',
+  PendingTransfer: 'A payout transfer is already in progress for this circle.',
   RoundNotReady: 'The payout window has not opened yet.',
   NotYourPayout: "It's not your turn to claim the payout.",
   NameTaken: 'That username is already taken.',
   FaucetCooldown: 'Faucet already claimed today — come back tomorrow.',
+  FaucetUnavailable: 'The test faucet is currently disabled.',
 };
 
 export function friendlyError(error: unknown): string {

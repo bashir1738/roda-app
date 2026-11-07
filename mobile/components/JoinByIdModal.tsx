@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { viewContract } from '../lib/contract';
 import { isValidCircleCode } from '../lib/circleCode';
 import { useJoinCircle } from '../hooks/useJoinCircle';
+import { useWallet } from '../providers/WalletContext';
 import { TxStateView } from './TxStateView';
 import { Icon } from './Icon';
 
@@ -21,11 +22,13 @@ interface CirclePreview {
   contributionAmount: bigint;
   /** 0 = active, 1 = completed. */
   statusRaw: number;
+  members: string[];
 }
 
 export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { address } = useWallet();
   const [idInput, setIdInput] = useState('');
   const [circleId, setCircleId] = useState<number | null>(null);
   const [lookupError, setLookupError] = useState('');
@@ -48,6 +51,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
         memberCount: Number(info.member_count),
         contributionAmount: BigInt(info.contribution_amount ?? 0),
         statusRaw: info.status === 'Completed' ? 1 : 0,
+        members: info.members ?? [],
       };
     },
   });
@@ -73,6 +77,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
   const maxMembers = circleInfo?.maxMembers ?? 0;
   const memberCount = circleInfo?.memberCount ?? 0;
   const contributionAmount = circleInfo?.contributionAmount ?? 0n;
+  const isAlreadyMember = !!address && !!circleInfo?.members?.includes(address);
   const isRecruiting = circleInfo?.statusRaw === 0 && memberCount < maxMembers;
   const isFull = hasCircle && memberCount >= maxMembers;
 
@@ -227,8 +232,18 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
           </View>
         )}
 
+        {/* Already a member */}
+        {hasCircle && isAlreadyMember && !joined && (
+          <View className="bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 rounded-3xl p-4 flex-row items-center gap-3">
+            <Icon name="checkmark-circle-outline" size={20} color="#00C08B" />
+            <Text className="text-primary dark:text-[#00C08B] text-sm font-semibold flex-1">
+              You are already a member of this circle.
+            </Text>
+          </View>
+        )}
+
         {/* Join button */}
-        {hasCircle && isRecruiting && !isFull && !joined && txState === 'idle' && (
+        {hasCircle && isRecruiting && !isFull && !isAlreadyMember && !joined && txState === 'idle' && (
           <TouchableOpacity
             className="bg-primary rounded-full py-4 items-center flex-row justify-center gap-2"
             onPress={handleJoin}
@@ -248,7 +263,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
           </TouchableOpacity>
         )}
 
-        {hasCircle && (isFull || !isRecruiting) && !joined && (
+        {hasCircle && (isFull || !isRecruiting) && !isAlreadyMember && !joined && (
           <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-3xl p-4 flex-row items-center gap-3">
             <Icon name="information-circle-outline" size={20} color="#EA580C" />
             <Text className="text-orange-800 text-sm flex-1">

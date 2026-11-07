@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Modal,
   View,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Platform,
   TextInput,
   KeyboardAvoidingView,
@@ -10,7 +12,6 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import Modal from 'react-native-modal';
 import { useColorScheme } from 'nativewind';
 import { useWallet } from '../providers/WalletContext';
 import { getStoredEmail } from '../lib/wallet';
@@ -97,19 +98,19 @@ export function LoginSheet() {
 
   return (
     <Modal
-      isVisible={loginVisible}
-      onBackdropPress={onClose}
-      onBackButtonPress={onClose}
-      backdropOpacity={0.6}
-      style={{ justifyContent: 'flex-end', margin: 0 }}
-      useNativeDriver
-      useNativeDriverForBackdrop
-      avoidKeyboard
+      visible={loginVisible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
     >
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View className="bg-white dark:bg-[#111111] rounded-t-3xl px-6 pt-3 pb-8 max-h-[85vh]">
-          {/* Grab Handle */}
-          <View className="self-center w-10 h-1 rounded-full bg-charcoal/15 dark:bg-white/25 mb-4" />
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={{ flex: 1 }} />
+        </TouchableWithoutFeedback>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View className="bg-white dark:bg-[#111111] rounded-t-3xl px-6 pt-3 pb-8 max-h-[85vh]">
+            {/* Grab Handle */}
+            <View className="self-center w-10 h-1 rounded-full bg-charcoal/15 dark:bg-white/25 mb-4" />
 
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Header */}
@@ -241,6 +242,7 @@ export function LoginSheet() {
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
-    </Modal>
-  );
+    </View>
+  </Modal>
+);
 }
