@@ -5,7 +5,7 @@ import { TxStateView } from './TxStateView';
 import { InviteModal } from './InviteModal';
 import { useContribute } from '../hooks/useContribute';
 import { useClaim } from '../hooks/useClaim';
-import { useCircleMembers, useCircles } from '../hooks/useCircles';
+import { useCircles } from '../hooks/useCircles';
 import { useWallet } from '../providers/WalletContext';
 import type { CircleData } from '../hooks/useCircles';
 import { Icon } from './Icon';
@@ -81,7 +81,6 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
   // pool/round stats update instead of freezing on the value passed in.
   const { circles } = useCircles();
   const circle = circles.find((c) => c.address === passedCircle.address) ?? passedCircle;
-  const { data: memberInfo } = useCircleMembers(circle.address, circle.members);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,8 +101,8 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
   const fillPercent = roundTarget > 0n
     ? Math.min(100, Number((circle.poolBalance * 100n) / roundTarget))
     : 0;
-  const isRecipient = circle.payoutPending && circle.myPosition === circle.currentRound;
-  const payoutReady = circle.nextPayoutTimestamp <= Math.floor(Date.now() / 1000);
+  const isRecipient = circle.isMyTurn;
+  const payoutReady = circle.payoutReady;
   const canContribute =
     circle.status === 1 &&
     circle.members.length >= circle.maxMembers &&
@@ -112,7 +111,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
     circle.myPaidRound !== circle.currentRound;
   const isCreator = !!address && circle.members[0] === address;
   const canInvite = isCreator && circle.status === 0 && circle.members.length < circle.maxMembers;
-  const paidSet = new Set((memberInfo ?? []).filter((m) => m.paidRound === circle.currentRound).map((m) => m.address));
+  const paidSet = new Set(circle.paid ?? []);
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
@@ -162,7 +161,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
                 key={m}
                 addr={m}
                 position={i + 1}
-                isNext={i === circle.currentRound && circle.payoutPending}
+                isNext={i === (circle.currentRound % (circle.members.length || 1))}
                 isMe={!!address && m === address}
                 hasPaid={paidSet.has(m)}
                 displayName={memberNames[m]}
@@ -199,7 +198,9 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
             <>
               {!payoutReady && (
                 <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
-                  Available to claim on {fmtPayoutTime(circle.nextPayoutTimestamp)}
+                  {circle.paidCount < circle.maxMembers
+                    ? `Waiting for members to contribute (${circle.paidCount}/${circle.maxMembers})`
+                    : `Available to claim on ${fmtPayoutTime(circle.nextPayoutTimestamp)}`}
                 </Text>
               )}
               <TouchableOpacity
@@ -214,6 +215,13 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
                 <Text className={`font-bold text-base text-center ${payoutReady ? 'text-black' : 'text-black/40 dark:text-[#00C08B]/50'}`}>Claim</Text>
               </TouchableOpacity>
             </>
+          )}
+          {circle.status === 1 && circle.myPosition >= 0 && circle.myPaidRound === circle.currentRound && !isRecipient && (
+            <View className="bg-primary/5 dark:bg-[#00C08B]/10 border border-primary/15 dark:border-[#00C08B]/20 rounded-xl px-4 py-3 mt-1">
+              <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
+                ✓ You contributed for round {circle.currentRound + 1}. Waiting for next round.
+              </Text>
+            </View>
           )}
           {canContribute && contribute.txState === 'idle' && (
             <TouchableOpacity

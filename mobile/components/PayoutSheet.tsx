@@ -25,7 +25,7 @@ export function PayoutSheet({ target, visible, onClose }: PayoutSheetProps) {
     if (target.type === 'circle') {
       await claim({ type: 'circle', circleId: target.circleId });
     } else {
-      await claim({ type: 'vault', vaultId: target.vaultId });
+      await claim({ type: 'vault', vaultId: target.vaultId, amount: target.availableUSDC });
     }
   };
 

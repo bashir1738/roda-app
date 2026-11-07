@@ -21,6 +21,7 @@ import { useProfileSidebar } from '../../contexts/ProfileSidebarContext';
 import { useTransactionHistory } from '../../hooks/useTransactionHistory';
 import { useBalance } from '../../hooks/useBalance';
 import { useTokenPrices } from '../../hooks/useTokenPrices';
+import { useFaucet } from '../../hooks/useFaucet';
 import { SendSheet } from '../../components/SendSheet';
 import { NearMark } from '../../components/NearMark';
 import { Icon, type IconName } from '../../components/Icon';
@@ -75,6 +76,8 @@ interface ListHeaderProps {
   copied: boolean;
   onCopy: () => void;
   onSend: () => void;
+  onFaucet?: () => void;
+  faucetLoading?: boolean;
   activeFilter: Filter;
   onSelectFilter: (f: Filter) => void;
 }
@@ -89,6 +92,8 @@ function WalletHeader({
   copied,
   onCopy,
   onSend,
+  onFaucet,
+  faucetLoading,
   activeFilter,
   onSelectFilter,
 }: ListHeaderProps) {
@@ -229,6 +234,33 @@ function WalletHeader({
               {copied ? 'Copied' : 'Receive'}
             </Text>
           </TouchableOpacity>
+
+          {onFaucet && (
+            <TouchableOpacity
+              onPress={onFaucet}
+              disabled={faucetLoading}
+              activeOpacity={0.85}
+              style={[
+                styles.actionButton,
+                styles.receiveButton,
+                {
+                  backgroundColor: isDark ? '#262629' : '#F3F4F6',
+                  borderColor: isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB',
+                },
+              ]}
+            >
+              {faucetLoading ? (
+                <ActivityIndicator size="small" color="#00C08B" />
+              ) : (
+                <>
+                  <Icon name="water-outline" size={17} color="#00C08B" />
+                  <Text style={[styles.receiveButtonText, { color: textPrimary }]}>
+                    Faucet
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -384,6 +416,16 @@ export default function WalletTab() {
   } = useBalance();
   const { data: prices } = useTokenPrices();
 
+  const faucet = useFaucet();
+
+  const handleFaucet = async () => {
+    const result = await faucet.claim();
+    if (result) {
+      await refetchBalances();
+      await refreshTxs();
+    }
+  };
+
   const refresh = async () => {
     setRefreshing(true);
     await Promise.all([refreshTxs(), refetchBalances()]);
@@ -466,6 +508,8 @@ export default function WalletTab() {
               copied={copied}
               onCopy={handleCopy}
               onSend={() => setShowSend(true)}
+              onFaucet={handleFaucet}
+              faucetLoading={faucet.isPending}
               activeFilter={active}
               onSelectFilter={setActive}
             />

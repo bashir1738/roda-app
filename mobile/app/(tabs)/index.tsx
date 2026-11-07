@@ -50,7 +50,7 @@ export default function HomeTab() {
   useFundWallet(address);
 
   const totalSaved = circles.reduce((s, c) => s + c.poolBalance, 0n);
-  const pendingPayouts = circles.filter((c) => c.payoutPending && c.myPosition === c.currentRound);
+  const pendingPayouts = circles.filter((c) => c.isMyTurn && c.payoutReady);
 
   return (
     <View className="flex-1 bg-[#FDFBF7] dark:bg-[#111111]">

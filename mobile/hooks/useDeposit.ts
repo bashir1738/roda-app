@@ -7,12 +7,19 @@ export interface DepositParams { tier: 0 | 1 | 2 | 3 | 4; amountIn: bigint; vaul
 export function useDeposit() {
   const action = useProgramAction();
   const deposit = useCallback((params: DepositParams) => action.run(async (accountId) => {
-    const config = await viewContract<{ vault_count: number; token_id: string }>('get_config');
-    const vaultId = params.vaultId ?? Number(config?.vault_count ?? 0);
-    if (params.vaultId === undefined) await callContract(accountId, 'create_vault', { tier: params.tier });
+    let vaultId = params.vaultId;
+    if (vaultId === undefined) {
+      await callContract(accountId, 'create_vault', { tier: params.tier });
+      const userVaults = await viewContract<{ vault_id: number }[]>('get_user_vaults', { owner: accountId });
+      const latest = userVaults?.[userVaults.length - 1];
+      if (!latest) throw new Error('Failed to create vault');
+      vaultId = Number(latest.vault_id);
+    }
+    const config = await viewContract<{ token_id: string }>('get_config');
+    const tokenId = config?.token_id || await getConfiguredTokenId();
     return transferToken(accountId, CONTRACT_ID, params.amountIn.toString(),
       JSON.stringify({ type: 'deposit', vault_id: vaultId }),
-      config.token_id || await getConfiguredTokenId());
+      tokenId);
   }), [action]);
   return { deposit, txState: action.txState, txHash: action.txHash, error: action.error,
     isPending: action.isPending, isSuccess: action.txState === 'success', reset: action.reset };

@@ -2,14 +2,17 @@ import { useCallback } from 'react';
 import { callContract } from '../lib/contract';
 import { useProgramAction } from './useProgramAction';
 
-type ClaimParams = { type: 'circle'; circleId: number } | { type: 'vault'; vaultId: number };
+type ClaimParams =
+  | { type: 'circle'; circleId: number }
+  | { type: 'vault'; vaultId: number; amount?: bigint };
+
 export function useClaim() {
   const action = useProgramAction();
   const claim = useCallback((params: ClaimParams) => action.run((accountId) =>
     callContract(accountId, params.type === 'circle' ? 'claim_payout' : 'withdraw',
       params.type === 'circle'
         ? { circle_code: params.circleId }
-        : { vault_id: params.vaultId, amount: '0' })), [action]);
+        : { vault_id: params.vaultId, amount: (params.amount ?? 0n).toString() })), [action]);
   return { claim, txState: action.txState, txHash: action.txHash, error: action.error,
     isPending: action.isPending, isSuccess: action.txState === 'success', reset: action.reset };
 }

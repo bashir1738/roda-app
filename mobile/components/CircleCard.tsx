@@ -62,7 +62,7 @@ export function CircleCard({ circle, onPress, compact = false }: { circle: Circl
           </View>
         </View>
         
-        {circle.payoutPending && circle.myPosition === circle.currentRound && (
+        {circle.isMyTurn && circle.payoutReady && (
           <View className="bg-[#00C08B]/15 border border-[#00C08B]/30 px-3 py-1.5 rounded-full">
             <Text className="text-[#00C08B] font-bold text-xs">Payout Ready</Text>
           </View>

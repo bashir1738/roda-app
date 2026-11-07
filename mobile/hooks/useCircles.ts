@@ -3,29 +3,78 @@ import { useWallet } from '../providers/WalletContext';
 import { viewContract } from '../lib/contract';
 
 export interface CircleData {
-  address: string; id: number; creator: string; name: string; emoji: string;
-  maxMembers: number; memberCount: number; paidCount: number; contributionAmount: bigint;
-  currentRound: number; totalRounds: number; poolBalance: bigint; nextPayoutTimestamp: number;
-  frequency: number; status: 0 | 1 | 2; payoutPending: boolean; members: string[];
-  myPosition: number; myPaidRound: number;
+  address: string;
+  id: number;
+  creator: string;
+  name: string;
+  emoji: string;
+  maxMembers: number;
+  memberCount: number;
+  paidCount: number;
+  contributionAmount: bigint;
+  currentRound: number;
+  totalRounds: number;
+  poolBalance: bigint;
+  nextPayoutTimestamp: number;
+  frequency: number;
+  status: 0 | 1 | 2;
+  payoutPending: boolean;
+  payoutReady: boolean;
+  isMyTurn: boolean;
+  members: string[];
+  paid: string[];
+  myPosition: number;
+  myPaidRound: number;
 }
+
 const EMOJIS = ['💼', '👑', '🌿', '🎯', '🔥', '💎', '🚀', '🌟'];
+
 function mapCircle(c: any, address?: string): CircleData {
-  const members = c.members ?? [];
-  return { address: String(c.id), id: Number(c.id), creator: String(c.creator), name: c.name,
-    emoji: EMOJIS[Number(c.id) % EMOJIS.length], maxMembers: Number(c.max_members),
-    memberCount: Number(c.member_count), paidCount: Number(c.paid_count),
-    contributionAmount: BigInt(c.contribution_amount ?? 0), currentRound: Number(c.current_round),
-    totalRounds: members.length, poolBalance: BigInt(c.pool_balance ?? 0),
-    nextPayoutTimestamp: Number(c.round_started_ts) + Number(c.frequency_secs),
-    frequency: Number(c.frequency_secs), status: c.status === 'Completed' ? 2 : members.length < Number(c.max_members) ? 0 : 1,
-    payoutPending: Boolean(c.payout_pending), members, myPosition: address ? members.indexOf(address) : -1,
-    myPaidRound: -1 };
+  const members: string[] = c.members ?? [];
+  const paid: string[] = c.paid ?? [];
+  const currentRound = Number(c.current_round ?? 0);
+  const maxMembers = Number(c.max_members ?? 0);
+  const memberCount = Number(c.member_count ?? members.length);
+  const paidCount = Number(c.paid_count ?? paid.length);
+  const myPosition = address ? members.indexOf(address) : -1;
+  const hasPaidCurrentRound = !!address && paid.includes(address);
+  const allPaid = memberCount >= maxMembers && paidCount >= maxMembers && maxMembers > 0;
+  const nextPayoutTs = Number(c.round_started_ts ?? 0) + Number(c.frequency_secs ?? 0);
+  const isMyTurn = myPosition >= 0 && members.length > 0 && myPosition === (currentRound % members.length);
+  const isPayoutReady = allPaid && (Date.now() / 1000 >= nextPayoutTs) && !Boolean(c.payout_pending) && c.status !== 'Completed';
+
+  return {
+    address: String(c.id),
+    id: Number(c.id),
+    creator: String(c.creator),
+    name: c.name,
+    emoji: EMOJIS[Number(c.id) % EMOJIS.length],
+    maxMembers,
+    memberCount,
+    paidCount,
+    contributionAmount: BigInt(c.contribution_amount ?? 0),
+    currentRound,
+    totalRounds: maxMembers,
+    poolBalance: BigInt(c.pool_balance ?? 0),
+    nextPayoutTimestamp: nextPayoutTs,
+    frequency: Number(c.frequency_secs ?? 0),
+    status: c.status === 'Completed' ? 2 : members.length < maxMembers ? 0 : 1,
+    payoutPending: Boolean(c.payout_pending),
+    payoutReady: isPayoutReady,
+    isMyTurn,
+    members,
+    paid,
+    myPosition,
+    myPaidRound: hasPaidCurrentRound ? currentRound : -1,
+  };
 }
+
 export function useCircles() {
   const { address } = useWallet();
   const { data, isLoading } = useQuery<CircleData[]>({
-    queryKey: ['circles', address], enabled: !!address, refetchInterval: 60_000,
+    queryKey: ['circles', address],
+    enabled: !!address,
+    refetchInterval: 30_000,
     queryFn: async () => {
       const ids = await viewContract<number[]>('get_user_circle_ids', { account: address! });
       const circles = await viewContract<any[]>('get_circles', { circle_codes: ids });
@@ -34,6 +83,7 @@ export function useCircles() {
   });
   return { circles: data ?? [], isLoading };
 }
+
 export interface CircleMemberInfo {
   address: string;
   paidRound: number;
