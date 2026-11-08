@@ -15,7 +15,7 @@ const TIERS = [
     name: "Weekly Solo",
     lock: "Weekly schedule",
     min: "From $10 / week",
-    blurb: "Build consistency. Lock in a weekly amount to slowly build your personal pot.",
+    blurb: "Build consistency. Lock in a weekly amount to slowly build your personal reserve.",
     perks: ["Automated discipline", "Custom lock times", "For steady habits"],
     popular: true,
   },

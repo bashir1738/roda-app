@@ -19,7 +19,7 @@ const STEPS = [
   {
     step: "03",
     title: "Payouts run themselves",
-    body: "Members deposit on schedule. The pot rotates to the next member automatically onchain. Zero awkward chasing.",
+    body: "Members deposit on schedule. The pool rotates to the next member automatically onchain. Zero awkward chasing.",
     badge: "Automated Rotations",
     color: "bg-sky",
   },
@@ -47,7 +47,7 @@ export function HowItWorks() {
                 Real savings in your hands in under 60 seconds.
               </h3>
               <p className="mt-4 text-[15px] leading-relaxed text-muted sm:text-base">
-                Whether you use email via Magic OTP or Meteor wallet on mobile, getting started requires zero crypto knowledge. You get an implicit NEAR account automatically, ready for solo vault deposits or community ajo circles.
+                Whether you use email via Magic OTP or Meteor wallet on mobile, getting started requires zero crypto knowledge. You get an implicit NEAR account automatically, ready for solo vault deposits or collaborative savings circles.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">

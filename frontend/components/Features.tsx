@@ -27,7 +27,7 @@ const FEATURES: {
   {
     icon: WalletIcon,
     title: "No maintenance fees",
-    body: "No monthly charges and no surprise deductions. The only fee is a flat 0.3% when a pot pays out.",
+    body: "No monthly charges and no surprise deductions. The only fee is a flat 0.3% when payouts distribute.",
   },
   {
     icon: GlobeIcon,

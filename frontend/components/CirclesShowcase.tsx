@@ -3,7 +3,7 @@ import { Container, Section, SectionHeading } from "./ui";
 const POINTS = [
   "Invite people you trust. Set the amount and the schedule once.",
   "Contributions and payouts run onchain — no ledger book, no chasing.",
-  "Each member receives the pot in turn, with a public record of every round.",
+  "Each member receives the pool in turn, with a public record of every round.",
 ];
 
 export function CirclesShowcase() {
@@ -22,7 +22,7 @@ export function CirclesShowcase() {
 
             <div className="mt-6 border-2 border-charcoal bg-[#9BE7B2] p-5">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-charcoal">
-                Current pot
+                Current pool
               </p>
               <p className="mt-2 text-3xl font-semibold tracking-tight text-charcoal sm:text-4xl">
                 $4,000
@@ -58,8 +58,8 @@ export function CirclesShowcase() {
         <div className="order-1 lg:order-2 lg:pt-4">
           <SectionHeading
             eyebrow="Rotating savings"
-            title="Community pots, with a public ledger."
-            description="Ajo and esusu have built wealth for generations. Roda keeps the trust, and replaces skipped payments and missing books with on-chain rules."
+            title="Community pools, with a transparent ledger."
+            description="Rotating savings circles have built collective wealth for generations. Roda preserves that collaborative spirit while replacing manual records and default risks with deterministic on-chain rules."
           />
 
           <ol className="mt-12 space-y-8">

@@ -15,7 +15,7 @@ export function CTA() {
             Make the next circle count.
           </h2>
           <p className="mx-auto mt-5 max-w-md text-[15px] leading-7 text-charcoal/80">
-            Start or join in minutes. One flat 0.3% fee when the pot pays out.
+            Start or join in minutes. One flat 0.3% fee when a round pays out.
             No maintenance fees.
           </p>
 
