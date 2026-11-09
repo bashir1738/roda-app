@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Rotating Savings, Reimagined Onchain</strong><br />
-  <em>Digitalizing community savings (Ajo / Esusu / Adashe) with smart contracts on NEAR Protocol.</em>
+  <em>Digitalizing community savings with smart contracts on NEAR Protocol.</em>
 </p>
 
 <p align="center">
