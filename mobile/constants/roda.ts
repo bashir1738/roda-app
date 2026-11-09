@@ -8,9 +8,9 @@ export const TESTNET_RPC_ENDPOINTS = [
 export const NEAR_RPC_URL =
   process.env.EXPO_PUBLIC_NEAR_RPC_URL ?? TESTNET_RPC_ENDPOINTS[0];
 export const CONTRACT_ID =
-  process.env.EXPO_PUBLIC_CONTRACT_ID ?? 'roda.testnet';
+  process.env.EXPO_PUBLIC_CONTRACT_ID ?? 'roda.dev-92ebb0b3c42c.testnet';
 export const FT_ID =
-  process.env.EXPO_PUBLIC_FT_ID ?? 'roda-usdc.testnet';
+  process.env.EXPO_PUBLIC_FT_ID ?? 'usdc.dev-92ebb0b3c42c.testnet';
 
 export const USDC_DECIMALS = 6;
 

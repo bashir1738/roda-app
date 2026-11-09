@@ -12,7 +12,7 @@ export function useClaim() {
     callContract(accountId, params.type === 'circle' ? 'claim_payout' : 'withdraw',
       params.type === 'circle'
         ? { circle_code: params.circleId }
-        : { vault_id: params.vaultId, amount: (params.amount ?? 0n).toString() })), [action]);
+        : { vault_id: params.vaultId, amount: Number(params.amount ?? 0n) })), [action]);
   return { claim, txState: action.txState, txHash: action.txHash, error: action.error,
     isPending: action.isPending, isSuccess: action.txState === 'success', reset: action.reset };
 }

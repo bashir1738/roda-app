@@ -8,6 +8,7 @@
     "test": "cargo test -p roda && cargo test -p roda-token && node scripts/test-logic.js",
     "setup": "node scripts/setup-testnet.js",
     "set-token": "node scripts/set-token.js",
+    "upgrade": "node scripts/upgrade.js",
     "smoke": "node scripts/smoke-testnet.js"
   },
   "dependencies": {

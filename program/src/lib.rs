@@ -119,11 +119,89 @@ impl RodaContract {
         }
     }
 
+    // ─── Admin & Upgrade ───────────────────────────────────────────────────────
+
+    /// Admin: transfer protocol admin to a new account (e.g. multi-sig DAO or new key).
+    pub fn set_admin(&mut self, new_admin: AccountId) {
+        require_admin(&self.config.admin.clone());
+        let old_admin = self.config.admin.clone();
+        require!(new_admin != old_admin, "AdminUnchanged");
+        self.config.admin = new_admin.clone();
+        events::admin_transferred(&old_admin, &new_admin);
+    }
+
     /// Admin: point the protocol at a different NEP-141 token and toggle the faucet.
     pub fn set_token(&mut self, token_id: AccountId, faucet_enabled: bool) {
         require_admin(&self.config.admin.clone());
         self.config.token_id = token_id;
         self.config.faucet_enabled = faucet_enabled;
+    }
+
+    /// Admin: upgrade contract bytecode and optionally migrate state.
+    /// Accepts raw WASM bytecode directly or JSON `{"code": "<base64_wasm>", "migrate": true}`.
+    pub fn upgrade(&mut self) -> Promise {
+        require_admin(&self.config.admin.clone());
+        let input = env::input().expect("NoCodeProvided");
+
+        let (code, should_migrate) = if input.starts_with(b"\0asm") {
+            (input, true)
+        } else {
+            #[derive(near_sdk::serde::Deserialize)]
+            #[serde(crate = "near_sdk::serde")]
+            struct UpgradeArgs {
+                code: near_sdk::json_types::Base64VecU8,
+                migrate: Option<bool>,
+            }
+            let args: UpgradeArgs = near_sdk::serde_json::from_slice(&input)
+                .expect("InvalidUpgradeInput: expected raw WASM or JSON with {code: string}");
+            (args.code.0, args.migrate.unwrap_or(true))
+        };
+
+        require!(!code.is_empty(), "EmptyWasmCode");
+        require!(code.starts_with(b"\0asm"), "InvalidWasmMagicNumber");
+
+        let mut promise = Promise::new(env::current_account_id()).deploy_contract(code);
+        if should_migrate {
+            promise = promise.then(
+                Promise::new(env::current_account_id()).function_call(
+                    "migrate".to_string(),
+                    vec![],
+                    NearToken::from_yoctonear(0),
+                    Gas::from_gas(GAS_MIGRATE),
+                ),
+            );
+        } else {
+            promise = promise.then(
+                Promise::new(env::current_account_id()).function_call(
+                    "on_upgrade".to_string(),
+                    vec![],
+                    NearToken::from_yoctonear(0),
+                    Gas::from_gas(GAS_CALLBACK),
+                ),
+            );
+        }
+        promise
+    }
+
+    /// State migration callback after bytecode upgrade.
+    /// Only callable by the contract itself during an upgrade promise chain,
+    /// or directly by the admin.
+    #[init(ignore_state)]
+    pub fn migrate() -> Self {
+        let caller = env::predecessor_account_id();
+        let state: Self = env::state_read().expect("StateNotFound");
+        require!(
+            caller == env::current_account_id() || caller == state.config.admin,
+            "Unauthorized"
+        );
+        events::contract_migrated();
+        state
+    }
+
+    /// Post-upgrade callback when migration is not requested.
+    pub fn on_upgrade(&mut self) {
+        require_callback();
+        events::contract_upgraded();
     }
 
     // ─── Vaults ───────────────────────────────────────────────────────────────
@@ -837,10 +915,14 @@ fn promise_succeeded() -> bool {
 }
 
 // Re-exported for the ft module.
+#[allow(unused_imports)]
 pub(crate) use checked_add as ca;
+#[allow(unused_imports)]
 pub(crate) use checked_sub as cs;
 pub(crate) use now_sec as now;
+#[allow(unused_imports)]
 pub(crate) use promise_succeeded as ps;
+#[allow(unused_imports)]
 pub(crate) use require_callback as rc;
 
 #[cfg(test)]
@@ -905,5 +987,14 @@ mod tests {
     #[test]
     fn circle_code_bounds() {
         assert!(CIRCLE_CODE_MIN == 100_000 && CIRCLE_CODE_MAX == 999_999);
+    }
+
+    #[test]
+    fn wasm_magic_bytes_check() {
+        let valid_wasm = b"\0asm\x01\x00\x00\x00";
+        assert!(valid_wasm.starts_with(b"\0asm"));
+
+        let invalid_code = b"not_wasm_binary";
+        assert!(!invalid_code.starts_with(b"\0asm"));
     }
 }

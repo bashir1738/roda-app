@@ -30,8 +30,8 @@ Copy `.env.example` to `.env.local`:
 ```bash
 EXPO_PUBLIC_NEAR_NETWORK=testnet
 EXPO_PUBLIC_NEAR_RPC_URL=https://rpc.testnet.fastnear.com
-EXPO_PUBLIC_CONTRACT_ID=roda.testnet
-EXPO_PUBLIC_FT_ID=roda-usdc.testnet
+EXPO_PUBLIC_CONTRACT_ID=roda.dev-92ebb0b3c42c.testnet
+EXPO_PUBLIC_FT_ID=usdc.dev-92ebb0b3c42c.testnet
 EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY=
 ```
 

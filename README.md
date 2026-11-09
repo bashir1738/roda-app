@@ -124,8 +124,9 @@ roda-app/
 |:---|:---|:---|
 | **Network** | `testnet` | `mainnet` |
 | **RPC Endpoint** | `https://rpc.testnet.fastnear.com` | `https://rpc.mainnet.fastnear.com` |
-| **Roda Contract** | `roda.testnet` | `roda.near` |
-| **Token Asset** | `roda-usdc.testnet` (Test NEP-141) | `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` (Native Circle USDC) |
+| **Roda Protocol Contract** | [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) | `roda.near` |
+| **Token Asset** | [`usdc.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) (`rUSDC`, 6 decimals) | `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` (Native Circle USDC) |
+| **Protocol Admin** | [`dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) | Multi-sig / DAO Treasury |
 
 ### Protocol Invariants & Rules
 

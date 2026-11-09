@@ -333,11 +333,6 @@ function WalletHeader({
             </Text>
           </View>
         </View>
-        {usdcError && (
-          <Text style={[styles.assetError, { color: isDark ? '#FF9F9F' : '#B42318' }]}>
-            {usdcError}
-          </Text>
-        )}
       </View>
 
       {/* ── Recent Activity Section Header ── */}

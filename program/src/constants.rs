@@ -1,6 +1,7 @@
 // ─── Token ────────────────────────────────────────────────────────────────────
 
 /// USDC-style token decimals used by the configured NEP-141 token.
+#[allow(dead_code)]
 pub const TOKEN_DECIMALS: u8 = 6;
 
 // ─── Circle rules ─────────────────────────────────────────────────────────────
@@ -61,3 +62,5 @@ pub const ACTIVITY_MAX: usize = 50;
 pub const GAS_FT_TRANSFER: u64 = 30_000_000_000_000; // 30 TGas
 pub const GAS_CALLBACK: u64 = 25_000_000_000_000; // 25 TGas
 pub const GAS_FT_MINT: u64 = 50_000_000_000_000; // 50 TGas
+pub const GAS_MIGRATE: u64 = 40_000_000_000_000; // 40 TGas
+

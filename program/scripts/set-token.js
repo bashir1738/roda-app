@@ -53,11 +53,18 @@ async function main() {
     process.exit(1);
   }
 
-  const keyStore = new keyStores.UnencryptedFileSystemKeyStore(
+  const memStore = new keyStores.InMemoryKeyStore();
+  const fsStore = new keyStores.UnencryptedFileSystemKeyStore(
     path.join(require('os').homedir(), '.near-credentials')
   );
-  const near = await connect({ network, nodeUrl, keyStore });
-  const admin = await near.account(env.NEAR_ADMIN_ACCOUNT_ID || state.admin);
+  const adminId = env.NEAR_ADMIN_ACCOUNT_ID || state.admin;
+  if (env.NEAR_PRIVATE_KEY && adminId) {
+    const { KeyPair } = require('near-api-js');
+    await memStore.setKey(network, adminId, KeyPair.fromString(env.NEAR_PRIVATE_KEY));
+  }
+  const keyStore = new keyStores.MergeKeyStore([memStore, fsStore]);
+  const near = await connect({ networkId: network, nodeUrl, keyStore });
+  const admin = await near.account(adminId);
 
   console.log(`set_token(token_id=${token}, faucet_enabled=${faucet}) → ${roda}`);
   const result = await admin.functionCall({

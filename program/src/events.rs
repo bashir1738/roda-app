@@ -131,3 +131,25 @@ pub fn faucet_claimed(user: &AccountId, amount: u64) {
         serde_json::json!({ "user": user, "amount": amount }),
     );
 }
+
+pub fn contract_upgraded() {
+    emit(
+        "ContractUpgraded",
+        serde_json::json!({ "ts": (env::block_timestamp() / 1_000_000_000) as i64 }),
+    );
+}
+
+pub fn contract_migrated() {
+    emit(
+        "ContractMigrated",
+        serde_json::json!({ "ts": (env::block_timestamp() / 1_000_000_000) as i64 }),
+    );
+}
+
+pub fn admin_transferred(old_admin: &AccountId, new_admin: &AccountId) {
+    emit(
+        "AdminTransferred",
+        serde_json::json!({ "old_admin": old_admin, "new_admin": new_admin }),
+    );
+}
+

@@ -7,7 +7,7 @@ export function useWithdraw() {
   const action = useProgramAction();
   const withdraw = useCallback((params: WithdrawParams) => action.run((accountId) =>
     callContract(accountId, 'withdraw', {
-      vault_id: Number(params.address), amount: (params.amount ?? 0n).toString(),
+      vault_id: Number(params.address), amount: Number(params.amount ?? 0n),
     })), [action]);
   return { withdraw, txState: action.txState, txHash: action.txHash, error: action.error,
     isPending: action.isPending, isSuccess: action.txState === 'success', reset: action.reset };

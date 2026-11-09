@@ -4,10 +4,18 @@ The `program/` package contains the Roda protocol on **NEAR Protocol**:
 
 | Contract | Path | Purpose |
 | --- | --- | --- |
-| `roda` | `program/` (crate root) | Circles, vaults, usernames, activity, fees |
-| `roda-token` | `program/token/` | Test NEP-141 FT (`rUSDC`) with protocol-gated mint |
+| `roda` | `program/` (crate root) | Circles, vaults, usernames, activity, fees, self-upgrade |
+| `roda-token` | `program/token/` | Test NEP-141 FT (`rUSDC`) with protocol-gated mint & self-upgrade |
 
 On mainnet, `Config.token_id` points at native Circle USDC (`17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`). On testnet it points at the Roda test token with a faucet.
+
+## Deployed Contract Addresses (NEAR Testnet)
+
+| Role | Account ID | Explorer Link |
+| --- | --- | --- |
+| **Roda Protocol Contract** | `roda.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) |
+| **NEP-141 USDC Token** | `usdc.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) |
+| **Protocol Admin** | `dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) |
 
 ## Protocol invariants
 
@@ -47,19 +55,20 @@ npm test          # cargo tests + logic tests (see package.json)
 npm run build     # both wasm artifacts
 ```
 
-## Deployment (manual — not run by default)
+## Deployment & Upgrades
 
 ```bash
-cp .env.example .env   # fill in accounts
-# create accounts first, e.g.:
-#   near create-account roda.YOUR.testnet --masterAccount YOUR.testnet
-#   near create-account roda-usdc.YOUR.testnet --masterAccount YOUR.testnet
+cp .env.example .env   # fill in accounts and NEAR_PRIVATE_KEY
 
 npm install
 npm run build
-node scripts/setup-testnet.js     # deploy + init + storage_deposit
-node scripts/set-token.js         # optional: switch token / faucet flag
+node scripts/deploy-account.js   # automated setup: subaccounts + deploy + init + storage_deposit
+node scripts/set-token.js        # optional: switch token / faucet flag
 node scripts/smoke-testnet.js --alice alice.testnet --bob bob.testnet
+
+# Self-upgrade contracts in-place (with 300 TGas + state migration):
+npm run upgrade -- --contract roda
+npm run upgrade -- --contract token
 ```
 
 State written by setup lives in `scripts/testnet-state.json` (gitignored after first real run if you prefer; a template is committed).

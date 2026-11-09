@@ -12,7 +12,8 @@ use near_contract_standards::storage_management::{
 use near_sdk::collections::LazyOption;
 use near_sdk::json_types::U128;
 use near_sdk::{
-    env, near, require, AccountId, BorshStorageKey, NearToken, PanicOnDefault, PromiseOrValue,
+    env, near, require, AccountId, BorshStorageKey, Gas, NearToken, PanicOnDefault, Promise,
+    PromiseOrValue,
 };
 
 pub const FT_METADATA_SPEC: &str = "ft-1.0.0";
@@ -77,6 +78,60 @@ impl RodaToken {
             "Unauthorized"
         );
         self.owner = owner;
+    }
+
+    /// Admin: upgrade contract bytecode and optionally migrate state.
+    /// Accepts raw WASM bytecode directly or JSON `{"code": "<base64_wasm>", "migrate": true}`.
+    pub fn upgrade(&mut self) -> Promise {
+        require!(
+            env::predecessor_account_id() == self.owner,
+            "Unauthorized"
+        );
+        let input = env::input().expect("NoCodeProvided");
+
+        let (code, should_migrate) = if input.starts_with(b"\0asm") {
+            (input, true)
+        } else {
+            #[derive(near_sdk::serde::Deserialize)]
+            #[serde(crate = "near_sdk::serde")]
+            struct UpgradeArgs {
+                code: near_sdk::json_types::Base64VecU8,
+                migrate: Option<bool>,
+            }
+            let args: UpgradeArgs = near_sdk::serde_json::from_slice(&input)
+                .expect("InvalidUpgradeInput: expected raw WASM or JSON with {code: string}");
+            (args.code.0, args.migrate.unwrap_or(true))
+        };
+
+        require!(!code.is_empty(), "EmptyWasmCode");
+        require!(code.starts_with(b"\0asm"), "InvalidWasmMagicNumber");
+
+        let mut promise = Promise::new(env::current_account_id()).deploy_contract(code);
+        if should_migrate {
+            promise = promise.then(
+                Promise::new(env::current_account_id()).function_call(
+                    "migrate".to_string(),
+                    vec![],
+                    NearToken::from_yoctonear(0),
+                    Gas::from_tgas(40),
+                ),
+            );
+        }
+        promise
+    }
+
+    /// State migration callback after bytecode upgrade.
+    /// Only callable by the contract itself during an upgrade promise chain,
+    /// or directly by the owner.
+    #[init(ignore_state)]
+    pub fn migrate() -> Self {
+        let caller = env::predecessor_account_id();
+        let state: Self = env::state_read().expect("StateNotFound");
+        require!(
+            caller == env::current_account_id() || caller == state.owner,
+            "Unauthorized"
+        );
+        state
     }
 
     /// Mint tokens to `receiver_id`. Only the configured `protocol` contract

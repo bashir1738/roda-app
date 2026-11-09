@@ -23,7 +23,7 @@ lto = true
 debug = false
 panic = "abort"
 opt-level = "z"
-strip = false
+strip = true
 
 [profile.dev]
 overflow-checks = true
