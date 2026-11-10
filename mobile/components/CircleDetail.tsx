@@ -126,6 +126,14 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
             <Text className="text-muted dark:text-[#A1A1AA] text-sm mt-1">
               {circle.members.length} members · Round {circle.currentRound}/{circle.totalRounds}
             </Text>
+            {circle.minReputation > 0 && (
+              <View className="mt-2 flex-row items-center gap-1 bg-primary/10 dark:bg-[#00C08B]/15 border border-primary/20 dark:border-[#00C08B]/30 px-3 py-1 rounded-full">
+                <Icon name="shield-checkmark" size={12} color="#00C08B" />
+                <Text className="text-primary dark:text-[#00C08B] text-xs font-bold">
+                  Minimum Reputation {circle.minReputation}+
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Pot */}

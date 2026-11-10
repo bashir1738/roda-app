@@ -56,9 +56,18 @@ export function CircleCard({ circle, onPress, compact = false }: { circle: Circl
           </View>
           <View>
             <Text className="text-charcoal dark:text-white font-bold text-lg">{circle.name}</Text>
-            <Text className="text-muted dark:text-[#A1A1AA] text-xs font-medium">
-              {isRecruiting ? 'Recruiting' : isActive ? 'Active' : 'Completed'}
-            </Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-muted dark:text-[#A1A1AA] text-xs font-medium">
+                {isRecruiting ? 'Recruiting' : isActive ? 'Active' : 'Completed'}
+              </Text>
+              {circle.minReputation > 0 && (
+                <View className="bg-primary/10 dark:bg-[#00C08B]/15 px-2 py-0.5 rounded-full">
+                  <Text className="text-primary dark:text-[#00C08B] text-[10px] font-bold">
+                    Rep {circle.minReputation}+
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
         

@@ -91,6 +91,9 @@ function AppContent() {
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="community/create" />
+        <Stack.Screen name="community/[id]" />
+        <Stack.Screen name="community/[id]/propose" />
       </Stack>
       <LoginSheet />
       <MagicRelayer />

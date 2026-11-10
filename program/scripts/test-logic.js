@@ -99,4 +99,88 @@ assert.strictEqual(activity.length, 50);
 assert.strictEqual(activity[0].i, 10);
 assert.strictEqual(activity[49].i, 59);
 
+// ── community envelope allocation & spend math (Phase 1) ──────────────────────
+function applyBudgetDeposit(community, envelopeId, amount) {
+  if (!community.linked || community.dissolved) throw new Error('CommunityUnavailable');
+  if (envelopeId === null || envelopeId === undefined) {
+    community.pool_unallocated += amount;
+  } else {
+    const env = community.envelopes.find((e) => e.id === envelopeId);
+    if (!env || !env.active) throw new Error('EnvelopeInactive');
+    env.allocated += amount;
+  }
+  community.total_shares += amount;
+}
+
+function allocateEnvelope(community, envelopeId, amount) {
+  if (community.pool_unallocated < amount) throw new Error('InsufficientPool');
+  const env = community.envelopes.find((e) => e.id === envelopeId);
+  if (!env || !env.active) throw new Error('EnvelopeInactive');
+  community.pool_unallocated -= amount;
+  env.allocated += amount;
+}
+
+function spendEnvelope(community, envelopeId, amount) {
+  const env = community.envelopes.find((e) => e.id === envelopeId);
+  if (!env || !env.active) throw new Error('EnvelopeInactive');
+  const remaining = env.allocated - env.spent;
+  if (remaining < amount) throw new Error('ExceedsEnvelope');
+  env.spent += amount;
+}
+
+const comm = {
+  linked: true,
+  dissolved: false,
+  pool_unallocated: 0,
+  total_shares: 0,
+  envelopes: [
+    { id: 0, name: 'Grants', allocated: 0, spent: 0, active: true },
+    { id: 1, name: 'Events', allocated: 0, spent: 0, active: true },
+  ],
+};
+applyBudgetDeposit(comm, null, 100_000_000); // 100 USDC to pool
+assert.strictEqual(comm.pool_unallocated, 100_000_000);
+assert.strictEqual(comm.total_shares, 100_000_000);
+allocateEnvelope(comm, 0, 60_000_000);
+assert.strictEqual(comm.pool_unallocated, 40_000_000);
+assert.strictEqual(comm.envelopes[0].allocated, 60_000_000);
+spendEnvelope(comm, 0, 25_000_000);
+assert.strictEqual(comm.envelopes[0].allocated - comm.envelopes[0].spent, 35_000_000);
+assert.throws(() => spendEnvelope(comm, 0, 36_000_000), /ExceedsEnvelope/);
+
+const budgetDepositMsgPool = JSON.stringify({ type: 'budget_deposit', community: 0, envelope: null });
+const budgetDepositMsgEnv = JSON.stringify({ type: 'budget_deposit', community: 0, envelope: 1 });
+assert.deepStrictEqual(JSON.parse(budgetDepositMsgPool), { type: 'budget_deposit', community: 0, envelope: null });
+assert.deepStrictEqual(JSON.parse(budgetDepositMsgEnv), { type: 'budget_deposit', community: 0, envelope: 1 });
+
+// ── reputation scoring math (Phase 2) ─────────────────────────────────────────
+function computeReputation(rep) {
+  const reliabilityRaw = Math.min(rep.contributions_ok * 25, 350);
+  const penaltyPts = rep.contributions_missed * 40;
+  const reliabilityPts = Math.max(0, reliabilityRaw - penaltyPts);
+  const completionPts = Math.min(rep.circles_completed * 50, 250);
+  const vaultPts = Math.min(rep.vault_withdraw_units * 15, 150);
+  const volumePts = Math.min(Math.floor(rep.community_volume / 10_000_000) * 5, 150);
+  const tenurePts = Math.min(Math.floor(rep.tenure_days / 3), 100);
+  return Math.min(1000, reliabilityPts + completionPts + vaultPts + volumePts + tenurePts);
+}
+
+assert.strictEqual(
+  computeReputation({ contributions_ok: 0, contributions_missed: 0, circles_completed: 0, vault_withdraw_units: 0, community_volume: 0, tenure_days: 0 }),
+  0,
+  'fresh account earns zero Sybil points',
+);
+assert.strictEqual(
+  computeReputation({ contributions_ok: 4, contributions_missed: 1, circles_completed: 2, vault_withdraw_units: 2, community_volume: 40_000_000, tenure_days: 30 }),
+  220,
+);
+
+// ── collective ownership pro-rata surplus math (Phase 4) ──────────────────────
+function computeSurplusPayout(surplus, userShares, totalShares) {
+  if (!surplus || !userShares || !totalShares) return 0;
+  return Number((BigInt(surplus) * BigInt(userShares)) / BigInt(totalShares));
+}
+assert.strictEqual(computeSurplusPayout(150_000_000, 200_000_000, 300_000_000), 100_000_000);
+assert.strictEqual(computeSurplusPayout(150_000_000, 100_000_000, 300_000_000), 50_000_000);
+
 console.log('All logic tests passed.');

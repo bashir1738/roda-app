@@ -19,6 +19,7 @@ import { PrivateKeyModal } from '../../components/PrivateKeyModal';
 import { getNotificationsEnabled, setNotificationsEnabled } from '../../hooks/useNotifications';
 import { useDisplayName } from '../../hooks/useDisplayName';
 import { ClaimNameButton } from '../../components/ClaimNameButton';
+import { ReputationCard } from '../../components/ReputationBadge';
 import { Icon, type IconName } from '../../components/Icon';
 
 function fmtAddr(addr: string) {
@@ -89,7 +90,16 @@ function SettingRow({
 }
 
 export default function ProfileTab() {
-  const { address, isConnected, disconnect, connect, walletKind, email } = useWallet();
+  const {
+    address,
+    isConnected,
+    disconnect,
+    connect,
+    connectNearWallet,
+    walletKind,
+    externalKeyScope,
+    email,
+  } = useWallet();
   const { onChainName, localName } = useDisplayName(address);
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -256,6 +266,37 @@ export default function ProfileTab() {
 
             <ClaimNameButton />
           </View>
+
+          <ReputationCard account={address} />
+
+          {walletKind === 'meteor' && externalKeyScope === 'contract' && (
+            <TouchableOpacity
+              onPress={() => connectNearWallet('meteor', 'full').catch(() => {})}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: isDark ? 'rgba(245, 158, 11, 0.14)' : '#FFFBEB',
+                borderColor: isDark ? 'rgba(245, 158, 11, 0.3)' : '#FDE68A',
+                borderWidth: 1,
+                borderRadius: 20,
+                padding: 14,
+                marginBottom: 18,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <Icon name="warning-outline" size={20} color="#F59E0B" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: textPrimary, fontSize: 13, fontWeight: '700' }}>
+                  Upgrade Meteor Key for Community DAOs
+                </Text>
+                <Text style={{ color: textMuted, fontSize: 12, marginTop: 2 }}>
+                  Reconnect Meteor with multi-contract signing to create & vote in Sputnik DAOs.
+                </Text>
+              </View>
+              <Icon name="chevron-forward" size={16} color="#F59E0B" />
+            </TouchableOpacity>
+          )}
 
           {/* Settings Group */}
           <Text style={[styles.sectionLabel, { color: textMuted }]}>SETTINGS</Text>

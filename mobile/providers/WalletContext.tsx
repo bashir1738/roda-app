@@ -17,6 +17,8 @@ import { getMagic, isMagicEnabled, loginWithMagicEmail } from '../lib/magic';
 import {
   connectExternalNearWallet,
   disconnectExternalNearWallet,
+  getExternalKeyScope,
+  type ExternalKeyScope,
   type NearWalletProvider,
 } from '../lib/nearWalletConnect';
 import { createRecoveryCode, verifyRecoveryCode } from '../lib/magicRecovery';
@@ -31,11 +33,12 @@ interface WalletContextValue {
   publicKey?: string;
   wallet?: NearWallet;
   walletKind?: WalletKind;
+  externalKeyScope?: ExternalKeyScope;
   email?: string;
   isConnected: boolean;
   cluster: string;
   connect: () => void;
-  connectNearWallet: (provider?: NearWalletProvider) => Promise<void>;
+  connectNearWallet: (provider?: NearWalletProvider, scope?: ExternalKeyScope) => Promise<void>;
   connectMwa: () => Promise<void>;
   disconnect: (preserveEmail?: boolean) => Promise<void>;
   isReady: boolean;
@@ -71,6 +74,7 @@ const WalletContext = createContext<WalletContextValue>({
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [wallet, setWallet] = useState<NearWallet>();
   const [walletKind, setWalletKind] = useState<WalletKind>();
+  const [externalKeyScope, setExternalKeyScope] = useState<ExternalKeyScope>();
   const [email, setEmail] = useState<string>();
   const [isReady, setIsReady] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -88,8 +92,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           }
           const savedKind = (await getStoredWalletKind()) as WalletKind | null;
           const savedEmail = await getStoredEmail();
+          const scope = await getExternalKeyScope();
           setWallet(restored);
           setWalletKind(savedKind ?? (savedEmail ? 'magic' : 'device'));
+          setExternalKeyScope(scope ?? (savedKind === 'meteor' ? 'contract' : 'full'));
           setEmail(savedEmail ?? undefined);
         }
         setIsReady(true);
@@ -156,8 +162,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   );
 
   const connectExternal = useCallback(
-    async (provider: NearWalletProvider = 'meteor') => {
-      const connected = await connectExternalNearWallet(provider);
+    async (provider: NearWalletProvider = 'meteor', scope: ExternalKeyScope = 'full') => {
+      const connected = await connectExternalNearWallet(provider, { scope });
+      setExternalKeyScope(connected.scope);
       await activate(
         { accountId: connected.accountId, keyPair: connected.keyPair },
         'meteor',
@@ -186,6 +193,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       await clearWallet(preserveEmail);
       setWallet(undefined);
       setWalletKind(undefined);
+      setExternalKeyScope(undefined);
       if (!preserveEmail) setEmail(undefined);
     },
     [walletKind],
@@ -216,6 +224,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         publicKey: address,
         wallet,
         walletKind,
+        externalKeyScope,
         email,
         isConnected: !!wallet,
         cluster: CLUSTER,

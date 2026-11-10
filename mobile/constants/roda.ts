@@ -12,6 +12,34 @@ export const CONTRACT_ID =
 export const FT_ID =
   process.env.EXPO_PUBLIC_FT_ID ?? 'usdc.dev-92ebb0b3c42c.testnet';
 
+// ─── Sputnik DAO + Trezu (Phase 0) ────────────────────────────────────────────
+
+export const SPUTNIK_FACTORY_ID =
+  process.env.EXPO_PUBLIC_SPUTNIK_FACTORY_ID ??
+  (NEAR_NETWORK === 'mainnet' ? 'sputnik-dao.near' : 'sputnikv2.testnet');
+
+export const SPUTNIK_DAO_SUFFIX = SPUTNIK_FACTORY_ID;
+
+export const TREZU_BASE_URL =
+  process.env.EXPO_PUBLIC_TREZU_URL ?? 'https://trezu.app';
+
+/** Default 0.1 NEAR proposal/bounty bond (in yoctoNEAR). */
+export const PROPOSAL_BOND = '100000000000000000000000';
+
+/** Minimum factory deposit for subaccount + Sputnik DAO WASM storage (~6 NEAR). */
+export const DAO_CREATE_DEPOSIT = '6000000000000000000000000';
+
+/** NEP-141 storage_deposit amount (0.00125 NEAR in yoctoNEAR). */
+export const FT_STORAGE_DEPOSIT = '1250000000000000000000';
+
+/** 7 days in nanoseconds. */
+export const DEFAULT_VOTE_PERIOD_NS = '604800000000000';
+
+/** 24 hours in nanoseconds (bounty forgiveness / grace window). */
+export const DEFAULT_GRACE_PERIOD_NS = '86400000000000';
+
+export const MAX_ENVELOPES = 12;
+
 export const USDC_DECIMALS = 6;
 
 export const USDC_FACTOR = 10 ** USDC_DECIMALS;
@@ -104,3 +132,9 @@ export const usdcToRaw = (amount: number) => Math.round(amount * USDC_FACTOR);
 
 export const isValidAddress = (value: string) =>
   /^[a-z0-9._-]{2,64}$/.test(value);
+
+/** Format raw collective ownership shares (1_000_000 units = 1.00 share). */
+export const formatShares = (raw: number | bigint) => {
+  const n = Number(raw) / USDC_FACTOR;
+  return n.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 0 });
+};

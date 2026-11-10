@@ -11,8 +11,16 @@ use crate::{now, RodaContract, RodaContractExt};
 #[derive(Deserialize)]
 #[serde(crate = "near_sdk::serde", tag = "type", rename_all = "snake_case")]
 enum TransferMsg {
-    Deposit { vault_id: u64 },
-    Contribute { circle: u64 },
+    Deposit {
+        vault_id: u64,
+    },
+    Contribute {
+        circle: u64,
+    },
+    BudgetDeposit {
+        community: u64,
+        envelope: Option<u64>,
+    },
 }
 
 #[near]
@@ -26,6 +34,11 @@ impl FungibleTokenReceiver for RodaContract {
         amount: U128,
         msg: String,
     ) -> PromiseOrValue<U128> {
+        if env::predecessor_account_id() != self.config.token_id {
+            env::log_str("RodaError:InvalidToken");
+            return PromiseOrValue::Value(amount);
+        }
+
         let amount: u64 = match u64::try_from(amount.0) {
             Ok(a) if a > 0 => a,
             _ => return PromiseOrValue::Value(amount),
@@ -38,7 +51,13 @@ impl FungibleTokenReceiver for RodaContract {
 
         let applied = match parsed {
             TransferMsg::Deposit { vault_id } => self.apply_deposit(&sender_id, vault_id, amount),
-            TransferMsg::Contribute { circle } => self.apply_contribution(&sender_id, circle, amount),
+            TransferMsg::Contribute { circle } => {
+                self.apply_contribution(&sender_id, circle, amount)
+            }
+            TransferMsg::BudgetDeposit {
+                community,
+                envelope,
+            } => self.apply_budget_deposit(&sender_id, community, envelope, amount),
         };
 
         if applied {
@@ -89,6 +108,7 @@ impl RodaContract {
             vault.maturity_ts = now().saturating_add(lock);
         }
         self.vaults.insert(&vault_id, &vault);
+        self.touch_rep_seen(sender);
 
         events::vault_deposit(sender, vault_id, amount, vault.balance, vault.maturity_ts);
         self.push_activity(sender, "deposit", None, Some(vault_id), amount, None);
@@ -129,12 +149,88 @@ impl RodaContract {
                 return false;
             }
         }
+        let round_deadline = circle
+            .round_started_ts
+            .saturating_add((circle.frequency_secs as i64).saturating_mul(2));
+        let is_late = now() > round_deadline;
+
         circle.paid.push(sender.clone());
         let paid_count = circle.paid.len() as u8;
+        let current_round = circle.current_round;
         self.circles.insert(&circle_code, &circle);
 
-        events::contribution_made(circle_code, sender, circle.current_round, amount, paid_count);
+        self.record_rep_contribution(sender, is_late);
+        events::contribution_made(circle_code, sender, current_round, amount, paid_count);
         self.push_activity(sender, "contribute", Some(circle_code), None, amount, None);
+        true
+    }
+
+    fn apply_budget_deposit(
+        &mut self,
+        sender: &AccountId,
+        community_id: u64,
+        envelope_id: Option<u64>,
+        amount: u64,
+    ) -> bool {
+        let Some(mut community) = self.communities.get(&community_id) else {
+            env::log_str(&format!("RodaError:CommunityNotFound:{}", community_id));
+            return false;
+        };
+        if !community.linked {
+            env::log_str("RodaError:CommunityNotLinked");
+            return false;
+        }
+        if community.dissolved {
+            env::log_str("RodaError:CommunityDissolved");
+            return false;
+        }
+
+        // Pre-validate share overflow before mutating balances.
+        if community.total_shares.checked_add(amount).is_none() {
+            env::log_str("RodaError:MathOverflow");
+            return false;
+        }
+
+        if let Some(eid) = envelope_id {
+            let Some(env_item) = community.envelopes.iter_mut().find(|e| e.id == eid) else {
+                env::log_str(&format!("RodaError:EnvelopeNotFound:{}", eid));
+                return false;
+            };
+            if !env_item.active {
+                env::log_str("RodaError:EnvelopeInactive");
+                return false;
+            }
+            match env_item.allocated.checked_add(amount) {
+                Some(v) => env_item.allocated = v,
+                None => {
+                    env::log_str("RodaError:MathOverflow");
+                    return false;
+                }
+            }
+        } else {
+            match community.pool_unallocated.checked_add(amount) {
+                Some(v) => community.pool_unallocated = v,
+                None => {
+                    env::log_str("RodaError:MathOverflow");
+                    return false;
+                }
+            }
+        }
+
+        let dao_id = community.dao_id.clone();
+        self.mint_community_shares(&mut community, sender, amount, false);
+        self.communities.insert(&community_id, &community);
+
+        self.record_rep_community_volume(sender, amount);
+        events::budget_deposit(community_id, envelope_id, sender, amount);
+        self.push_activity(
+            sender,
+            "budget_deposit",
+            None,
+            Some(community_id),
+            amount,
+            Some(dao_id),
+        );
         true
     }
 }

@@ -1,8 +1,10 @@
 use borsh::{BorshDeserialize, BorshSerialize};
+use near_sdk::collections::LookupMap;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{AccountId, BorshStorageKey};
 
 /// Storage prefixes for all contract collections.
+/// NOTE: Preserve enum order — variants 0..9 match existing V1 deployment storage keys.
 #[derive(BorshStorageKey, BorshSerialize)]
 pub enum StorageKey {
     Vaults,
@@ -15,6 +17,19 @@ pub enum StorageKey {
     Activity,
     PayoutPending,
     WithdrawPending,
+    Communities,
+    UserCommunities,
+    DaoCommunities,
+    SpendPending,
+    Reputation,
+    RewardRules,
+    CommunityRewardRules,
+    CircleRewardRules,
+    RewardsClaimed,
+    RewardPending,
+    CommunityShares,
+    CommunityShareholders,
+    SurplusClaimed,
 }
 
 /// Global Roda configuration — stored inline on the contract.
@@ -99,7 +114,7 @@ pub enum CircleStatus {
 }
 
 /// Rotating savings (ajo/esusu) circle.
-#[derive(BorshDeserialize, BorshSerialize, Clone)]
+#[derive(Clone)]
 pub struct Circle {
     pub id: u64,
     pub creator: AccountId,
@@ -117,6 +132,68 @@ pub struct Circle {
     pub paid: Vec<AccountId>,
     /// Locked while the round payout transfer chain is in flight.
     pub payout_pending: bool,
+    /// Phase 2: minimum on-chain reputation score required to join (0 = open).
+    pub min_reputation: u32,
+}
+
+impl BorshSerialize for Circle {
+    fn serialize<W: borsh::io::Write>(&self, writer: &mut W) -> borsh::io::Result<()> {
+        BorshSerialize::serialize(&self.id, writer)?;
+        BorshSerialize::serialize(&self.creator, writer)?;
+        BorshSerialize::serialize(&self.name, writer)?;
+        BorshSerialize::serialize(&self.max_members, writer)?;
+        BorshSerialize::serialize(&self.contribution_amount, writer)?;
+        BorshSerialize::serialize(&self.frequency_secs, writer)?;
+        BorshSerialize::serialize(&self.current_round, writer)?;
+        BorshSerialize::serialize(&self.pool_balance, writer)?;
+        BorshSerialize::serialize(&self.round_started_ts, writer)?;
+        BorshSerialize::serialize(&self.status, writer)?;
+        BorshSerialize::serialize(&self.members, writer)?;
+        BorshSerialize::serialize(&self.paid, writer)?;
+        BorshSerialize::serialize(&self.payout_pending, writer)?;
+        BorshSerialize::serialize(&self.min_reputation, writer)?;
+        Ok(())
+    }
+}
+
+impl BorshDeserialize for Circle {
+    fn deserialize_reader<R: borsh::io::Read>(reader: &mut R) -> borsh::io::Result<Self> {
+        let id = u64::deserialize_reader(reader)?;
+        let creator = AccountId::deserialize_reader(reader)?;
+        let name = String::deserialize_reader(reader)?;
+        let max_members = u8::deserialize_reader(reader)?;
+        let contribution_amount = u64::deserialize_reader(reader)?;
+        let frequency_secs = u64::deserialize_reader(reader)?;
+        let current_round = u16::deserialize_reader(reader)?;
+        let pool_balance = u64::deserialize_reader(reader)?;
+        let round_started_ts = i64::deserialize_reader(reader)?;
+        let status = CircleStatus::deserialize_reader(reader)?;
+        let members = Vec::<AccountId>::deserialize_reader(reader)?;
+        let paid = Vec::<AccountId>::deserialize_reader(reader)?;
+        let payout_pending = bool::deserialize_reader(reader)?;
+        let mut rep_buf = [0u8; 4];
+        let min_reputation = match reader.read_exact(&mut rep_buf) {
+            Ok(()) => u32::from_le_bytes(rep_buf),
+            Err(e) if e.kind() == borsh::io::ErrorKind::UnexpectedEof => 0,
+            Err(e) => return Err(e),
+        };
+        Ok(Circle {
+            id,
+            creator,
+            name,
+            max_members,
+            contribution_amount,
+            frequency_secs,
+            current_round,
+            pool_balance,
+            round_started_ts,
+            status,
+            members,
+            paid,
+            payout_pending,
+            min_reputation,
+        })
+    }
 }
 
 impl Circle {
@@ -143,7 +220,7 @@ pub struct NameProfile {
 #[serde(crate = "near_sdk::serde")]
 pub struct Activity {
     /// deposit | withdraw | contribute | payout | fee | faucet | vault_created
-    /// | circle_created | circle_joined | name_claimed
+    /// | circle_created | circle_joined | name_claimed | budget_deposit | reward | surplus_claimed
     pub kind: String,
     pub circle_id: Option<u64>,
     pub vault_id: Option<u64>,
@@ -170,6 +247,121 @@ pub struct WithdrawPending {
     pub amount: u64,
 }
 
+// ─── Phase 1: Community Escrow & Shared Budgets ───────────────────────────────
+
+/// Hard-capped spending envelope inside a community's Roda escrow.
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
+pub struct Envelope {
+    pub id: u64,
+    pub name: String,
+    pub allocated: u64,
+    pub spent: u64,
+    pub active: bool,
+}
+
+impl Envelope {
+    pub fn remaining(&self) -> u64 {
+        self.allocated.saturating_sub(self.spent)
+    }
+}
+
+/// A Roda community anchored to a Sputnik DAO (`<name>.sputnik-dao.near`).
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
+pub struct Community {
+    pub id: u64,
+    pub dao_id: AccountId,
+    pub creator: AccountId,
+    pub name: String,
+    pub created_ts: i64,
+    pub envelopes: Vec<Envelope>,
+    pub pool_unallocated: u64,
+    pub linked: bool,
+    /// Phase 4: collective dissolution & ownership tracking.
+    pub dissolved: bool,
+    pub total_shares: u64,
+    pub dissolve_surplus: u64,
+}
+
+/// In-flight community envelope spend transfer (for optimistic debit rollback).
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
+pub struct SpendPending {
+    pub community_id: u64,
+    pub envelope_id: u64,
+    pub recipient: AccountId,
+    pub amount: u64,
+}
+
+// ─── Phase 2: On-chain Reputation ─────────────────────────────────────────────
+
+/// Persistent reputation counters & cached score for an account.
+#[derive(BorshDeserialize, BorshSerialize, Clone, Default)]
+pub struct RepScore {
+    pub score: u32,
+    pub updated_ts: i64,
+    pub first_seen_ts: i64,
+    pub contributions_ok: u32,
+    pub contributions_missed: u32,
+    pub circles_completed: u32,
+    pub tenure_days: u32,
+    pub vault_withdraw_units: u32,
+    pub community_volume: u64,
+}
+
+// ─── Phase 3: Programmable Rewards ────────────────────────────────────────────
+
+/// Condition triggering an automatic Roda reward payout on circle completion/round.
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize,
+)]
+#[serde(crate = "near_sdk::serde", tag = "kind", rename_all = "snake_case")]
+pub enum RewardTrigger {
+    CircleRoundCompleted,
+    Streak { min_contributions: u32 },
+}
+
+/// DAO-governed automatic reward rule funded out of an escrow envelope.
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
+pub struct RewardRule {
+    pub id: u64,
+    pub community_id: u64,
+    pub source_envelope: u64,
+    pub circle_code: Option<u64>,
+    pub trigger: RewardTrigger,
+    pub amount: u64,
+    pub active: bool,
+    pub total_paid: u64,
+    pub payouts_count: u64,
+}
+
+/// In-flight auto-reward FT transfer (for rollback on failure).
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
+pub struct RewardPending {
+    pub rule_id: u64,
+    pub community_id: u64,
+    pub envelope_id: u64,
+    pub recipient: AccountId,
+    pub amount: u64,
+    pub event_key: u64,
+}
+
+// ─── V1 state layout for backwards-compatible upgrade migration ───────────────
+
+#[derive(BorshDeserialize)]
+pub struct RodaContractV1 {
+    pub config: Config,
+    pub vaults: LookupMap<u64, Vault>,
+    pub user_vaults: LookupMap<AccountId, Vec<u64>>,
+    pub circles: LookupMap<u64, Circle>,
+    pub user_circles: LookupMap<AccountId, Vec<u64>>,
+    pub names: LookupMap<String, AccountId>,
+    pub profiles: LookupMap<AccountId, NameProfile>,
+    pub faucet: LookupMap<AccountId, i64>,
+    pub activity: LookupMap<AccountId, Vec<Activity>>,
+    pub payout_pending: LookupMap<u64, PayoutPending>,
+    pub withdraw_pending: LookupMap<u64, WithdrawPending>,
+    pub fees_owed: u64,
+}
+
 // ─── JSON views ───────────────────────────────────────────────────────────────
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -180,6 +372,9 @@ pub struct ConfigView {
     pub vault_count: u64,
     pub circle_count: u64,
     pub faucet_enabled: bool,
+    pub community_count: u64,
+    pub community_min_rep: u32,
+    pub reward_rule_count: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -213,6 +408,7 @@ pub struct CircleView {
     pub members: Vec<AccountId>,
     pub paid: Vec<AccountId>,
     pub payout_pending: bool,
+    pub min_reputation: u32,
 }
 
 impl From<&Circle> for CircleView {
@@ -236,6 +432,7 @@ impl From<&Circle> for CircleView {
             members: c.members.clone(),
             paid: c.paid.clone(),
             payout_pending: c.payout_pending,
+            min_reputation: c.min_reputation,
         }
     }
 }
@@ -246,4 +443,139 @@ pub struct ProfileView {
     pub owner: AccountId,
     pub name: String,
     pub last_change_ts: i64,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct EnvelopeView {
+    pub id: u64,
+    pub name: String,
+    pub allocated: u64,
+    pub spent: u64,
+    pub remaining: u64,
+    pub active: bool,
+}
+
+impl From<&Envelope> for EnvelopeView {
+    fn from(e: &Envelope) -> Self {
+        EnvelopeView {
+            id: e.id,
+            name: e.name.clone(),
+            allocated: e.allocated,
+            spent: e.spent,
+            remaining: e.remaining(),
+            active: e.active,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct CommunityView {
+    pub id: u64,
+    pub dao_id: AccountId,
+    pub creator: AccountId,
+    pub name: String,
+    pub created_ts: i64,
+    pub envelopes: Vec<EnvelopeView>,
+    pub pool_unallocated: u64,
+    pub total_allocated_remaining: u64,
+    pub linked: bool,
+    pub dissolved: bool,
+    pub total_shares: u64,
+    pub dissolve_surplus: u64,
+}
+
+impl From<&Community> for CommunityView {
+    fn from(c: &Community) -> Self {
+        let envelopes: Vec<EnvelopeView> = c.envelopes.iter().map(EnvelopeView::from).collect();
+        let total_allocated_remaining = envelopes
+            .iter()
+            .fold(0u64, |acc, e| acc.saturating_add(e.remaining));
+        CommunityView {
+            id: c.id,
+            dao_id: c.dao_id.clone(),
+            creator: c.creator.clone(),
+            name: c.name.clone(),
+            created_ts: c.created_ts,
+            envelopes,
+            pool_unallocated: c.pool_unallocated,
+            total_allocated_remaining,
+            linked: c.linked,
+            dissolved: c.dissolved,
+            total_shares: c.total_shares,
+            dissolve_surplus: c.dissolve_surplus,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct RepView {
+    pub account: AccountId,
+    pub score: u32,
+    pub updated_ts: i64,
+    pub contributions_ok: u32,
+    pub contributions_missed: u32,
+    pub circles_completed: u32,
+    pub tenure_days: u32,
+    pub vault_withdraw_units: u32,
+    pub community_volume: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct RepBreakdownView {
+    pub account: AccountId,
+    pub score: u32,
+    pub reliability_pts: u32,
+    pub completion_pts: u32,
+    pub vault_pts: u32,
+    pub volume_pts: u32,
+    pub tenure_pts: u32,
+    pub penalty_pts: u32,
+    pub contributions_ok: u32,
+    pub contributions_missed: u32,
+    pub circles_completed: u32,
+    pub tenure_days: u32,
+    pub vault_withdraw_units: u32,
+    pub community_volume: u64,
+    pub sybil_note: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct RewardRuleView {
+    pub id: u64,
+    pub community_id: u64,
+    pub source_envelope: u64,
+    pub circle_code: Option<u64>,
+    pub trigger: RewardTrigger,
+    pub amount: u64,
+    pub active: bool,
+    pub total_paid: u64,
+    pub payouts_count: u64,
+}
+
+impl From<&RewardRule> for RewardRuleView {
+    fn from(r: &RewardRule) -> Self {
+        RewardRuleView {
+            id: r.id,
+            community_id: r.community_id,
+            source_envelope: r.source_envelope,
+            circle_code: r.circle_code,
+            trigger: r.trigger,
+            amount: r.amount,
+            active: r.active,
+            total_paid: r.total_paid,
+            payouts_count: r.payouts_count,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct ShareholderView {
+    pub account: AccountId,
+    pub shares: u64,
 }

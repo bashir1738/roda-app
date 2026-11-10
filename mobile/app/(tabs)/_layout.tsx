@@ -14,20 +14,23 @@ function TabIcon({
   const INACTIVE = isDark ? '#8E8E93' : '#71717A';
   
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', width: 64, gap: 4 }}>
+    <View style={{ alignItems: 'center', justifyContent: 'center', minWidth: 62, gap: 4 }}>
       <View style={{
-        paddingHorizontal: 16,
+        paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: 16,
         backgroundColor: focused ? (isDark ? 'rgba(0, 192, 139, 0.2)' : 'rgba(0, 192, 139, 0.12)') : 'transparent'
       }}>
         <Icon name={focused ? iconActive : iconInactive} size={22} color={focused ? ACTIVE : INACTIVE} pop />
       </View>
-      <Text style={{ 
-        color: focused ? ACTIVE : INACTIVE, 
-        fontSize: 10, 
-        fontWeight: focused ? '700' : '600' 
-      }}>
+      <Text
+        numberOfLines={1}
+        style={{ 
+          color: focused ? ACTIVE : INACTIVE, 
+          fontSize: 10, 
+          fontWeight: focused ? '700' : '600' 
+        }}
+      >
         {label}
       </Text>
     </View>
@@ -85,6 +88,14 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon iconActive="leaf" iconInactive="leaf-outline" label="Save" focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="community"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon iconActive="layers" iconInactive="layers-outline" label="Community" focused={focused} />
           ),
         }}
       />

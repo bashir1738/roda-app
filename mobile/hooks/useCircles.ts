@@ -21,6 +21,7 @@ export interface CircleData {
   payoutPending: boolean;
   payoutReady: boolean;
   isMyTurn: boolean;
+  minReputation: number;
   members: string[];
   paid: string[];
   myPosition: number;
@@ -62,6 +63,7 @@ function mapCircle(c: any, address?: string): CircleData {
     payoutPending: Boolean(c.payout_pending),
     payoutReady: isPayoutReady,
     isMyTurn,
+    minReputation: Number(c.min_reputation ?? 0),
     members,
     paid,
     myPosition,

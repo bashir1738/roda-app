@@ -9,6 +9,7 @@ export interface CreateCircleParams {
   maxMembers: number;
   contributionUSDC: number;
   frequencySeconds: number;
+  minReputation?: number;
 }
 
 export function useCreateCircle() {
@@ -17,8 +18,12 @@ export function useCreateCircle() {
   const createCircle = useCallback(async (params: CreateCircleParams) => {
     const code = randomCircleCode();
     const result = await action.run((accountId) => callContract(accountId, 'create_circle', {
-      circle_code: code, name: params.name.trim(), max_members: params.maxMembers,
-      contribution_amount: usdcToRaw(params.contributionUSDC), frequency_secs: params.frequencySeconds,
+      circle_code: code,
+      name: params.name.trim(),
+      max_members: params.maxMembers,
+      contribution_amount: usdcToRaw(params.contributionUSDC),
+      frequency_secs: params.frequencySeconds,
+      min_reputation: params.minReputation && params.minReputation > 0 ? params.minReputation : null,
     }));
     if (result) setCreatedCode(code);
     return result;

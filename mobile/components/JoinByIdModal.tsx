@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { viewContract } from '../lib/contract';
 import { isValidCircleCode } from '../lib/circleCode';
 import { useJoinCircle } from '../hooks/useJoinCircle';
+import { useReputation } from '../hooks/useReputation';
 import { useWallet } from '../providers/WalletContext';
 import { TxStateView } from './TxStateView';
 import { Icon } from './Icon';
@@ -20,6 +21,7 @@ interface CirclePreview {
   maxMembers: number;
   memberCount: number;
   contributionAmount: bigint;
+  minReputation: number;
   /** 0 = active, 1 = completed. */
   statusRaw: number;
   members: string[];
@@ -35,6 +37,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
   const [joined, setJoined] = useState(false);
 
   const { joinCircle, txState, txHash, isPending, error: joinError, reset } = useJoinCircle();
+  const { data: repData, isLoading: repLoading } = useReputation();
 
   const parsedId = circleId !== null ? circleId : -1;
 
@@ -50,6 +53,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
         maxMembers: Number(info.max_members),
         memberCount: Number(info.member_count),
         contributionAmount: BigInt(info.contribution_amount ?? 0),
+        minReputation: Number(info.min_reputation ?? 0),
         statusRaw: info.status === 'Completed' ? 1 : 0,
         members: info.members ?? [],
       };
@@ -77,6 +81,9 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
   const maxMembers = circleInfo?.maxMembers ?? 0;
   const memberCount = circleInfo?.memberCount ?? 0;
   const contributionAmount = circleInfo?.contributionAmount ?? 0n;
+  const minReputation = circleInfo?.minReputation ?? 0;
+  const myScore = repData?.score ?? 0;
+  const repBlocked = minReputation > 0 && !repLoading && myScore < minReputation;
   const isAlreadyMember = !!address && !!circleInfo?.members?.includes(address);
   const isRecruiting = circleInfo?.statusRaw === 0 && memberCount < maxMembers;
   const isFull = hasCircle && memberCount >= maxMembers;
@@ -195,6 +202,14 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
                   {Math.max(0, maxMembers - memberCount)}
                 </Text>
               </View>
+              {minReputation > 0 && (
+                <View>
+                  <Text className="text-muted dark:text-[#A1A1AA] text-xs">Min Rep</Text>
+                  <Text className="text-primary dark:text-[#00C08B] font-bold text-sm">
+                    {minReputation}+ pts
+                  </Text>
+                </View>
+              )}
             </View>
 
             {/* Slot bar */}
@@ -242,17 +257,36 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
           </View>
         )}
 
+        {/* Reputation gate warning */}
+        {hasCircle && !isAlreadyMember && repBlocked && !joined && (
+          <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/60 rounded-3xl p-4 flex-row items-center gap-3 mb-4">
+            <Icon name="shield-checkmark-outline" size={20} color="#F59E0B" />
+            <Text className="text-amber-800 dark:text-amber-200 text-xs leading-5 flex-1">
+              Requires Reputation {minReputation}+ (your score is {myScore}). Contribute to circles, save in vaults, or fund community budgets to earn reputation.
+            </Text>
+          </View>
+        )}
+
         {/* Join button */}
         {hasCircle && isRecruiting && !isFull && !isAlreadyMember && !joined && txState === 'idle' && (
           <TouchableOpacity
-            className="bg-primary rounded-full py-4 items-center flex-row justify-center gap-2"
+            className={`rounded-full py-4 items-center flex-row justify-center gap-2 ${
+              repBlocked ? 'bg-primary/25 dark:bg-[#00C08B]/20' : 'bg-primary'
+            }`}
             onPress={handleJoin}
-            disabled={isPending}
+            disabled={isPending || repBlocked}
           >
             {isPending ? (
               <>
                 <ActivityIndicator color="#000000" />
                 <Text className="text-black font-bold">Confirm in wallet…</Text>
+              </>
+            ) : repBlocked ? (
+              <>
+                <Icon name="lock-closed-outline" size={18} color={isDark ? '#00C08B' : '#000000'} />
+                <Text className={`font-bold text-base ${isDark ? 'text-[#00C08B]/70' : 'text-black/50'}`}>
+                  Reputation {minReputation}+ Required
+                </Text>
               </>
             ) : (
               <>

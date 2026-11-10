@@ -153,3 +153,235 @@ pub fn admin_transferred(old_admin: &AccountId, new_admin: &AccountId) {
     );
 }
 
+// ─── Phase 1: Community Coordination & Budgets ────────────────────────────────
+
+pub fn community_create(
+    community_id: u64,
+    dao_id: &AccountId,
+    creator: &AccountId,
+    name: &str,
+    envelope_count: usize,
+) {
+    emit(
+        "community_create",
+        serde_json::json!({
+            "community_id": community_id,
+            "dao_id": dao_id,
+            "creator": creator,
+            "name": name,
+            "envelope_count": envelope_count,
+        }),
+    );
+}
+
+pub fn community_link(community_id: u64, dao_id: &AccountId) {
+    emit(
+        "community_link",
+        serde_json::json!({
+            "community_id": community_id,
+            "dao_id": dao_id,
+        }),
+    );
+}
+
+pub fn budget_deposit(
+    community_id: u64,
+    envelope_id: Option<u64>,
+    sender: &AccountId,
+    amount: u64,
+) {
+    emit(
+        "budget_deposit",
+        serde_json::json!({
+            "community_id": community_id,
+            "envelope_id": envelope_id,
+            "sender": sender,
+            "amount": amount,
+        }),
+    );
+}
+
+pub fn envelope_allocate(
+    community_id: u64,
+    envelope_id: u64,
+    amount: u64,
+    allocated: u64,
+    pool_unallocated: u64,
+) {
+    emit(
+        "envelope_allocate",
+        serde_json::json!({
+            "community_id": community_id,
+            "envelope_id": envelope_id,
+            "amount": amount,
+            "allocated": allocated,
+            "pool_unallocated": pool_unallocated,
+        }),
+    );
+}
+
+pub fn envelope_spend(
+    community_id: u64,
+    envelope_id: u64,
+    recipient: &AccountId,
+    amount: u64,
+    spent: u64,
+    remaining: u64,
+) {
+    emit(
+        "envelope_spend",
+        serde_json::json!({
+            "community_id": community_id,
+            "envelope_id": envelope_id,
+            "recipient": recipient,
+            "amount": amount,
+            "spent": spent,
+            "remaining": remaining,
+        }),
+    );
+}
+
+pub fn envelope_updated(community_id: u64, envelope_id: u64, name: &str, active: bool) {
+    emit(
+        "envelope_updated",
+        serde_json::json!({
+            "community_id": community_id,
+            "envelope_id": envelope_id,
+            "name": name,
+            "active": active,
+        }),
+    );
+}
+
+// ─── Phase 2: Reputation ──────────────────────────────────────────────────────
+
+pub fn reputation_updated(account: &AccountId, score: u32) {
+    emit(
+        "reputation_updated",
+        serde_json::json!({
+            "account": account,
+            "score": score,
+        }),
+    );
+}
+
+// ─── Phase 3: Programmable Rewards ────────────────────────────────────────────
+
+pub fn reward_rule_created(
+    rule_id: u64,
+    community_id: u64,
+    source_envelope: u64,
+    circle_code: Option<u64>,
+    amount: u64,
+) {
+    emit(
+        "reward_rule_created",
+        serde_json::json!({
+            "rule_id": rule_id,
+            "community_id": community_id,
+            "source_envelope": source_envelope,
+            "circle_code": circle_code,
+            "amount": amount,
+        }),
+    );
+}
+
+pub fn reward_rule_toggled(rule_id: u64, community_id: u64, active: bool) {
+    emit(
+        "reward_rule_toggled",
+        serde_json::json!({
+            "rule_id": rule_id,
+            "community_id": community_id,
+            "active": active,
+        }),
+    );
+}
+
+pub fn reward_paid(
+    rule_id: u64,
+    community_id: u64,
+    envelope_id: u64,
+    recipient: &AccountId,
+    amount: u64,
+) {
+    emit(
+        "reward_paid",
+        serde_json::json!({
+            "rule_id": rule_id,
+            "community_id": community_id,
+            "envelope_id": envelope_id,
+            "recipient": recipient,
+            "amount": amount,
+        }),
+    );
+}
+
+// ─── Phase 4: Collective Ownership ────────────────────────────────────────────
+
+pub fn shares_minted(
+    community_id: u64,
+    account: &AccountId,
+    amount: u64,
+    balance: u64,
+    total_shares: u64,
+) {
+    emit(
+        "shares_minted",
+        serde_json::json!({
+            "community_id": community_id,
+            "account": account,
+            "amount": amount,
+            "balance": balance,
+            "total_shares": total_shares,
+        }),
+    );
+}
+
+pub fn shares_granted(
+    community_id: u64,
+    account: &AccountId,
+    amount: u64,
+    balance: u64,
+    total_shares: u64,
+) {
+    emit(
+        "shares_granted",
+        serde_json::json!({
+            "community_id": community_id,
+            "account": account,
+            "amount": amount,
+            "balance": balance,
+            "total_shares": total_shares,
+        }),
+    );
+}
+
+pub fn community_dissolved(
+    community_id: u64,
+    dao_id: &AccountId,
+    dissolve_surplus: u64,
+    total_shares: u64,
+) {
+    emit(
+        "community_dissolved",
+        serde_json::json!({
+            "community_id": community_id,
+            "dao_id": dao_id,
+            "dissolve_surplus": dissolve_surplus,
+            "total_shares": total_shares,
+        }),
+    );
+}
+
+pub fn surplus_claimed(community_id: u64, account: &AccountId, amount: u64, shares: u64) {
+    emit(
+        "surplus_claimed",
+        serde_json::json!({
+            "community_id": community_id,
+            "account": account,
+            "amount": amount,
+            "shares": shares,
+        }),
+    );
+}
+

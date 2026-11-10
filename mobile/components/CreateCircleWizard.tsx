@@ -13,6 +13,12 @@ const FREQUENCIES = [
 ];
 const MIN_MEMBERS = 2;
 const MAX_MEMBERS = 12;
+const REP_PRESETS = [
+  { label: 'Any (0)', value: 0 },
+  { label: 'Active (50+)', value: 50 },
+  { label: 'Trusted (200+)', value: 200 },
+  { label: 'Steward (450+)', value: 450 },
+];
 
 interface Props {
   visible: boolean;
@@ -27,6 +33,7 @@ interface Props {
     maxMembers: number;
     contributionUSDC: number;
     frequencySeconds: number;
+    minReputation?: number;
   }) => Promise<void>;
 }
 
@@ -38,11 +45,12 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
   const [amount, setAmount] = useState('');
   const [freqIdx, setFreqIdx] = useState(0);
   const [members, setMembers] = useState(MIN_MEMBERS);
+  const [minRep, setMinRep] = useState(0);
   const [creating, setCreating] = useState(false);
 
   const reset = () => {
     setStep(0); setName(''); setAmount('');
-    setFreqIdx(0); setMembers(MIN_MEMBERS); setCreating(false);
+    setFreqIdx(0); setMembers(MIN_MEMBERS); setMinRep(0); setCreating(false);
   };
   const close = () => { reset(); onClose(); };
 
@@ -57,6 +65,7 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
         maxMembers: members,
         contributionUSDC: parseFloat(amount),
         frequencySeconds: FREQUENCIES[freqIdx].value,
+        minReputation: minRep > 0 ? minRep : undefined,
       });
     } catch {
       setCreating(false);
@@ -231,14 +240,45 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
                     </Text>
                   </View>
 
+                  <View>
+                    <Text className="text-muted dark:text-[#A1A1AA] text-xs font-bold uppercase tracking-wider mb-2">
+                      Minimum Reputation Gate (Optional)
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {REP_PRESETS.map((p) => {
+                        const selected = minRep === p.value;
+                        return (
+                          <TouchableOpacity
+                            key={p.value}
+                            onPress={() => setMinRep(p.value)}
+                            className={`px-3.5 py-2 rounded-full border ${
+                              selected
+                                ? 'border-primary bg-primary/15 dark:bg-[#00C08B]/20'
+                                : 'border-border bg-white dark:bg-[#1C1C1E] dark:border-white/10'
+                            }`}
+                          >
+                            <Text
+                              className={`text-xs font-bold ${
+                                selected ? 'text-primary dark:text-[#00C08B]' : 'text-charcoal dark:text-white'
+                              }`}
+                            >
+                              {p.label}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+
                   <View className="bg-white dark:bg-[#1C1C1E] border border-border dark:border-white/10 rounded-3xl p-4 gap-1">
                     {[
-                      { label: 'Circle name',   value: name },
-                      { label: 'Members',       value: `${members}` },
-                      { label: 'Per round',     value: `${amount || 0} USDC` },
-                      { label: 'Frequency',     value: freq.label },
-                      { label: 'Pot per round', value: `${pot.toFixed(0)} USDC`, bold: true },
-                      { label: 'Total rounds',  value: `${members}` },
+                      { label: 'Circle name',    value: name },
+                      { label: 'Members',        value: `${members}` },
+                      { label: 'Per round',      value: `${amount || 0} USDC` },
+                      { label: 'Frequency',      value: freq.label },
+                      { label: 'Min reputation', value: minRep > 0 ? `${minRep} pts` : 'None (Open)' },
+                      { label: 'Pot per round',  value: `${pot.toFixed(0)} USDC`, bold: true },
+                      { label: 'Total rounds',   value: `${members}` },
                     ].map((row) => (
                       <View
                         key={row.label}
