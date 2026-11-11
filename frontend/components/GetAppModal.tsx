@@ -85,7 +85,7 @@ function GetAppModal({
           Get the Roda app
         </h3>
         <p className="mt-2 text-sm leading-6 text-muted">
-          Save with your circle on the go. Launching soon on iOS and Android.
+          Save with your circle on the go. Download the Android demo today.
         </p>
 
         <div className="mt-8 space-y-2">
@@ -93,7 +93,7 @@ function GetAppModal({
             icon={<DownloadIcon className="h-5 w-5" />}
             sub="Available for"
             title="Android APK"
-            href="https://expo.dev/artifacts/eas/_XLTAWw5mKtT8RCWInSZkP1WS426tqT1JfiKJJ8zDvs.apk"
+            href="https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk"
           />
         </div>
       </div>

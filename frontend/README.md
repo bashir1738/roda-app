@@ -30,3 +30,9 @@ NEXT_PUBLIC_FT_ID=3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8
 
 Testnet USDC has no financial value. The Roda faucet is disabled because the
 protocol cannot mint Circle-issued USDC.
+
+## Android demo download
+
+The current Android APK can be downloaded from the public Expo artifact:
+
+[Download the Roda Android APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
