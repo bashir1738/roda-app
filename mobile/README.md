@@ -11,7 +11,7 @@ The `mobile/` package is an Expo React Native client for the Roda NEAR contracts
 | Role | Account ID |
 | --- | --- |
 | **Roda Protocol Program** | `roda.dev-92ebb0b3c42c.testnet` |
-| **NEP-141 Test USDC (`rUSDC`)** | `usdc.dev-92ebb0b3c42c.testnet` |
+| **Circle USDC (NEAR testnet)** | `3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af` |
 | **Sputnik DAO Factory** | `sputnikv2.testnet` |
 
 ## Development
@@ -30,7 +30,7 @@ Copy `.env.example` to `.env.local`:
 EXPO_PUBLIC_NEAR_NETWORK=testnet
 EXPO_PUBLIC_NEAR_RPC_URL=https://rpc.testnet.fastnear.com
 EXPO_PUBLIC_CONTRACT_ID=roda.dev-92ebb0b3c42c.testnet
-EXPO_PUBLIC_FT_ID=usdc.dev-92ebb0b3c42c.testnet
+EXPO_PUBLIC_FT_ID=3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af
 EXPO_PUBLIC_SPUTNIK_FACTORY_ID=sputnikv2.testnet
 EXPO_PUBLIC_TREZU_URL=https://trezu.app
 EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY=
@@ -42,7 +42,12 @@ EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY=
 - **Circles**: `create_circle` (with optional `min_reputation` threshold), `join_circle`, `claim_payout`, `close_circle`, `ft_transfer_call` (`{"type":"contribute","circle":N}`)
 - **Community & Sputnik DAOs**: Deploy DAOs via `sputnikv2.testnet`, submit/vote on `add_proposal` / `act_proposal` (`FunctionCall`, `Transfer`, `Vote`, `AddBounty`, `BountyDone`), `confirm_link`, `allocate`, `community_spend`, `add_envelope`, `set_envelope`, and `ft_transfer_call` (`{"type":"budget_deposit","community":N,"envelope":M|null}`)
 - **Reputation, Rewards & Shares**: `get_reputation_breakdown`, `create_reward_rule`, `grant_shares`, `dissolve_community`, `claim_surplus`, plus Trezu deep-linking (`trezu.app/<dao>`)
-- **Names & Testnet Faucet**: `claim_name`, `release_name`, `faucet`, `get_activity`
+- **Names & Activity**: `claim_name`, `release_name`, `get_activity`
+
+The mobile app uses Circle's official NEAR testnet USDC contract. Testnet tokens
+have no financial value, and the Roda faucet is disabled because Roda cannot
+mint Circle-issued USDC. Fund testnet accounts through an official testnet
+source instead.
 
 ## Structure
 

@@ -141,3 +141,83 @@ if (fs.existsSync(modalTarget)) {
     console.log('[patch-expo-fetch] patched react-native-modal/dist/modal.js');
   }
 }
+
+// Patch react-native-css-interop stringify() so dev upgrade warnings never crash
+// when walking React 19 element `_owner` fibers containing Expo Router's
+// LinkingContext (whose default value throws in `get options()`).
+const cssInteropCandidates = [
+  path.join(nm, 'react-native-css-interop', 'dist', 'runtime', 'native', 'render-component.js'),
+  path.join(nm, 'nativewind', 'node_modules', 'react-native-css-interop', 'dist', 'runtime', 'native', 'render-component.js'),
+];
+const CSS_INTEROP_MARK = '/* roda:safe-css-interop-stringify */';
+for (const cssTarget of cssInteropCandidates) {
+  if (!fs.existsSync(cssTarget)) continue;
+  let cssSrc = fs.readFileSync(cssTarget, 'utf8');
+  if (cssSrc.includes(CSS_INTEROP_MARK)) continue;
+
+  const origFn = `function stringify(object) {
+    const seen = new WeakSet();
+    return JSON.stringify(object, function replace(_, value) {
+        if (!(value !== null && typeof value === "object")) {
+            return value;
+        }
+        if (seen.has(value)) {
+            return "[Circular]";
+        }
+        seen.add(value);
+        const newValue = Array.isArray(value) ? [] : {};
+        for (const entry of Object.entries(value)) {
+            newValue[entry[0]] = replace(entry[0], entry[1]);
+        }
+        seen.delete(value);
+        return newValue;
+    }, 2);
+}`;
+
+  const safeFn = `${CSS_INTEROP_MARK}
+function stringify(object) {
+    const seen = new WeakSet();
+    const skipKeys = new Set(['_owner', '_store', '_debugOwner', '_debugInfo', '_debugStack', '_debugTask', '_debugNeedsRemount', '_debugHookTypes', '_currentValue', '_currentValue2']);
+    function safeClone(value) {
+        if (!(value !== null && typeof value === "object")) {
+            return value;
+        }
+        if ("$$typeof" in value) {
+            return typeof value.type === "string" ? "<" + value.type + " />" : "[ReactElement]";
+        }
+        if (seen.has(value)) {
+            return "[Circular]";
+        }
+        seen.add(value);
+        const newValue = Array.isArray(value) ? [] : {};
+        let keys;
+        try {
+            keys = Object.keys(value);
+        } catch {
+            seen.delete(value);
+            return "[Unreadable]";
+        }
+        for (const key of keys) {
+            if (skipKeys.has(key)) continue;
+            try {
+                newValue[key] = safeClone(value[key]);
+            } catch {
+                newValue[key] = "[Unreadable]";
+            }
+        }
+        seen.delete(value);
+        return newValue;
+    }
+    try {
+        return JSON.stringify(safeClone(object), null, 2);
+    } catch {
+        return "[Unserializable props]";
+    }
+}`;
+
+  if (cssSrc.includes(origFn)) {
+    cssSrc = cssSrc.replace(origFn, () => safeFn);
+    fs.writeFileSync(cssTarget, cssSrc);
+    console.log('[patch-expo-fetch] patched', cssTarget);
+  }
+}

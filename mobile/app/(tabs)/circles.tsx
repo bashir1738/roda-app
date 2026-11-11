@@ -191,7 +191,8 @@ export default function CirclesTab() {
                     Invite friends or community members to start saving together.
                   </Text>
                   <TouchableOpacity
-                    className="mt-6 bg-primary px-8 py-4 rounded-full shadow-lg flex-row items-center gap-2"
+                    className="mt-6 bg-primary px-8 py-4 rounded-full flex-row items-center gap-2"
+                    style={{ shadowColor: '#000000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6 }}
                     onPress={() => setShowCreate(true)}
                   >
                     <Icon name="add" size={20} color="#000000" />
@@ -206,7 +207,8 @@ export default function CirclesTab() {
         {/* Floating Action Button */}
         {isConnected && circles.length > 0 && (
           <TouchableOpacity 
-            className="absolute right-6 bottom-28 w-16 h-16 bg-primary rounded-full items-center justify-center shadow-xl"
+            key="fab-create-circle"
+            className="absolute right-6 bottom-28 w-16 h-16 bg-primary rounded-full items-center justify-center"
             style={{ shadowColor: '#000000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }}
             onPress={() => setShowCreate(true)}
           >

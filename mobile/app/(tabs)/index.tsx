@@ -159,7 +159,11 @@ export default function HomeTab() {
                   <Icon name="log-in" size={32} color="#00C08B" />
                 </View>
                 <Text className="text-charcoal dark:text-white font-bold text-lg">Sign in to get started</Text>
-                <TouchableOpacity className="bg-primary rounded-full px-8 py-3.5 mt-4 shadow-sm" onPress={connect}>
+                <TouchableOpacity
+                  className="bg-primary rounded-full px-8 py-3.5 mt-4"
+                  style={{ shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 }}
+                  onPress={connect}
+                >
                   <Text className="text-black font-bold text-sm">Sign in</Text>
                 </TouchableOpacity>
               </View>

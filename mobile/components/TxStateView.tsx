@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useColorScheme } from 'nativewind';
 import Animated, {
   useAnimatedStyle,
@@ -9,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { TxState } from '../providers/WalletContext';
 import { describeError } from '../lib/sendTx';
+import { useWallet } from '../providers/WalletContext';
 import { Icon } from './Icon';
 import {
   ErrorIllustration,
@@ -28,6 +30,15 @@ interface Props {
 export function TxStateView({ txState, txHash, error, successMessage, onReset }: Props) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { address } = useWallet();
+  const [copiedAddr, setCopiedAddr] = useState(false);
+
+  const copyAddress = async () => {
+    if (!address) return;
+    await Clipboard.setStringAsync(address);
+    setCopiedAddr(true);
+    setTimeout(() => setCopiedAddr(false), 2000);
+  };
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(8);
@@ -150,6 +161,34 @@ export function TxStateView({ txState, txHash, error, successMessage, onReset }:
                   Tip: {errorDetails.hint}
                 </Text>
               </View>
+            ) : null}
+
+            {/* For unfunded/wallet errors show the address so the user can copy & fund it */}
+            {errorDetails.category === 'wallet' && address ? (
+              <TouchableOpacity
+                onPress={copyAddress}
+                style={{
+                  backgroundColor: errorTheme.accentSoft,
+                  borderRadius: 14,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  marginTop: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                <Icon name={copiedAddr ? 'checkmark-outline' : 'copy-outline'} size={13} color={errorTheme.titleColor} />
+                <Text
+                  style={{ color: errorTheme.titleColor }}
+                  className="text-xs font-bold"
+                >
+                  {copiedAddr
+                    ? 'Copied!'
+                    : `Copy address: ${address.slice(0, 8)}…${address.slice(-6)}`}
+                </Text>
+              </TouchableOpacity>
             ) : null}
           </View>
 

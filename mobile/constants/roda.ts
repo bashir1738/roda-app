@@ -9,8 +9,11 @@ export const NEAR_RPC_URL =
   process.env.EXPO_PUBLIC_NEAR_RPC_URL ?? TESTNET_RPC_ENDPOINTS[0];
 export const CONTRACT_ID =
   process.env.EXPO_PUBLIC_CONTRACT_ID ?? 'roda.dev-92ebb0b3c42c.testnet';
+/** Circle-issued USDC on NEAR testnet. Testnet tokens have no financial value. */
+export const CIRCLE_USDC_TESTNET_ID =
+  '3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af';
 export const FT_ID =
-  process.env.EXPO_PUBLIC_FT_ID ?? 'usdc.dev-92ebb0b3c42c.testnet';
+  process.env.EXPO_PUBLIC_FT_ID ?? CIRCLE_USDC_TESTNET_ID;
 
 // ─── Sputnik DAO + Trezu (Phase 0) ────────────────────────────────────────────
 
@@ -43,9 +46,6 @@ export const MAX_ENVELOPES = 12;
 export const USDC_DECIMALS = 6;
 
 export const USDC_FACTOR = 10 ** USDC_DECIMALS;
-
-/** USDC available per faucet claim. */
-export const FAUCET_AMOUNT_USDC = 1_000;
 
 // ─── Vault tiers (mirrors program state.rs) ───────────────────────────────────
 

@@ -360,7 +360,8 @@ export default function CommunityTab() {
         {/* FAB */}
         {isConnected && communities.length > 0 && (
           <TouchableOpacity
-            className="absolute right-6 bottom-28 w-16 h-16 bg-primary rounded-full items-center justify-center shadow-xl"
+            key="fab-create-community"
+            className="absolute right-6 bottom-28 w-16 h-16 bg-primary rounded-full items-center justify-center"
             style={{
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 8 },

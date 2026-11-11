@@ -51,7 +51,7 @@
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default and opaque bookkeeping while letting growing communities scale into full multi-sig DAOs with hard-capped budget envelopes, capital-weighted on-chain reputation, programmable rewards, and collective ownership shares.
 
-> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Test USDC**: [`usdc.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
+> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC (testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
 
 ---
 
@@ -129,7 +129,7 @@ Lock funds for disciplined personal saving across five tiers:
 
 ### Onchain Username Registry & Testnet Faucet
 - Claim lowercase handles (`claim_name`) stored onchain (`[a-z0-9_]`, 3–20 chars, 24h cooldown).
-- Claim 1,000 test USDC (`rUSDC`) every 24h on testnet via `faucet()`.
+- The Roda faucet is disabled when using Circle-issued USDC; Roda cannot mint it.
 
 ---
 
@@ -159,7 +159,7 @@ roda-app/
 | **Network** | `testnet` | `mainnet` |
 | **RPC Endpoint** | `https://rpc.testnet.fastnear.com` | `https://rpc.mainnet.fastnear.com` |
 | **Roda Protocol Program** | [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) | `roda.near` |
-| **Token Asset** | [`usdc.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) (`rUSDC`, 6 decimals) | `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` (Native Circle USDC) |
+| **Token Asset** | [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) (Circle USDC testnet, 6 decimals) | `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` (Native Circle USDC) |
 | **Sputnik DAO Factory** | [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet) | `sputnik-dao.near` |
 | **Protocol Admin** | [`dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) | Multi-sig / DAO Treasury |
 
@@ -262,7 +262,7 @@ roda-app/
     │   ├── ft.rs                    # FungibleTokenReceiver (deposit / contribute / budget_deposit)
     │   ├── events.rs                # NEP-297 event emitters
     │   └── constants.rs             # Fees, limits, reputation weights, reward caps, gas
-    ├── token/                       # Test NEP-141 token contract (rUSDC)
+    ├── token/                       # Optional local test token contract
     └── scripts/                     # deploy-account.js, upgrade.js, smoke-testnet.js, smoke-community.js, test-logic.js
 ```
 

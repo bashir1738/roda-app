@@ -205,7 +205,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
           {isRecipient && claim.txState === 'idle' && (
             <>
               {!payoutReady && (
-                <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
+                <Text className="text-charcoal dark:text-white text-center text-sm font-semibold">
                   {circle.paidCount < circle.maxMembers
                     ? `Waiting for members to contribute (${circle.paidCount}/${circle.maxMembers})`
                     : `Available to claim on ${fmtPayoutTime(circle.nextPayoutTimestamp)}`}
@@ -220,13 +220,13 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
                 accessibilityLabel="Claim payout"
                 accessibilityState={{ disabled: !payoutReady }}
               >
-                <Text className={`font-bold text-base text-center ${payoutReady ? 'text-black' : 'text-black/40 dark:text-[#00C08B]/50'}`}>Claim</Text>
+                <Text className={`font-bold text-base text-center ${payoutReady ? 'text-black' : 'text-charcoal/40 dark:text-white/40'}`}>Claim</Text>
               </TouchableOpacity>
             </>
           )}
           {circle.status === 1 && circle.myPosition >= 0 && circle.myPaidRound === circle.currentRound && !isRecipient && (
             <View className="bg-primary/5 dark:bg-[#00C08B]/10 border border-primary/15 dark:border-[#00C08B]/20 rounded-xl px-4 py-3 mt-1">
-              <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
+              <Text className="text-charcoal dark:text-white text-center text-sm font-semibold">
                 ✓ You contributed for round {circle.currentRound + 1}. Waiting for next round.
               </Text>
             </View>
@@ -247,7 +247,7 @@ export function CircleDetail({ circle: passedCircle, visible, onClose }: {
           )}
           {circle.status === 0 && (
             <View className="bg-primary/5 dark:bg-[#00C08B]/10 border border-primary/15 dark:border-[#00C08B]/20 rounded-xl px-4 py-3 mt-1">
-              <Text className="text-primary dark:text-[#00C08B] text-center text-sm font-semibold">
+              <Text className="text-charcoal dark:text-white text-center text-sm font-semibold">
                 Waiting for members ({circle.members.length}/{circle.maxMembers}). Contributions start when the circle is full.
               </Text>
             </View>

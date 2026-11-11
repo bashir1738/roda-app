@@ -40,23 +40,33 @@ export function useCreateCommunity() {
       let resolvedDaoId = params.existingDaoId?.trim().toLowerCase() ?? '';
 
       const hash = await action.run(async (accountId) => {
-        // Verify account is activated on NEAR and holds enough NEAR before signing tx
+        // Verify account is activated on NEAR and holds enough NEAR before signing tx.
+        // Any error here (including network/RPC failures) is rethrown — we never silently
+        // fall through to the DAO factory when we can't confirm the account state.
+        const account = await getNearAccount(accountId);
+        let nearBal = 0n;
         try {
-          const account = await getNearAccount(accountId);
           const state = await account.state();
-          const nearBal = BigInt(state.amount?.toString() ?? '0');
-          if (params.mode === 'create' && nearBal < MIN_NEAR_FOR_DAO_CREATE) {
-            throw new Error('InsufficientNearForDao');
-          }
-          if (params.mode === 'link' && nearBal < MIN_NEAR_FOR_LINK) {
-            throw new Error('NotEnoughBalance');
-          }
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err ?? '');
-          if (msg === 'InsufficientNearForDao' || msg === 'NotEnoughBalance') throw err;
-          if (/doesn't exist|does not exist/i.test(msg)) {
+          nearBal = BigInt(state.amount?.toString() ?? '0');
+        } catch (stateErr) {
+          const msg = stateErr instanceof Error ? stateErr.message : String(stateErr ?? '');
+          // "account doesn't exist" ⟶ implicit account has never been funded
+          if (/doesn't exist|does not exist|UNKNOWN_ACCOUNT/i.test(msg)) {
             throw new Error('UnfundedAccount');
           }
+          // Any other RPC failure re-thrown as-is (network error, timeout, etc.)
+          throw stateErr;
+        }
+
+        // Zero balance on a valid implicit account = never activated
+        if (nearBal === 0n) {
+          throw new Error('UnfundedAccount');
+        }
+        if (params.mode === 'create' && nearBal < MIN_NEAR_FOR_DAO_CREATE) {
+          throw new Error('InsufficientNearForDao');
+        }
+        if (params.mode === 'link' && nearBal < MIN_NEAR_FOR_LINK) {
+          throw new Error('NotEnoughBalance');
         }
 
         if (params.mode === 'create') {

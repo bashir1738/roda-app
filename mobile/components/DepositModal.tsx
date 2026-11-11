@@ -119,8 +119,13 @@ export function DepositModal({ tier, visible, onClose }: {
 
               <TouchableOpacity
                 className={`rounded-full py-4 items-center flex-row justify-center gap-2 ${
-                  meetsMin ? 'bg-primary shadow-sm' : 'bg-primary/25 dark:bg-[#00C08B]/20'
+                  meetsMin ? 'bg-primary' : 'bg-primary/25 dark:bg-[#00C08B]/20'
                 }`}
+                style={
+                  meetsMin
+                    ? { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 }
+                    : undefined
+                }
                 onPress={() => deposit({ tier: t.tier, amountIn })}
                 disabled={!meetsMin || isPending}
                 accessibilityLabel="Sign and send deposit"

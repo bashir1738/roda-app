@@ -314,8 +314,13 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
               {step < 2 ? (
                 <TouchableOpacity
                   className={`rounded-full py-4 items-center flex-row justify-center gap-2 ${
-                    canNext ? 'bg-primary shadow-sm' : 'bg-primary/25 dark:bg-[#00C08B]/20'
+                    canNext ? 'bg-primary' : 'bg-primary/25 dark:bg-[#00C08B]/20'
                   }`}
+                  style={
+                    canNext
+                      ? { shadowColor: '#000000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 }
+                      : undefined
+                  }
                   onPress={() => canNext && setStep((s) => s + 1)}
                   disabled={!canNext}
                 >
