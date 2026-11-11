@@ -4,6 +4,7 @@ import { useColorScheme } from 'nativewind';
 import { TxStateView } from './TxStateView';
 import type { TxState } from '../providers/WalletContext';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 const FREQUENCIES = [
   { label: '10 minutes', value: 10 * 60    },
@@ -141,7 +142,13 @@ export function CreateCircleWizard({ visible, onClose, txState, txHash, txError,
                     autoFocus
                   />
                   {name.trim().length > 0 && name.trim().length < 3 && (
-                    <Text className="text-red-500 text-xs px-2 -mt-3">Circle name must be at least 3 characters.</Text>
+                    <View className="-mt-2">
+                      <InlineErrorBanner
+                        message="Give your circle a name with at least 3 characters so friends recognize it."
+                        category="validation"
+                        compact
+                      />
+                    </View>
                   )}
                   <View className="bg-primary/5 border border-primary/15 rounded-2xl p-3 flex-row gap-2">
                     <Icon name="information-circle-outline" size={16} color="#00C08B" />

@@ -7,6 +7,7 @@ import { useDisplayName } from '../hooks/useDisplayName';
 import { useUsername } from '../hooks/useUsername';
 import { useWallet } from '../providers/WalletContext';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 export function ClaimNameButton() {
   const { colorScheme } = useColorScheme();
@@ -20,26 +21,35 @@ export function ClaimNameButton() {
   useEffect(() => {
     if (claimState === 'success') {
       setModalVisible(false);
-      Alert.alert('Success!', `Your name "@${localName}" has been claimed on-chain!`);
-      reset();
-    } else if (claimState === 'error') {
-      Alert.alert('Claim failed', claimError ?? 'Something went wrong — please try again.');
+      Alert.alert('Username claimed!', `Your handle "@${localName}" is now saved on NEAR.`);
       reset();
     }
-  }, [claimState]);
+  }, [claimState, localName, reset]);
 
   // Don't show if no local name or already on-chain
   if (!localName || onChainName) return null;
 
+  const openModal = () => {
+    reset();
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    if (isPending) return;
+    reset();
+    setModalVisible(false);
+  };
+
   const handleClaim = () => {
     if (!localName) return;
+    reset();
     claim(localName);
   };
 
   return (
     <>
       <TouchableOpacity
-        onPress={() => setModalVisible(true)}
+        onPress={openModal}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -65,7 +75,7 @@ export function ClaimNameButton() {
         <Icon name="chevron-forward" size={16} color={isDark ? '#A1A1AA' : '#6B6B6B'} />
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade">
+      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={closeModal}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', paddingHorizontal: 20 }}>
           <View style={{
             backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
@@ -74,7 +84,7 @@ export function ClaimNameButton() {
             borderRadius: 20,
             padding: 24,
           }}>
-            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
               <View style={{
                 width: 60,
                 height: 60,
@@ -91,9 +101,15 @@ export function ClaimNameButton() {
               </Text>
             </View>
 
-            <Text style={{ color: isDark ? '#A1A1AA' : '#6B6B6B', fontSize: 14, textAlign: 'center', marginBottom: 24, lineHeight: 20 }}>
+            <Text style={{ color: isDark ? '#A1A1AA' : '#6B6B6B', fontSize: 14, textAlign: 'center', marginBottom: 18, lineHeight: 20 }}>
               This will permanently register your name on the blockchain. Everyone in your circles will see it.
             </Text>
+
+            {claimState === 'error' && claimError ? (
+              <View style={{ marginBottom: 16 }}>
+                <InlineErrorBanner error={claimError} onDismiss={reset} />
+              </View>
+            ) : null}
 
             <TouchableOpacity
               onPress={handleClaim}
@@ -109,12 +125,14 @@ export function ClaimNameButton() {
               {isPending ? (
                 <ActivityIndicator color="#000000" />
               ) : (
-                <Text style={{ color: '#000000', fontWeight: '700', fontSize: 16 }}>Claim Name</Text>
+                <Text style={{ color: '#000000', fontWeight: '700', fontSize: 16 }}>
+                  {claimState === 'error' ? 'Try Again' : 'Claim Name'}
+                </Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setModalVisible(false)}
+              onPress={closeModal}
               disabled={isPending}
               style={{ paddingVertical: 12, alignItems: 'center' }}
             >

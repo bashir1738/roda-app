@@ -16,8 +16,9 @@ import { useColorScheme } from 'nativewind';
 import { useWallet } from '../providers/WalletContext';
 import { getStoredEmail } from '../lib/wallet';
 import { type NearWalletProvider } from '../lib/nearWalletConnect';
-import { friendlyError, isUserRejection } from '../lib/sendTx';
+import { describeError, friendlyError, isUserRejection } from '../lib/sendTx';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
@@ -66,8 +67,9 @@ export function LoginSheet() {
       await loginWithEmail(trimmed);
     } catch (e: any) {
       if (!isUserRejection(e) && !/cancel|closed/i.test(String(e?.message || e))) {
-        Alert.alert('Sign In', friendlyError(e), [
-          { text: 'Try Again', onPress: () => connect() },
+        const d = describeError(e);
+        Alert.alert(d.title, d.message, [
+          { text: d.actionLabel || 'Try Again', onPress: () => connect() },
         ]);
       }
     }
@@ -89,7 +91,7 @@ export function LoginSheet() {
   const onVerifyBackupCode = async () => {
     setError(null);
     if (!(await verifyBackupCode(recoveryInput))) {
-      setError('That backup code is not valid.');
+      setError("That backup code didn't match — double-check the characters and try again.");
     }
   };
 
@@ -143,13 +145,15 @@ export function LoginSheet() {
                 </Text>
                 <TextInput
                   value={recoveryInput}
-                  onChangeText={setRecoveryInput}
+                  onChangeText={(v) => { setRecoveryInput(v); setError(null); }}
                   autoCapitalize="characters"
                   placeholder="Enter backup code"
                   placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
                   className="text-charcoal dark:text-white text-base bg-[#F8F9FA] dark:bg-[#1C1C1E] border border-border dark:border-white/10 px-4 py-3.5 rounded-2xl"
                 />
-                {error && <Text className="text-red-500 text-xs">{error}</Text>}
+                {error ? (
+                  <InlineErrorBanner error={error} category="validation" compact onDismiss={() => setError(null)} />
+                ) : null}
                 <TouchableOpacity
                   className="bg-primary rounded-full py-4 items-center mt-2"
                   onPress={onVerifyBackupCode}
@@ -191,7 +195,9 @@ export function LoginSheet() {
                   </TouchableOpacity>
                 </View>
 
-                {error && <Text className="text-red-500 text-xs px-1">{error}</Text>}
+                {error ? (
+                  <InlineErrorBanner error={error} compact onDismiss={() => setError(null)} />
+                ) : null}
 
                 {/* Divider */}
                 <View className="flex-row items-center gap-3 my-2">

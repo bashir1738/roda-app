@@ -29,6 +29,7 @@ import {
 } from '../../hooks/useCreateCommunity';
 import { useCommunityMinRepGate, useReputation } from '../../hooks/useReputation';
 import { TxStateView } from '../../components/TxStateView';
+import { InlineErrorBanner } from '../../components/InlineErrorBanner';
 import { Icon } from '../../components/Icon';
 
 const STAGE_LABELS: Record<CreateCommunityStage, string> = {
@@ -70,6 +71,7 @@ export default function CreateCommunityScreen() {
   const [existingDaoId, setExistingDaoId] = useState('');
   const [council, setCouncil] = useState<string[]>([]);
   const [newMember, setNewMember] = useState('');
+  const [memberHint, setMemberHint] = useState<string | null>(null);
   const [thresholdNum, setThresholdNum] = useState(1);
   const [envelopes, setEnvelopes] = useState<string[]>(['Operations', 'Programs', 'Grants']);
   const [proposeLinkNow, setProposeLinkNow] = useState(true);
@@ -119,11 +121,17 @@ export default function CreateCommunityScreen() {
 
   const addCouncilMember = () => {
     const candidate = newMember.trim().toLowerCase();
-    if (!candidate || !isValidAddress(candidate)) return;
+    if (!candidate) return;
+    if (!isValidAddress(candidate)) {
+      setMemberHint("Enter a full NEAR account ID (for example, maya.testnet) to add them.");
+      return;
+    }
     if (council.includes(candidate)) {
+      setMemberHint('That account is already on your DAO council.');
       setNewMember('');
       return;
     }
+    setMemberHint(null);
     const next = [...council, candidate];
     setCouncil(next);
     setThresholdNum(Math.min(next.length, Math.max(1, Math.floor(next.length / 2) + 1)));
@@ -264,24 +272,25 @@ export default function CreateCommunityScreen() {
 
           <ScrollView className="flex-1 px-4" contentContainerClassName="pb-8 pt-2">
             {repBlocked && (
-              <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/60 rounded-2xl p-3.5 mb-4 flex-row gap-2.5 items-center">
-                <Icon name="shield-checkmark-outline" size={20} color="#F59E0B" />
-                <Text className="flex-1 text-amber-800 dark:text-amber-200 text-xs leading-5">
-                  Community creation currently requires Reputation {minCreateRep}+ (yours is{' '}
-                  {myScore}).
-                </Text>
+              <View className="mb-4">
+                <InlineErrorBanner
+                  title={`Reputation ${minCreateRep}+ needed to create`}
+                  message={`Your current Roda score is ${myScore}. Save in a vault or complete circle rounds to unlock community creation.`}
+                  category="reputation"
+                />
               </View>
             )}
 
             {walletKind === 'meteor' && externalKeyScope === 'contract' && (
               <TouchableOpacity
                 onPress={() => connectNearWallet('meteor', 'full').catch(() => {})}
-                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/60 rounded-2xl p-3.5 mb-4 flex-row gap-2.5 items-center"
+                className="mb-4"
               >
-                <Icon name="warning-outline" size={18} color="#F59E0B" />
-                <Text className="flex-1 text-amber-800 dark:text-amber-200 text-xs">
-                  Deploying a Sputnik DAO requires multi-contract signing. Tap to upgrade your Meteor key.
-                </Text>
+                <InlineErrorBanner
+                  title="One extra approval needed for Meteor"
+                  message="Deploying a Sputnik DAO signs across both Roda and the DAO factory. Tap here to upgrade your Meteor key."
+                  category="wallet"
+                />
               </TouchableOpacity>
             )}
 
@@ -291,14 +300,14 @@ export default function CreateCommunityScreen() {
                   <Icon name="wallet-outline" size={18} color="#F59E0B" />
                   <Text className="flex-1 text-amber-800 dark:text-amber-200 text-xs font-semibold">
                     {nearBalance === 0n
-                      ? 'Wallet not activated on NEAR testnet (0 NEAR)'
-                      : `Low NEAR balance (${nearBalanceNum.toFixed(2)} NEAR)`}
+                      ? 'Your wallet needs a tiny NEAR top-up first (0 NEAR)'
+                      : `Almost there — ${nearBalanceNum.toFixed(2)} NEAR available`}
                   </Text>
                 </View>
                 <Text className="text-amber-800/90 dark:text-amber-200/90 text-xs leading-4">
                   {mode === 'create'
-                    ? 'Deploying a new Sputnik DAO needs ~6.2 NEAR (6 NEAR storage deposit + bond/gas). Send NEAR to your address or link an existing DAO.'
-                    : 'Staging and linking an existing DAO needs at least ~0.02 NEAR for gas.'}
+                    ? 'Launching a brand-new Sputnik DAO reserves ~6.2 NEAR (6 NEAR contract storage + gas). Top up your address or switch to "Link Existing DAO".'
+                    : 'Staging and linking an existing DAO needs around 0.02 NEAR for gas.'}
                 </Text>
                 <View className="flex-row items-center gap-2 pt-1">
                   <TouchableOpacity
@@ -365,9 +374,13 @@ export default function CreateCommunityScreen() {
                     maxLength={48}
                   />
                   {trimmedName.length > 0 && trimmedName.length < 3 && (
-                    <Text className="text-red-500 text-xs mt-1">
-                      Must be 3–48 characters.
-                    </Text>
+                    <View className="mt-2">
+                      <InlineErrorBanner
+                        message="Give your community a name between 3 and 48 characters."
+                        category="validation"
+                        compact
+                      />
+                    </View>
                   )}
                 </View>
 
@@ -414,9 +427,13 @@ export default function CreateCommunityScreen() {
                       onChangeText={setExistingDaoId}
                     />
                     {existingDaoId.trim().length > 0 && !isExistingDaoValid && (
-                      <Text className="text-red-500 text-xs mt-1">
-                        Enter a valid NEAR account ID.
-                      </Text>
+                      <View className="mt-2">
+                        <InlineErrorBanner
+                          message={`Enter a full NEAR DAO address (for example, mydao.${SPUTNIK_DAO_SUFFIX}).`}
+                          category="validation"
+                          compact
+                        />
+                      </View>
                     )}
                   </View>
                 )}
@@ -444,7 +461,10 @@ export default function CreateCommunityScreen() {
                         autoCapitalize="none"
                         autoCorrect={false}
                         value={newMember}
-                        onChangeText={setNewMember}
+                        onChangeText={(txt) => {
+                          setNewMember(txt);
+                          if (memberHint) setMemberHint(null);
+                        }}
                         onSubmitEditing={addCouncilMember}
                       />
                       <TouchableOpacity
@@ -454,6 +474,15 @@ export default function CreateCommunityScreen() {
                         <Text className="text-black font-bold text-sm">Add</Text>
                       </TouchableOpacity>
                     </View>
+
+                    {memberHint ? (
+                      <InlineErrorBanner
+                        message={memberHint}
+                        category="validation"
+                        compact
+                        onDismiss={() => setMemberHint(null)}
+                      />
+                    ) : null}
 
                     <View className="bg-white dark:bg-[#1C1C1E] border border-border dark:border-white/10 rounded-3xl p-4 gap-2">
                       <Text className="text-muted dark:text-[#A1A1AA] text-xs font-bold uppercase tracking-wider mb-1">

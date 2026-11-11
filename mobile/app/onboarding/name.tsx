@@ -9,6 +9,8 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useWallet } from '../../providers/WalletContext';
 import { useDisplayName } from '../../hooks/useDisplayName';
+import { friendlyError } from '../../lib/sendTx';
+import { InlineErrorBanner } from '../../components/InlineErrorBanner';
 import { Icon } from '../../components/Icon';
 
 type Stage = 'loading' | 'input' | 'saving' | 'done';
@@ -51,8 +53,7 @@ export default function NameSetup() {
       setTimeout(() => router.replace('/onboarding/pin'), 1200);
     } catch (e: any) {
       console.error('Name save error:', e);
-      const msg = e?.message || String(e);
-      setError(`Error: ${msg.slice(0, 80)}`);
+      setError(friendlyError(e));
       syncStage('input');
     }
   };
@@ -115,7 +116,7 @@ export default function NameSetup() {
 
               <TextInput
                 className="text-charcoal dark:text-white text-base font-medium bg-white dark:bg-[#1C1C1E] px-4 py-4 rounded-2xl mb-4"
-                style={{ borderWidth: 1, borderColor: error ? '#EF4444' : (isDark ? 'rgba(255,255,255,0.15)' : '#B8EAD7') }}
+                style={{ borderWidth: 1, borderColor: error ? '#E06D44' : (isDark ? 'rgba(255,255,255,0.15)' : '#B8EAD7') }}
                 placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
                 placeholder="yourname"
                 value={input}
@@ -127,9 +128,11 @@ export default function NameSetup() {
                 autoFocus
               />
 
-              {error && (
-                <Text className="text-red-600 text-sm mb-4 font-medium">{error}</Text>
-              )}
+              {error ? (
+                <View className="mb-4">
+                  <InlineErrorBanner error={error} category="validation" compact />
+                </View>
+              ) : null}
 
               <TouchableOpacity
                 className="bg-primary rounded-full py-4 items-center flex-row justify-center gap-2"

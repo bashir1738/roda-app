@@ -21,6 +21,7 @@ export default function PinSetup() {
   const [step, setStep] = useState<Step>('enter');
   const [first, setFirst] = useState('');
   const [second, setSecond] = useState('');
+  const [mismatch, setMismatch] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const firstRef = useRef('');
   const secondRef = useRef('');
@@ -28,6 +29,7 @@ export default function PinSetup() {
 
   const shake = () => {
     Vibration.vibrate(200);
+    setMismatch(true);
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
@@ -37,6 +39,7 @@ export default function PinSetup() {
   };
 
   const onKey = (key: string) => {
+    if (mismatch) setMismatch(false);
     if (stepRef.current === 'enter') {
       const cur = firstRef.current;
       const val = key === '⌫' ? cur.slice(0, -1) : cur.length < PIN_LENGTH ? cur + key : cur;
@@ -82,13 +85,18 @@ export default function PinSetup() {
             <Text style={{ fontSize: 22, fontWeight: '800', color: isDark ? '#FFFFFF' : '#303030', marginBottom: 8 }}>
               {step === 'enter' ? 'Create your PIN' : 'Confirm your PIN'}
             </Text>
-            <Text style={{ fontSize: 14, color: isDark ? '#A1A1AA' : '#6B6B6B', textAlign: 'center', marginBottom: 36, lineHeight: 20 }}>
-              {step === 'enter' ? 'Choose a 4-digit PIN to secure your account.' : 'Enter the same PIN again to confirm.'}
+            <Text style={{ fontSize: 14, color: mismatch ? '#D96B43' : (isDark ? '#A1A1AA' : '#6B6B6B'), textAlign: 'center', marginBottom: 36, lineHeight: 20 }}>
+              {mismatch
+                ? "Those PINs didn't match — enter your 4 digits once more."
+                : step === 'enter'
+                  ? 'Choose a 4-digit PIN to secure your account.'
+                  : 'Enter the same PIN again to confirm.'}
             </Text>
             <PinPad
               length={PIN_LENGTH}
               value={step === 'enter' ? first : second}
               onKey={onKey}
+              error={mismatch}
               shakeAnim={shakeAnim}
             />
           </>

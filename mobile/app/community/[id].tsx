@@ -213,17 +213,17 @@ export default function CommunityDashboardScreen() {
   const confirmDissolve = () => {
     if (activeEnvelopes.length > 0) {
       Alert.alert(
-        'Active Envelopes Open',
-        `On-chain dissolve_community requires closing all ${activeEnvelopes.length} active envelope(s) first so unspent allocations unlock to the pool.`,
+        'Close Open Envelopes First',
+        `Wrap up your ${activeEnvelopes.length} active budget envelope(s) before dissolving — that unlocks any unspent funds back into the shared pool first.`,
         [{ text: 'Got it' }],
       );
       return;
     }
     Alert.alert(
-      'Propose Dissolving Community?',
-      'Submitting a dissolve_community proposal converts the remaining pool balance into a pro-rata claimable surplus for all shareholders once approved by the DAO.',
+      'Dissolve This Community?',
+      'Submitting this proposal lets the DAO wind down the community and return any leftover pool funds to shareholders based on their ownership shares.',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Keep Active', style: 'cancel' },
         {
           text: 'Submit Proposal',
           style: 'destructive',

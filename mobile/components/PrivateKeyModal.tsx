@@ -3,6 +3,7 @@ import { Modal, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } fr
 import * as Clipboard from 'expo-clipboard';
 import { loadNearKey } from '../lib/nearKey';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 interface Props {
   visible: boolean;
@@ -28,12 +29,12 @@ export function PrivateKeyModal({ visible, address, onClose }: Props) {
     loadNearKey()
       .then((keyPair) => {
         if (!keyPair) {
-          setError('This wallet has no local private key to export.');
+          setError("This account uses email or an external wallet, so there isn't a local recovery key stored on this device.");
           return;
         }
         setPrivateKey(keyPair.toString());
       })
-      .catch(() => setError('Could not load your private key. Please try again.'))
+      .catch(() => setError("We couldn't unlock your key right now — give it another try in a moment."))
       .finally(() => setLoading(false));
   }, [visible]);
 
@@ -85,7 +86,7 @@ export function PrivateKeyModal({ visible, address, onClose }: Props) {
                   <ActivityIndicator size="small" color="#00C08B" />
                 </View>
               ) : error ? (
-                <Text className="text-red-500 text-sm leading-5">{error}</Text>
+                <InlineErrorBanner title="No local key found" message={error} category="wallet" />
               ) : (
                 <View className="bg-[#F3F4F6] dark:bg-[#2C2C2E] rounded-2xl p-4 border border-border dark:border-white/10">
                   <Text

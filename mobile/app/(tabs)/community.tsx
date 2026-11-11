@@ -22,6 +22,8 @@ import { ProfileButton } from '../../components/ProfileSidebar';
 import { ReputationPill } from '../../components/ReputationBadge';
 import { CircleCardSkeleton } from '../../components/Skeleton';
 import { Icon } from '../../components/Icon';
+import { friendlyError } from '../../lib/sendTx';
+import { InlineErrorBanner } from '../../components/InlineErrorBanner';
 
 export default function CommunityTab() {
   const router = useRouter();
@@ -66,12 +68,14 @@ export default function CommunityTab() {
     try {
       const found = await lookupCommunityByIdOrDao(trimmed);
       if (!found) {
-        setLookupError(`No Roda community found matching "${trimmed}".`);
+        setLookupError(
+          `We couldn't find a community matching "${trimmed}". Check the community ID or full DAO address.`,
+        );
       } else {
         setLookupResult(found);
       }
     } catch (e) {
-      setLookupError(e instanceof Error ? e.message : 'Lookup failed.');
+      setLookupError(friendlyError(e));
     } finally {
       setLookupBusy(false);
     }
@@ -420,13 +424,15 @@ export default function CommunityTab() {
               </TouchableOpacity>
             </View>
 
-            {lookupError && (
-              <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700/50 rounded-2xl p-4 mb-4">
-                <Text className="text-orange-800 dark:text-orange-200 text-sm">
-                  {lookupError}
-                </Text>
+            {lookupError ? (
+              <View className="mb-4">
+                <InlineErrorBanner
+                  error={lookupError}
+                  category="validation"
+                  onDismiss={() => setLookupError(null)}
+                />
               </View>
-            )}
+            ) : null}
 
             {lookupResult && (
               <View className="bg-white dark:bg-[#1C1C1E] border border-border dark:border-white/10 rounded-3xl p-5">

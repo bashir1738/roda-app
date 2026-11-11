@@ -9,6 +9,7 @@ import { resolveRecipient } from '../lib/recipient';
 function fmtAddr(addr: string) { return `${addr.slice(0, 6)}…${addr.slice(-4)}`; }
 import type { CircleData } from '../hooks/useCircles';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 function storageKey(circleId: number) {
   return `roda_invites_${circleId}`;
@@ -81,15 +82,15 @@ export function InviteModal({ visible, circle, onClose }: Props) {
     try {
       addr = (await resolveRecipient(value)).address.toString();
     } catch {
-      setInputError('Enter a valid NEAR account ID');
+      setInputError("That doesn't look like a valid NEAR account ID (for example, maya.testnet).");
       return;
     }
     if (circle.members.includes(addr)) {
-      setInputError('This address is already a member');
+      setInputError('Good news — that account is already a member of this circle.');
       return;
     }
     if (invites.includes(addr)) {
-      setInputError('Already in your invite list');
+      setInputError("They're already in your invite list below.");
       return;
     }
     setInputError('');
@@ -169,7 +170,7 @@ export function InviteModal({ visible, circle, onClose }: Props) {
           <View className="flex-row gap-2 mb-1">
             <TextInput
               className="flex-1 bg-white dark:bg-[#1C1C1E] border rounded-xl px-4 py-3 text-charcoal dark:text-white text-sm font-mono"
-              style={{ borderColor: inputError ? '#EF4444' : (isDark ? 'rgba(255,255,255,0.15)' : '#BEEEDB') }}
+              style={{ borderColor: inputError ? '#E06D44' : (isDark ? 'rgba(255,255,255,0.15)' : '#BEEEDB') }}
               placeholder="account.testnet…"
               placeholderTextColor={isDark ? '#A1A1AA' : '#9CA3AF'}
               value={input}
@@ -191,7 +192,14 @@ export function InviteModal({ visible, circle, onClose }: Props) {
             </TouchableOpacity>
           </View>
           {inputError ? (
-            <Text className="text-red-500 text-xs mb-3">{inputError}</Text>
+            <View className="mt-1.5 mb-3">
+              <InlineErrorBanner
+                message={inputError}
+                category="validation"
+                compact
+                onDismiss={() => setInputError('')}
+              />
+            </View>
           ) : (
             <Text className="text-muted dark:text-[#A1A1AA] text-xs mb-3">
               Enter a NEAR account ID. They'll join using the Circle code you share.

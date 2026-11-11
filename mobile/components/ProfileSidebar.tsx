@@ -297,8 +297,8 @@ export function ProfileSidebar({ visible, onClose }: Props) {
     setNotifEnabled(enabled);
     if (value && !enabled) {
       Alert.alert(
-        'Notifications Unavailable',
-        'Enable notifications in device Settings to receive circle reminders and payout alerts.',
+        'Turn On Notifications in Settings',
+        'Allow Roda notifications in your device Settings so we can gently remind you before circle rounds and payouts.',
       );
     }
   };
@@ -316,7 +316,10 @@ export function ProfileSidebar({ visible, onClose }: Props) {
     if (!address) return;
     const url = `https://testnet.nearblocks.io/address/${address}`;
     Linking.openURL(url).catch(() => {
-      Alert.alert('Cannot open link', 'Please visit testnet.nearblocks.io directly.');
+      Alert.alert(
+        'Open Explorer in Browser',
+        "We couldn't launch the block explorer from here — visit testnet.nearblocks.io directly in your browser.",
+      );
     });
   };
 

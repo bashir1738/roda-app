@@ -26,6 +26,7 @@ import { useCreateProposal } from '../../../hooks/useCreateProposal';
 import { useRewardRuleProposals, type RewardTrigger } from '../../../hooks/useRewardRules';
 import { useOwnershipActions } from '../../../hooks/useShares';
 import { TxStateView } from '../../../components/TxStateView';
+import { InlineErrorBanner } from '../../../components/InlineErrorBanner';
 import { Icon } from '../../../components/Icon';
 
 type ProposalMode =
@@ -297,11 +298,16 @@ export default function ProposeScreen() {
         </View>
       ) : !community ? (
         <View className="flex-1 items-center justify-center px-8 gap-3">
-          <Text className="text-charcoal dark:text-white font-bold text-lg">
-            Community not found
-          </Text>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text className="text-primary font-bold">Go Back</Text>
+          <InlineErrorBanner
+            title="We couldn't load that community"
+            message="It may not exist yet or is still syncing from NEAR."
+            category="network"
+          />
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="bg-primary rounded-full px-6 py-2.5 mt-1"
+          >
+            <Text className="text-black font-bold text-sm">Go Back</Text>
           </TouchableOpacity>
         </View>
       ) : activeTx.txState !== 'idle' ? (
@@ -541,9 +547,13 @@ export default function ProposeScreen() {
                   onChangeText={setRecipient}
                 />
                 {recipient.trim().length > 0 && !recipientValid && (
-                  <Text className="text-red-500 text-xs mt-1">
-                    Enter a valid NEAR account ID.
-                  </Text>
+                  <View className="mt-2">
+                    <InlineErrorBanner
+                      message="That doesn't look like a valid NEAR account ID (for example, maya.testnet)."
+                      category="validation"
+                      compact
+                    />
+                  </View>
                 )}
               </View>
             )}
@@ -567,14 +577,22 @@ export default function ProposeScreen() {
                   onChangeText={setAmount}
                 />
                 {overEnvelopeCap && selectedEnv && (
-                  <Text className="text-red-500 text-xs mt-1">
-                    Exceeds remaining envelope budget (${formatUsdc(selectedEnv.remaining)} USDC).
-                  </Text>
+                  <View className="mt-2">
+                    <InlineErrorBanner
+                      message={`That's higher than the $${formatUsdc(selectedEnv.remaining)} USDC remaining in ${selectedEnv.name}.`}
+                      category="balance"
+                      compact
+                    />
+                  </View>
                 )}
                 {overPoolCap && (
-                  <Text className="text-red-500 text-xs mt-1">
-                    Exceeds unallocated pool (${formatUsdc(community.poolUnallocated)} USDC).
-                  </Text>
+                  <View className="mt-2">
+                    <InlineErrorBanner
+                      message={`That's higher than the $${formatUsdc(community.poolUnallocated)} USDC currently in the unallocated pool.`}
+                      category="balance"
+                      compact
+                    />
+                  </View>
                 )}
                 {mode === 'shares' && (
                   <Text className="text-muted dark:text-[#A1A1AA] text-xs mt-1">

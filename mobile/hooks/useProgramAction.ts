@@ -25,7 +25,7 @@ export function useProgramAction(): ProgramAction {
 
   const run = useCallback(async (build: (accountId: string) => Promise<string>) => {
     if (!address) {
-      setError('Connect a wallet first.'); setTxState('error'); return null;
+      setError(friendlyError('WalletNotConnected')); setTxState('error'); return null;
     }
     setTxState('signing'); setError(null); setTxHash(null);
     try {

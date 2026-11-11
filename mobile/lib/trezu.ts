@@ -38,11 +38,17 @@ export async function openInTrezu(
   try {
     const supported = await Linking.canOpenURL(url);
     if (!supported) {
-      Alert.alert('Cannot Open Trezu', `Visit ${url} in your browser.`);
+      Alert.alert(
+        'Open Trezu in Your Browser',
+        `We couldn't launch Trezu automatically — head to ${url} in your browser to view this DAO.`,
+      );
       return;
     }
     await Linking.openURL(url);
   } catch {
-    Alert.alert('Cannot Open Trezu', `Visit ${url} in your browser.`);
+    Alert.alert(
+      'Open Trezu in Your Browser',
+      `We couldn't launch Trezu automatically — head to ${url} in your browser to view this DAO.`,
+    );
   }
 }

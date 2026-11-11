@@ -13,6 +13,7 @@ import { isValidAddress, usdcToRaw } from '../constants/roda';
 import { transferNear, transferToken } from '../lib/contract';
 import { useWallet } from '../providers/WalletContext';
 import { friendlyError } from '../lib/sendTx';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { colorScheme } = useColorScheme();
@@ -26,12 +27,12 @@ export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () 
 
   const send = async () => {
     if (!address || !isValidAddress(recipient.trim())) {
-      setError('Enter a valid NEAR account ID.');
+      setError("That doesn't look like a valid NEAR address (for example, maya.testnet).");
       return;
     }
     const numeric = Number(amount);
     if (!Number.isFinite(numeric) || numeric <= 0) {
-      setError('Enter an amount greater than zero.');
+      setError('Enter an amount above 0 to send.');
       return;
     }
     setPending(true);
@@ -40,7 +41,7 @@ export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () 
       if (token === 'NEAR') {
         const raw = utils.format.parseNearAmount(amount.trim());
         if (!raw) {
-          setError('Invalid NEAR amount.');
+          setError('Double-check that NEAR amount — use a number like 1.5.');
           setPending(false);
           return;
         }
@@ -78,7 +79,7 @@ export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () 
           </View>
           <TextInput
             value={recipient}
-            onChangeText={setRecipient}
+            onChangeText={(v) => { setRecipient(v); setError(null); }}
             autoCapitalize="none"
             placeholder="recipient.testnet"
             placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
@@ -86,13 +87,15 @@ export function SendSheet({ visible, onClose }: { visible: boolean; onClose: () 
           />
           <TextInput
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={(v) => { setAmount(v); setError(null); }}
             keyboardType="decimal-pad"
             placeholder={`Amount ${token}`}
             placeholderTextColor={isDark ? '#A1A1AA' : '#6B6B6B'}
             className="bg-black/5 dark:bg-[#1C1C1E] border border-transparent dark:border-white/10 rounded-2xl px-4 py-4 text-charcoal dark:text-white"
           />
-          {error && <Text className="text-red-500 text-sm">{error}</Text>}
+          {error ? (
+            <InlineErrorBanner error={error} compact onDismiss={() => setError(null)} />
+          ) : null}
           <TouchableOpacity
             onPress={send}
             disabled={pending}

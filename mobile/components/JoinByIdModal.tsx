@@ -11,6 +11,7 @@ import { useReputation } from '../hooks/useReputation';
 import { useWallet } from '../providers/WalletContext';
 import { TxStateView } from './TxStateView';
 import { Icon } from './Icon';
+import { InlineErrorBanner } from './InlineErrorBanner';
 
 function fmtUSDC(n: bigint) {
   return (Number(n) / 1_000_000).toLocaleString('en-US', { minimumFractionDigits: 0 });
@@ -68,7 +69,7 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
     const raw = idInput.trim();
     const n = parseInt(raw, 10);
     if (!/^\d{6}$/.test(raw) || !isValidCircleCode(n)) {
-      setLookupError('Enter the 6-digit circle code (100000-999999).');
+      setLookupError('Circle codes are 6 digits long (for example, 483920).');
       return;
     }
     setLookupError('');
@@ -116,10 +117,10 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
         <Text className="text-muted dark:text-[#A1A1AA] text-xs font-bold uppercase tracking-wider mb-2">
           Circle Code
         </Text>
-        <View className="flex-row gap-2 mb-1">
+        <View className="flex-row gap-2 mb-2">
           <TextInput
             className="flex-1 bg-white dark:bg-[#1C1C1E] border rounded-2xl px-4 py-3 text-charcoal dark:text-white text-base font-semibold"
-            style={{ borderColor: lookupError ? '#EF4444' : (isDark ? 'rgba(255,255,255,0.15)' : '#BEEEDB') }}
+            style={{ borderColor: lookupError ? '#E06D44' : (isDark ? 'rgba(255,255,255,0.15)' : '#BEEEDB') }}
             placeholder="e.g. 483920"
             placeholderTextColor={isDark ? '#A1A1AA' : '#9CA3AF'}
             keyboardType="number-pad"
@@ -141,7 +142,9 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
           </TouchableOpacity>
         </View>
         {lookupError ? (
-          <Text className="text-red-500 text-xs mb-4">{lookupError}</Text>
+          <View className="mb-4">
+            <InlineErrorBanner message={lookupError} category="validation" compact />
+          </View>
         ) : (
           <Text className="text-muted dark:text-[#A1A1AA] text-xs mb-6">
             Ask the circle creator to share their Circle code with you.
@@ -150,11 +153,12 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
 
         {/* Lookup: id set but no circle there */}
         {!hasCircle && !infoLoading && circleId !== null && !joined && (
-          <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700/60 rounded-3xl p-4 flex-row items-center gap-3 mb-6">
-            <Icon name="search-outline" size={20} color="#EA580C" />
-            <Text className="text-orange-800 dark:text-orange-200 text-sm flex-1">
-              No circle found with code {circleId}.
-            </Text>
+          <View className="mb-6">
+            <InlineErrorBanner
+              title="No circle matches that code"
+              message={`We couldn't find an active circle numbered ${circleId}. Double-check the 6 digits with your organizer.`}
+              category="validation"
+            />
           </View>
         )}
 
@@ -259,11 +263,12 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
 
         {/* Reputation gate warning */}
         {hasCircle && !isAlreadyMember && repBlocked && !joined && (
-          <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/60 rounded-3xl p-4 flex-row items-center gap-3 mb-4">
-            <Icon name="shield-checkmark-outline" size={20} color="#F59E0B" />
-            <Text className="text-amber-800 dark:text-amber-200 text-xs leading-5 flex-1">
-              Requires Reputation {minReputation}+ (your score is {myScore}). Contribute to circles, save in vaults, or fund community budgets to earn reputation.
-            </Text>
+          <View className="mb-4">
+            <InlineErrorBanner
+              title={`Reputation ${minReputation}+ needed`}
+              message={`Your current Roda score is ${myScore}. Save in a vault, complete circle rounds, or fund a community to grow your score.`}
+              category="reputation"
+            />
           </View>
         )}
 
@@ -298,12 +303,15 @@ export function JoinByIdModal({ visible, onClose }: { visible: boolean; onClose:
         )}
 
         {hasCircle && (isFull || !isRecruiting) && !isAlreadyMember && !joined && (
-          <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-3xl p-4 flex-row items-center gap-3">
-            <Icon name="information-circle-outline" size={20} color="#EA580C" />
-            <Text className="text-orange-800 text-sm flex-1">
-              {isFull ? 'This circle is full.' : 'This circle is no longer recruiting.'}
-            </Text>
-          </View>
+          <InlineErrorBanner
+            title={isFull ? 'This circle is already full' : 'Sign-ups are closed'}
+            message={
+              isFull
+                ? 'Every seat in this savings circle has already been taken.'
+                : 'This circle has already moved past recruiting.'
+            }
+            category="timing"
+          />
         )}
       </View>
     </Modal>

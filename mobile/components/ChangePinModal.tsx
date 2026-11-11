@@ -23,6 +23,7 @@ export function ChangePinModal({
   const [entry, setEntry] = useState('');
   const [newPin, setNewPin] = useState('');
   const [error, setError] = useState(false);
+  const [hintMsg, setHintMsg] = useState<string | null>(null);
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   // Stable refs so the keypad handler never reads stale state on fast taps.
@@ -36,13 +37,14 @@ export function ChangePinModal({
     stageRef.current = initial;
     newPinRef.current = '';
     busyRef.current = false;
-    setStage(initial); setEntry(''); setNewPin(''); setError(false);
+    setStage(initial); setEntry(''); setNewPin(''); setError(false); setHintMsg(null);
   };
 
   const close = () => { reset(); onClose(); };
 
-  const shake = () => {
+  const shake = (msg: string) => {
     setError(true);
+    setHintMsg(msg);
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10,  duration: 55, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -10, duration: 55, useNativeDriver: true }),
@@ -54,6 +56,7 @@ export function ChangePinModal({
 
   const handleKey = useCallback((key: string) => {
     if (busyRef.current) return;
+    setHintMsg(null);
 
     if (key === '⌫') {
       setEntry((e) => e.slice(0, -1));
@@ -78,9 +81,10 @@ export function ChangePinModal({
       const ok = await verifyPin(value);
       if (ok) {
         setEntry('');
+        setHintMsg(null);
         setStageSynced('create');
       } else {
-        shake();
+        shake("That didn't match your current PIN — give it another try.");
         setEntry('');
       }
       busyRef.current = false;
@@ -102,7 +106,7 @@ export function ChangePinModal({
         setStageSynced('done');
         setTimeout(close, 1100);
       } else {
-        shake();
+        shake("Those PINs didn't match — enter your new PIN once more.");
         setEntry('');
         busyRef.current = false;
       }
@@ -153,7 +157,9 @@ export function ChangePinModal({
               <Text className="text-charcoal dark:text-white text-[26px] font-black text-center leading-[32px] mb-1">
                 {t.title}
               </Text>
-              <Text className="text-muted dark:text-[#A1A1AA] text-sm text-center mb-10">{t.sub}</Text>
+              <Text className="text-muted dark:text-[#A1A1AA] text-sm text-center mb-10" style={hintMsg ? { color: '#D96B43' } : undefined}>
+                {hintMsg ?? t.sub}
+              </Text>
 
               <PinPad
                 length={PIN_LENGTH}
