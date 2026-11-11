@@ -1,10 +1,18 @@
 # Roda mobile
 
+Roda Mobile is the primary product experience: a bundled, non-custodial mobile
+app for personal saving, rotating savings circles, community treasuries, and
+wallet activity. Its main navigation is **Home → Circles → Community → Save →
+Wallet**.
+
 The `mobile/` package is an Expo React Native client for the Roda NEAR contracts and Sputnik DAO + Trezu coordination layer. It reads views over NEAR JSON-RPC and signs transactions using one of the supported non-custodial wallet flows:
 
 1. **Create an in-app wallet** — an Ed25519 NEAR keypair generated locally and persisted in `Expo SecureStore`.
 2. **Continue with email** — Magic OTP verification paired with encrypted device key storage and a one-time backup recovery flow.
 3. **Connect External NEAR Wallets** — Meteor Wallet, MyNearWallet, and HERE Wallet via secure in-app web auth sessions (`roda://wallet-callback`). Meteor users can upgrade between Roda-only and full-account key scope to sign Sputnik DAO and USDC `ft_transfer_call` transactions directly.
+
+For a product walkthrough, presenter script, APK bundling details, and demo
+limitations, see the [mobile demo guide](./DEMO_README.md).
 
 ## Deployed Program & Contract Addresses (NEAR Testnet)
 

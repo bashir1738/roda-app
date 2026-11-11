@@ -5,16 +5,19 @@ The `program/` package contains the Roda protocol on **NEAR Protocol**:
 | Contract | Path | Purpose |
 | --- | --- | --- |
 | `roda` | `program/` (crate root) | Circles, solo vaults, community DAO coordination & budget envelopes, reputation, programmable rewards, collective shares, usernames, activity, fees, self-upgrade |
-| `roda-token` | `program/token/` | Test NEP-141 FT (`rUSDC`) with protocol-gated mint & self-upgrade |
+| `roda-token` | `program/token/` | Optional local/test NEP-141 FT with protocol-gated mint & self-upgrade |
 
-On mainnet, `Config.token_id` points at native Circle USDC (`17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`). On testnet it points at the Roda test token with a faucet.
+The live testnet configuration points at Circle-issued USDC on NEAR testnet.
+The Roda faucet is disabled because Roda cannot mint Circle-issued USDC. The
+optional `roda-token` crate remains useful for isolated local development and
+legacy migrations, but it is not the active settlement asset.
 
 ## Deployed Program & Contract Addresses (NEAR Testnet)
 
 | Role | Account ID | Explorer Link |
 | --- | --- | --- |
 | **Roda Protocol Program** | `roda.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) |
-| **NEP-141 USDC Token** | `usdc.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) |
+| **Circle USDC (NEAR testnet)** | `3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af` | [NearBlocks](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) |
 | **Protocol Admin** | `dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) |
 | **Sputnik DAO Factory** | `sputnikv2.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/sputnikv2.testnet) |
 
@@ -80,7 +83,7 @@ Never commit private keys, `.env`, or credential files.
 ```
 program/
   src/
-    lib.rs        # RodaContract: vaults, circles, names, faucet, upgrade/migrate, callbacks, views
+    lib.rs        # RodaContract: vaults, circles, names, legacy faucet, upgrade/migrate, callbacks, views
     community.rs  # Community DAO escrow, envelopes, reputation, reward rules, shares & dissolution
     state.rs      # StorageKey, Config, Vault, Circle (v1-compat), Community, RepScore, RewardRule, JSON views
     events.rs     # NEP-297 EVENT_JSON helpers

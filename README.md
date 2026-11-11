@@ -27,7 +27,8 @@
   - [On-Chain Reputation & Trust Gating](#on-chain-reputation--trust-gating)
   - [Bounties, Programmable Rewards & Collective Ownership](#bounties-programmable-rewards--collective-ownership)
   - [Non-Custodial Multi-Wallet Engine](#non-custodial-multi-wallet-engine)
-  - [Onchain Username Registry & Testnet Faucet](#onchain-username-registry--testnet-faucet)
+  - [Onchain Username Registry](#onchain-username-registry)
+  - [Mobile Demo Experience](#mobile-demo-experience)
 - [Monorepo Architecture](#monorepo-architecture)
 - [Smart Contract Specification](#smart-contract-specification)
   - [Deployed Program & Contract Addresses](#deployed-program--contract-addresses)
@@ -47,7 +48,7 @@
 
 ## Overview
 
-**Roda** is a decentralized savings and community treasury platform built on **NEAR Protocol**. It combines rotating savings and credit associations (ROSCAs — known across Africa and the diaspora as *ajo*, *esusu*, or *adashe*), fixed-term personal USDC vaults, and a **Community Coordination Layer** powered by **Sputnik DAO** and **Trezu**.
+**Roda** is a non-custodial mobile savings and community treasury platform built on **NEAR Protocol**. Its mobile experience is organized around five tabs — **Home, Circles, Community, Save, and Wallet** — combining rotating savings and credit associations (ROSCAs, known across Africa and the diaspora as *ajo*, *esusu*, or *adashe*), personal USDC vaults, community coordination, and wallet activity in one app.
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default and opaque bookkeeping while letting growing communities scale into full multi-sig DAOs with hard-capped budget envelopes, capital-weighted on-chain reputation, programmable rewards, and collective ownership shares.
 
@@ -127,9 +128,16 @@ Lock funds for disciplined personal saving across five tiers:
 - **Local Device Wallet**: Ed25519 keypair stored in `Expo SecureStore`.
 - **External NEAR Wallets**: Connect **Meteor Wallet**, **MyNearWallet**, or **HERE Wallet** via web auth sessions, with optional full-access scope upgrade in Meteor for signing Sputnik DAO + USDC transactions alongside Roda calls.
 
-### Onchain Username Registry & Testnet Faucet
+### Onchain Username Registry
 - Claim lowercase handles (`claim_name`) stored onchain (`[a-z0-9_]`, 3–20 chars, 24h cooldown).
-- The Roda faucet is disabled when using Circle-issued USDC; Roda cannot mint it.
+
+### Mobile Demo Experience
+- The mobile app is the primary interactive client for wallets, circles, vaults, communities, proposals, votes, envelopes, reputation, rewards, shares, and transaction history.
+- The tab order is **Home → Circles → Community → Save → Wallet**.
+- The Android preview build bundles the app screens, contract method logic, public contract/network configuration, fonts, icons, and local artwork.
+- Runtime access still requires NEAR RPC, deployed contracts, wallet providers, and network connectivity.
+- The demo uses Circle-issued USDC on NEAR testnet. Testnet assets have no financial value, and the Roda faucet is disabled because Roda cannot mint Circle-issued USDC.
+- See the [mobile demo guide](./mobile/DEMO_README.md) for a presenter walkthrough, funding requirements, APK behavior, and known limitations.
 
 ---
 
@@ -144,8 +152,8 @@ roda-app/
 
 | Package | Stack | Purpose |
 |:---|:---|:---|
-| [`program/`](./program/README.md) | Rust, `near-sdk` 5.x, Borsh, Cargo | Circles, solo vaults, Sputnik community escrow/envelopes, reputation, rewards, shares, usernames, and test token custody. |
-| [`mobile/`](./mobile/README.md) | React Native 0.88, Expo 58, TypeScript, NativeWind | iOS/Android client handling wallet keys, circles, vaults, DAO creation/voting, envelopes, bounties, reputation, and Trezu deep links. |
+| [`program/`](./program/README.md) | Rust, `near-sdk` 5.x, Borsh, Cargo | Circles, solo vaults, Sputnik community escrow/envelopes, reputation, rewards, shares, usernames, and NEP-141 token settlement. |
+| [`mobile/`](./mobile/README.md) | React Native 0.88, Expo 58, TypeScript, NativeWind | Bundled iOS/Android client for the five-tab Roda experience, wallet keys, circles, vaults, DAO creation/voting, envelopes, bounties, reputation, and Trezu deep links. |
 | [`frontend/`](./frontend/README.md) | Next.js 16 (App Router), React 19, Tailwind CSS v4 | Responsive public landing page and protocol showcase. |
 
 ---
