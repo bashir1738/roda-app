@@ -3,6 +3,7 @@ import { Hero } from "../components/Hero";
 import { MarqueeTicker } from "../components/MarqueeTicker";
 import { Stats } from "../components/Stats";
 import { CirclesShowcase } from "../components/CirclesShowcase";
+import { CommunityCoordination } from "../components/CommunityCoordination";
 import { Features } from "../components/Features";
 import { VaultTiers } from "../components/VaultTiers";
 import { HowItWorks } from "../components/HowItWorks";
@@ -19,6 +20,7 @@ export default function Home() {
         <MarqueeTicker />
         <Stats />
         <CirclesShowcase />
+        <CommunityCoordination />
         <Features />
         <VaultTiers />
         <HowItWorks />

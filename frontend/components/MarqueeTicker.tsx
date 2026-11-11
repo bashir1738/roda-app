@@ -1,9 +1,11 @@
 const TICKER_ITEMS = [
   "No account or maintenance fees",
   "Automated rotating payouts",
-  "Smart contract secured",
+  "Sputnik DAO + Trezu ready",
+  "Hard-capped budget envelopes",
+  "Capital-weighted reputation",
   "One flat 0.3% payout fee",
-  "Transparent on-chain ROSCA",
+  "Bounties & auto-rewards",
   "Non-custodial by design",
 ];
 

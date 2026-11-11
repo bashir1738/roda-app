@@ -7,6 +7,7 @@ import { CloseIcon } from "./icons";
 
 const LINKS = [
   { label: "Circles", href: "#circles" },
+  { label: "Community", href: "#community" },
   { label: "Vaults", href: "#vaults" },
   { label: "How it works", href: "#how" },
   { label: "Security", href: "#security" },

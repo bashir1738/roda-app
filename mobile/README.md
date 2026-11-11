@@ -1,27 +1,18 @@
 # Roda mobile
 
-The `mobile/` package is an Expo React Native client for the Roda NEAR
-contracts. It reads contract views over NEAR JSON-RPC and signs account calls
-with one of the supported wallet flows:
+The `mobile/` package is an Expo React Native client for the Roda NEAR contracts and Sputnik DAO + Trezu coordination layer. It reads views over NEAR JSON-RPC and signs transactions using one of the supported non-custodial wallet flows:
 
-1. **Create an in-app wallet** — an Ed25519 NEAR keypair is generated and stored in
-   Expo SecureStore.
-2. **Continue with email** — Magic verifies the email via passwordless OTP, then the app uses the
-   same local key model (Pattern A). A one-time backup code flow provides the
-   recovery UX for this key.
-3. **Connect External NEAR Wallets** — MyNearWallet, Meteor Wallet, and HERE Wallet
-   connect via secure in-app web auth sessions (`openAuthSessionAsync`) with custom URL
-   redirects (`roda://wallet-callback`), authorizing contract access keys on NEAR.
+1. **Create an in-app wallet** — an Ed25519 NEAR keypair generated locally and persisted in `Expo SecureStore`.
+2. **Continue with email** — Magic OTP verification paired with encrypted device key storage and a one-time backup recovery flow.
+3. **Connect External NEAR Wallets** — Meteor Wallet, MyNearWallet, and HERE Wallet via secure in-app web auth sessions (`roda://wallet-callback`). Meteor users can upgrade between Roda-only and full-account key scope to sign Sputnik DAO and USDC `ft_transfer_call` transactions directly.
 
 ## Development
 
 ```bash
 npm install
+npx tsc --noEmit
 npm run start
 ```
-
-No build, type-check, test, deploy, or testnet smoke command was run during
-this migration.
 
 ## Environment
 
@@ -29,37 +20,31 @@ Copy `.env.example` to `.env.local`:
 
 ```bash
 EXPO_PUBLIC_NEAR_NETWORK=testnet
-EXPO_PUBLIC_NEAR_RPC_URL=https://rpc.testnet.fastnear.com
+EXPO_PUBLIC_NEAR_RPC_URL=https://test.rpc.fastnear.com
 EXPO_PUBLIC_CONTRACT_ID=roda.dev-92ebb0b3c42c.testnet
 EXPO_PUBLIC_FT_ID=usdc.dev-92ebb0b3c42c.testnet
+EXPO_PUBLIC_SPUTNIK_FACTORY_ID=sputnikv2.testnet
+EXPO_PUBLIC_TREZU_URL=https://trezu.app
 EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY=
 ```
 
-The contract and FT IDs are placeholders until a testnet deployment is
-performed. `Config.token_id` can later be switched by the contract admin to
-native Circle USDC for mainnet.
+## Contract & DAO calls
 
-## Contract calls
-
-- Vaults: `create_vault`, `withdraw`, and `close_vault`
-- Deposits: `ft_transfer_call` with
-  `{"type":"deposit","vault_id":N}`
-- Circles: `create_circle`, `join_circle`, `claim_payout`, and `close_circle`
-- Contributions: `ft_transfer_call` with
-  `{"type":"contribute","circle":N}`
-- Names: `claim_name` and `release_name`
-- Test faucet: `faucet`
-- History: `get_activity` (contract-stored, capped per user)
-
-The client uses `near-api-js` for JSON-RPC and account calls. Contract
-invariants, fee calculation, cooldowns, round gating, and transfer callbacks
-remain enforced on-chain.
+- **Vaults**: `create_vault`, `withdraw`, `close_vault`, `ft_transfer_call` (`{"type":"deposit","vault_id":N}`)
+- **Circles**: `create_circle` (with optional `min_reputation` threshold), `join_circle`, `claim_payout`, `close_circle`, `ft_transfer_call` (`{"type":"contribute","circle":N}`)
+- **Community & Sputnik DAOs**: Deploy DAOs via `sputnikv2.testnet`, submit/vote on `add_proposal` / `act_proposal` (`FunctionCall`, `Transfer`, `Vote`, `AddBounty`, `BountyDone`), `confirm_link`, `allocate`, `community_spend`, `add_envelope`, `set_envelope`, and `ft_transfer_call` (`{"type":"budget_deposit","community":N,"envelope":M|null}`)
+- **Reputation, Rewards & Shares**: `get_reputation_breakdown`, `create_reward_rule`, `grant_shares`, `dissolve_community`, `claim_surplus`, plus Trezu deep-linking (`trezu.app/<dao>`)
+- **Names & Testnet Faucet**: `claim_name`, `release_name`, `faucet`, `get_activity`
 
 ## Structure
 
-- `lib/near.ts` — testnet connection and key store
-- `lib/nearKey.ts` — SecureStore keypair persistence
-- `lib/contract.ts` — contract views, calls, and NEP-141 transfers
-- `providers/WalletContext.tsx` — device, Magic, and Meteor session flows
-- `hooks/` — screen-facing query and action hooks
-- `constants/roda.ts` — network, contract, token, and display constants
+- `app/(tabs)/` — Home, Circles, Save (Vaults), Community (DAOs), Wallet, Profile
+- `app/community/` — Community/DAO setup wizard, dashboard (envelopes, votes, rewards/bounties, shares) & proposal composer
+- `lib/near.ts` — NEAR RPC failover & account helper
+- `lib/nearKey.ts` — `SecureStore` keypair persistence
+- `lib/contract.ts` — Roda contract views, calls, and NEP-141 transfers
+- `lib/sputnik.ts` — Sputnik DAO factory deployment, proposals, voting & native bounties
+- `lib/trezu.ts` — `trezu.app` deep-link helpers
+- `hooks/` — React Query hooks (`useCommunities`, `useDaoProposals`, `useReputation`, `useRewardRules`, `useShares`, etc.)
+- `components/` — Reusable widgets (`ReputationBadge`, `CreateCircleWizard`, `JoinByIdModal`, `CircleCard`, `ProfileSidebar`, etc.)
+- `constants/roda.ts` — Network, contract, Sputnik/Trezu, token, and vault tier constants

@@ -53,19 +53,51 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function isTransientRpcError(err) {
+  const code = err?.code || err?.cause?.code || '';
+  const msg = String(err?.message || err || '');
+  if (/ExecutionError|ActionError|panicked|NotYourPayout|RoundNotReady|Already|NotFound/i.test(msg)) {
+    return false;
+  }
+  if (['ECONNRESET', 'ETIMEDOUT', 'EPIPE', 'ECONNREFUSED', 'UND_ERR_SOCKET', 'UND_ERR_HEADERS_TIMEOUT'].includes(code)) {
+    return true;
+  }
+  return /terminated|fetch failed|socket hang up|ECONNRESET|ETIMEDOUT|429|502|503|504/i.test(msg);
+}
+
+async function withRpcRetry(fn, retries = 4) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i === retries || !isTransientRpcError(err)) throw err;
+      await sleep(1500 * (i + 1));
+    }
+  }
+  throw lastErr;
+}
+
 async function view(near, contractId, methodName, args) {
-  const account = await near.account(contractId);
-  return account.viewFunction({ contractId, methodName, args });
+  return withRpcRetry(async () => {
+    const account = await near.account(contractId);
+    return account.viewFunction({ contractId, methodName, args });
+  });
 }
 
 async function call(account, contractId, methodName, args, deposit = '0') {
-  return account.functionCall({
-    contractId,
-    methodName,
-    args,
-    gas: GAS,
-    attachedDeposit: deposit,
-  });
+  return withRpcRetry(
+    () =>
+      account.functionCall({
+        contractId,
+        methodName,
+        args,
+        gas: GAS,
+        attachedDeposit: deposit,
+      }),
+    2
+  );
 }
 
 async function ftTransferCall(sender, token, receiverId, amount, msg) {
@@ -96,7 +128,7 @@ async function main() {
   const keyStore = new keyStores.UnencryptedFileSystemKeyStore(
     path.join(require('os').homedir(), '.near-credentials')
   );
-  const near = await connect({ network, nodeUrl, keyStore });
+  const near = await connect({ networkId: network, nodeUrl, keyStore });
   const alice = await near.account(aliceId);
   const bob = await near.account(bobId);
   const adminId = state.admin || env.NEAR_ADMIN_ACCOUNT_ID;

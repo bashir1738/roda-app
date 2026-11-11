@@ -42,8 +42,8 @@ export function AppPreview() {
                   </div>
                   <span className="text-[14px] font-bold text-charcoal">Hi, Amara</span>
                 </div>
-                <div className="rounded-lg bg-border-subtle/50 px-2 py-1.5 text-[10px] font-bold text-charcoal">
-                  Tier 3
+                <div className="rounded-lg border border-charcoal/20 bg-[#9BE7B2]/40 px-2 py-1 text-[10px] font-bold text-charcoal">
+                  Rep 420
                 </div>
               </div>
 
@@ -115,11 +115,12 @@ export function AppPreview() {
             </div>
 
             {/* Bottom tab bar */}
-            <div className="flex items-center justify-around border-t border-border-subtle bg-white px-2 pb-5 pt-2.5">
+            <div className="flex items-center justify-around border-t border-border-subtle bg-white px-1.5 pb-5 pt-2.5">
               <Tab icon={<HomeGlyph />} label="Home" active />
-              <Tab icon={<CircleUsersIcon className="h-[18px] w-[18px]" />} label="Circles" />
-              <Tab icon={<TrendingUpIcon className="h-[18px] w-[18px]" />} label="Vault" />
-              <Tab icon={<WalletIcon className="h-[18px] w-[18px]" />} label="Wallet" />
+              <Tab icon={<CircleUsersIcon className="h-[17px] w-[17px]" />} label="Circles" />
+              <Tab icon={<TrendingUpIcon className="h-[17px] w-[17px]" />} label="Vault" />
+              <Tab icon={<LayersGlyph />} label="Community" />
+              <Tab icon={<WalletIcon className="h-[17px] w-[17px]" />} label="Wallet" />
             </div>
 
             {/* Home indicator */}
@@ -189,9 +190,19 @@ function BatteryGlyph() {
 
 function HomeGlyph() {
   return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 10.5 12 3l9 7.5" />
       <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
+    </svg>
+  );
+}
+
+function LayersGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+      <polyline points="2 12 12 17 22 12" />
+      <polyline points="2 17 12 22 22 17" />
     </svg>
   );
 }

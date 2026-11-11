@@ -17,9 +17,9 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: "Roda — Save together. Onchain.",
+  title: "Roda — Save together. Coordinate onchain.",
   description:
-    "Roda brings rotating savings onchain. Join trusted savings circles, follow automated payouts, and grow your money with your community.",
+    "Roda unites rotating savings circles, personal USDC vaults, and Sputnik DAO community treasuries with Trezu integration, budget envelopes, and on-chain reputation on NEAR Protocol.",
 };
 
 import { CookiesNotification } from "../components/CookiesNotification";

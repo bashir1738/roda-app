@@ -3,23 +3,23 @@ import { CheckIcon } from "./icons";
 
 const ASSURANCES = [
   {
-    title: "Non-custodial",
-    body: "Only you hold keys to vault deposits. Roda cannot seize or pause your funds.",
+    title: "Non-custodial & split custody",
+    body: "Only you hold keys to vault deposits, while community DAO ops treasuries live in Sputnik and budget envelopes remain locked in Roda escrow.",
   },
   {
-    title: "Immutable rules",
-    body: "Circle terms live in the Roda NEAR contract. No one can quietly rewrite payouts.",
+    title: "DAO-gated spends & ceilings",
+    body: "Envelope withdrawals require an approved Sputnik Call proposal and hard remaining-budget verification onchain.",
   },
   {
-    title: "Public ledger",
-    body: "Every contribution and payout is verifiable onchain. No hidden balances.",
+    title: "Atomic rollbacks & public ledger",
+    body: "Every circle payout, reward, and spend uses promise callbacks — failed transfers restore state atomically and emit NEP-297 events.",
   },
 ];
 
 const CHECKLIST = [
   "Rules enforced by the NEAR contract",
-  "No maintenance charges",
-  "Automated payout engine",
+  "Sputnik DAO Call predecessor checks",
+  "Sybil-resistant capital-weighted reputation",
 ];
 
 export function Security() {

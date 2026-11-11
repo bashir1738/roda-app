@@ -129,11 +129,7 @@ impl RodaContract {
     /// Roda test token (which exposes a `mint` method gated to this contract).
     #[init]
     pub fn new(admin: AccountId, token_id: AccountId, faucet_enabled: bool) -> Self {
-        require!(
-            env::state_read::<RodaContract>().is_none()
-                && env::state_read::<RodaContractV1>().is_none(),
-            "AlreadyInitialized"
-        );
+        require!(!env::state_exists(), "AlreadyInitialized");
         Self {
             config: Config {
                 admin,
@@ -242,7 +238,8 @@ impl RodaContract {
     #[init(ignore_state)]
     pub fn migrate() -> Self {
         let caller = env::predecessor_account_id();
-        if let Some(state) = env::state_read::<Self>() {
+        let raw = env::storage_read(b"STATE").expect("StateNotFound");
+        if let Ok(state) = borsh::from_slice::<Self>(&raw) {
             require!(
                 caller == env::current_account_id() || caller == state.config.admin,
                 "Unauthorized"
@@ -250,7 +247,8 @@ impl RodaContract {
             events::contract_migrated();
             return state;
         }
-        let v1: RodaContractV1 = env::state_read().expect("StateNotFound");
+        let v1: RodaContractV1 =
+            borsh::from_slice::<RodaContractV1>(&raw).expect("CannotDeserializeState");
         require!(
             caller == env::current_account_id() || caller == v1.config.admin,
             "Unauthorized"
@@ -1259,6 +1257,52 @@ mod tests {
         assert_eq!(upgraded.id, 123456);
         assert_eq!(upgraded.min_reputation, 0);
     }
+
+    #[test]
+    fn v1_contract_state_deserializes_with_fallback() {
+        #[derive(borsh::BorshSerialize)]
+        struct RodaContractV1Serialize {
+            config: Config,
+            vaults: LookupMap<u64, Vault>,
+            user_vaults: LookupMap<AccountId, Vec<u64>>,
+            circles: LookupMap<u64, Circle>,
+            user_circles: LookupMap<AccountId, Vec<u64>>,
+            names: LookupMap<String, AccountId>,
+            profiles: LookupMap<AccountId, NameProfile>,
+            faucet: LookupMap<AccountId, i64>,
+            activity: LookupMap<AccountId, Vec<Activity>>,
+            payout_pending: LookupMap<u64, PayoutPending>,
+            withdraw_pending: LookupMap<u64, WithdrawPending>,
+            fees_owed: u64,
+        }
+        let v1_orig = RodaContractV1Serialize {
+            config: Config {
+                admin: "admin.testnet".parse().unwrap(),
+                token_id: "usdc.testnet".parse().unwrap(),
+                vault_count: 3,
+                circle_count: 2,
+                faucet_enabled: true,
+            },
+            vaults: LookupMap::new(StorageKey::Vaults),
+            user_vaults: LookupMap::new(StorageKey::UserVaults),
+            circles: LookupMap::new(StorageKey::Circles),
+            user_circles: LookupMap::new(StorageKey::UserCircles),
+            names: LookupMap::new(StorageKey::Names),
+            profiles: LookupMap::new(StorageKey::Profiles),
+            faucet: LookupMap::new(StorageKey::Faucet),
+            activity: LookupMap::new(StorageKey::Activity),
+            payout_pending: LookupMap::new(StorageKey::PayoutPending),
+            withdraw_pending: LookupMap::new(StorageKey::WithdrawPending),
+            fees_owed: 42_000,
+        };
+        let raw = borsh::to_vec(&v1_orig).unwrap();
+        // V2 deserialization fails gracefully with Err instead of panicking.
+        assert!(borsh::from_slice::<RodaContract>(&raw).is_err());
+        let decoded: RodaContractV1 = borsh::from_slice(&raw).unwrap();
+        assert_eq!(decoded.config.vault_count, 3);
+        assert_eq!(decoded.config.circle_count, 2);
+        assert_eq!(decoded.fees_owed, 42_000);
+    }
 }
 
 #[cfg(all(test, feature = "unit-testing", not(target_arch = "wasm32")))]
@@ -1389,5 +1433,60 @@ mod vm_tests {
 
         testing_env!(ctx("newbie.testnet").build());
         c.join_circle(500_001);
+    }
+
+    #[test]
+    fn migrate_v1_to_v2_and_idempotent() {
+        #[derive(borsh::BorshSerialize)]
+        struct RodaContractV1Serialize {
+            config: Config,
+            vaults: LookupMap<u64, Vault>,
+            user_vaults: LookupMap<AccountId, Vec<u64>>,
+            circles: LookupMap<u64, Circle>,
+            user_circles: LookupMap<AccountId, Vec<u64>>,
+            names: LookupMap<String, AccountId>,
+            profiles: LookupMap<AccountId, NameProfile>,
+            faucet: LookupMap<AccountId, i64>,
+            activity: LookupMap<AccountId, Vec<Activity>>,
+            payout_pending: LookupMap<u64, PayoutPending>,
+            withdraw_pending: LookupMap<u64, WithdrawPending>,
+            fees_owed: u64,
+        }
+        testing_env!(ctx("roda.testnet").build());
+        let v1_orig = RodaContractV1Serialize {
+            config: Config {
+                admin: "admin.testnet".parse().unwrap(),
+                token_id: "usdc.testnet".parse().unwrap(),
+                vault_count: 5,
+                circle_count: 1,
+                faucet_enabled: true,
+            },
+            vaults: LookupMap::new(StorageKey::Vaults),
+            user_vaults: LookupMap::new(StorageKey::UserVaults),
+            circles: LookupMap::new(StorageKey::Circles),
+            user_circles: LookupMap::new(StorageKey::UserCircles),
+            names: LookupMap::new(StorageKey::Names),
+            profiles: LookupMap::new(StorageKey::Profiles),
+            faucet: LookupMap::new(StorageKey::Faucet),
+            activity: LookupMap::new(StorageKey::Activity),
+            payout_pending: LookupMap::new(StorageKey::PayoutPending),
+            withdraw_pending: LookupMap::new(StorageKey::WithdrawPending),
+            fees_owed: 12_345,
+        };
+        let raw = borsh::to_vec(&v1_orig).unwrap();
+        env::storage_write(b"STATE", &raw);
+
+        // V1 -> V2 migration
+        let migrated = RodaContract::migrate();
+        assert_eq!(migrated.config.vault_count, 5);
+        assert_eq!(migrated.fees_owed, 12_345);
+        assert_eq!(migrated.community_count, 0);
+
+        // Persist V2 state and run idempotent V2 -> V2 migration via admin
+        env::state_write(&migrated);
+        testing_env!(ctx("admin.testnet").build());
+        let second = RodaContract::migrate();
+        assert_eq!(second.config.vault_count, 5);
+        assert_eq!(second.community_count, 0);
     }
 }

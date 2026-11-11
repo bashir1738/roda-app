@@ -5,6 +5,7 @@ const FOOTER_NAV = [
     title: "Product",
     links: [
       { label: "Circles", href: "#circles" },
+      { label: "Community DAOs", href: "#community" },
       { label: "Vaults", href: "#vaults" },
       { label: "App", href: "#cta" },
     ],

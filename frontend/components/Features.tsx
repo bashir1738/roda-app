@@ -17,32 +17,32 @@ const FEATURES: {
   {
     icon: ShieldIcon,
     title: "Everyone plays fair",
-    body: "Amount, schedule, and payout order are locked onchain. No skipped payments or quiet edits.",
+    body: "Amount, schedule, and payout order are locked onchain. Add optional reputation gates so high-trust circles stay reliable.",
   },
   {
     icon: TrendingUpIcon,
-    title: "Always available",
-    body: "Your personal savings aren't locked away. Withdraw your funds whenever you need them.",
+    title: "Solo savings vaults",
+    body: "Save freely in Flex Solo or build habit discipline across 7-day, 30-day, 6-month, and 1-year USDC commitment vaults.",
   },
   {
     icon: WalletIcon,
-    title: "No maintenance fees",
-    body: "No monthly charges and no surprise deductions. The only fee is a flat 0.3% when payouts distribute.",
+    title: "Hard-capped DAO budgets",
+    body: "Back community treasuries with Sputnik DAO + Trezu. Escrow envelopes cannot be overspent — only council Call proposals unlock funds.",
   },
   {
     icon: GlobeIcon,
-    title: "Borderless circles",
-    body: "Save with family across borders without wire delays or conversion theatre.",
+    title: "On-chain reputation",
+    body: "Build a portable 0–1000 trust score weighted by real USDC contributions, completed circles, matured vaults, and tenure.",
   },
   {
     icon: GiftIcon,
-    title: "Clear payouts",
-    body: "See every contribution and the next distribution — no ambiguity, no private books.",
+    title: "Bounties & auto-rewards",
+    body: "Post Sputnik DAO bounties or automate Roda envelope rewards triggered directly when members finish circle rounds or streaks.",
   },
   {
     icon: BoltIcon,
-    title: "You hold the keys",
-    body: "Non-custodial by default. Roda cannot freeze, lock, or move your funds.",
+    title: "Collective ownership",
+    body: "Community deposits and DAO grants mint on-chain shares with pro-rata surplus distribution — zero custodial gatekeepers.",
   },
 ];
 

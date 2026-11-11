@@ -3,9 +3,9 @@ import { GetAppButton } from "./GetAppModal";
 import { AppPreview } from "./AppPreview";
 
 const HIGHLIGHTS = [
-  "No account or maintenance fees",
-  "Automated on-chain payouts",
-  "One flat 0.3% payout fee",
+  "Automated circle payouts",
+  "Sputnik DAO + Trezu treasuries",
+  "On-chain reputation & shares",
 ];
 
 export function Hero() {
@@ -30,9 +30,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-md border-l-4 border-[#00C08B] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
-            Roda brings collaborative rotating savings onchain. Join a trusted
-            savings circle, follow automated distributions, and maintain full custody
-            of your funds — without the paperwork.
+            Roda unites rotating savings circles, personal vaults, and Sputnik DAO
+            community treasuries with Trezu integration, budget envelopes, and
+            on-chain reputation — all under your own keys.
           </p>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
