@@ -76,18 +76,18 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="circles"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon iconActive="people" iconInactive="people-outline" label="Circles" focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="save"
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon iconActive="leaf" iconInactive="leaf-outline" label="Save" focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="circles"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon iconActive="people" iconInactive="people-outline" label="Circles" focused={focused} />
           ),
         }}
       />

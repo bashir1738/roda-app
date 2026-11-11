@@ -12,14 +12,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import * as Clipboard from 'expo-clipboard';
 
 import {
   MAX_ENVELOPES,
   SPUTNIK_DAO_SUFFIX,
   isValidAddress,
+  shortAddress,
 } from '../../constants/roda';
 import { sanitizeDaoSlug } from '../../lib/sputnik';
 import { useWallet } from '../../providers/WalletContext';
+import { useBalance } from '../../hooks/useBalance';
 import {
   useCreateCommunity,
   type CreateCommunityStage,
@@ -57,6 +60,8 @@ export default function CreateCommunityScreen() {
   } = useCreateCommunity();
   const { data: repData } = useReputation();
   const { data: minCreateRep = 0 } = useCommunityMinRepGate();
+  const { near: nearBalance, isLoading: balLoading, refetch: refetchBalance } = useBalance();
+  const [copiedAddr, setCopiedAddr] = useState(false);
 
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState<'create' | 'link'>('create');
@@ -78,6 +83,16 @@ export default function CreateCommunityScreen() {
 
   const myScore = repData?.score ?? 0;
   const repBlocked = minCreateRep > 0 && myScore < minCreateRep;
+  const nearBalanceNum = Number(nearBalance) / 1e24;
+  const requiredNearNum = mode === 'create' ? 6.2 : 0.02;
+  const insufficientNear = !balLoading && nearBalanceNum < requiredNearNum;
+
+  const copyWalletAddress = async () => {
+    if (!address) return;
+    await Clipboard.setStringAsync(address);
+    setCopiedAddr(true);
+    setTimeout(() => setCopiedAddr(false), 2000);
+  };
 
   const trimmedName = name.trim();
   const isNameValid = trimmedName.length >= 3 && trimmedName.length <= 48;
@@ -268,6 +283,42 @@ export default function CreateCommunityScreen() {
                   Deploying a Sputnik DAO requires multi-contract signing. Tap to upgrade your Meteor key.
                 </Text>
               </TouchableOpacity>
+            )}
+
+            {insufficientNear && address && (
+              <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/60 rounded-2xl p-3.5 mb-4 gap-2">
+                <View className="flex-row gap-2 items-center">
+                  <Icon name="wallet-outline" size={18} color="#F59E0B" />
+                  <Text className="flex-1 text-amber-800 dark:text-amber-200 text-xs font-semibold">
+                    {nearBalance === 0n
+                      ? 'Wallet not activated on NEAR testnet (0 NEAR)'
+                      : `Low NEAR balance (${nearBalanceNum.toFixed(2)} NEAR)`}
+                  </Text>
+                </View>
+                <Text className="text-amber-800/90 dark:text-amber-200/90 text-xs leading-4">
+                  {mode === 'create'
+                    ? 'Deploying a new Sputnik DAO needs ~6.2 NEAR (6 NEAR storage deposit + bond/gas). Send NEAR to your address or link an existing DAO.'
+                    : 'Staging and linking an existing DAO needs at least ~0.02 NEAR for gas.'}
+                </Text>
+                <View className="flex-row items-center gap-2 pt-1">
+                  <TouchableOpacity
+                    onPress={copyWalletAddress}
+                    className="bg-amber-200/60 dark:bg-amber-800/50 rounded-full px-3 py-1.5"
+                  >
+                    <Text className="text-amber-950 dark:text-amber-100 text-[11px] font-bold">
+                      {copiedAddr ? 'Copied!' : `Copy ${shortAddress(address, 6, 4)}`}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => refetchBalance()}
+                    className="bg-white/80 dark:bg-white/10 rounded-full px-3 py-1.5"
+                  >
+                    <Text className="text-charcoal dark:text-white text-[11px] font-semibold">
+                      Refresh balance
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             )}
 
             {/* Step 0: Identity & DAO Mode */}

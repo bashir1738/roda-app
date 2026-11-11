@@ -1,8 +1,11 @@
 import { useCallback, useState } from 'react';
-import { callContract, viewContract } from '../lib/contract';
+import { callContract, getNearAccount, viewContract } from '../lib/contract';
 import { addFunctionCallProposal, createDao, ensureDaoFtRegistered } from '../lib/sputnik';
 import { useProgramAction } from './useProgramAction';
 import { useUsdcMint } from './useUsdcMint';
+
+const MIN_NEAR_FOR_DAO_CREATE = 6_150_000_000_000_000_000_000_000n; // 6.15 NEAR
+const MIN_NEAR_FOR_LINK = 10_000_000_000_000_000_000_000n; // 0.01 NEAR
 
 export type CreateCommunityStage =
   | 'idle'
@@ -37,6 +40,25 @@ export function useCreateCommunity() {
       let resolvedDaoId = params.existingDaoId?.trim().toLowerCase() ?? '';
 
       const hash = await action.run(async (accountId) => {
+        // Verify account is activated on NEAR and holds enough NEAR before signing tx
+        try {
+          const account = await getNearAccount(accountId);
+          const state = await account.state();
+          const nearBal = BigInt(state.amount?.toString() ?? '0');
+          if (params.mode === 'create' && nearBal < MIN_NEAR_FOR_DAO_CREATE) {
+            throw new Error('InsufficientNearForDao');
+          }
+          if (params.mode === 'link' && nearBal < MIN_NEAR_FOR_LINK) {
+            throw new Error('NotEnoughBalance');
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err ?? '');
+          if (msg === 'InsufficientNearForDao' || msg === 'NotEnoughBalance') throw err;
+          if (/doesn't exist|does not exist/i.test(msg)) {
+            throw new Error('UnfundedAccount');
+          }
+        }
+
         if (params.mode === 'create') {
           setStage('deploying_dao');
           const council = params.council.length > 0 ? params.council : [accountId];
@@ -72,11 +94,25 @@ export function useCreateCommunity() {
           '100000000000000',
         );
 
-        // Fetch assigned community_id from user's community list
-        const ids = await viewContract<number[]>('get_user_community_ids', { account: accountId });
-        if (Array.isArray(ids) && ids.length > 0) {
-          latestCommunityId = ids[ids.length - 1];
-          setCreatedCommunityId(latestCommunityId);
+        // Fetch assigned community_id (with brief retry for FastNEAR replica lag)
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const byDao = await viewContract<{ id: number } | null>('get_community_by_dao', {
+            dao_id: resolvedDaoId,
+          }).catch(() => null);
+          if (byDao && typeof byDao.id === 'number') {
+            latestCommunityId = byDao.id;
+            setCreatedCommunityId(latestCommunityId);
+            break;
+          }
+          const ids = await viewContract<number[]>('get_user_community_ids', {
+            account: accountId,
+          }).catch(() => []);
+          if (Array.isArray(ids) && ids.length > 0) {
+            latestCommunityId = ids[ids.length - 1];
+            setCreatedCommunityId(latestCommunityId);
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 1000));
         }
 
         if (params.proposeLinkImmediately !== false && latestCommunityId !== null) {

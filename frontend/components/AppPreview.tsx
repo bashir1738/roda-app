@@ -117,8 +117,8 @@ export function AppPreview() {
             {/* Bottom tab bar */}
             <div className="flex items-center justify-around border-t border-border-subtle bg-white px-1.5 pb-5 pt-2.5">
               <Tab icon={<HomeGlyph />} label="Home" active />
-              <Tab icon={<CircleUsersIcon className="h-[17px] w-[17px]" />} label="Circles" />
               <Tab icon={<TrendingUpIcon className="h-[17px] w-[17px]" />} label="Vault" />
+              <Tab icon={<CircleUsersIcon className="h-[17px] w-[17px]" />} label="Circles" />
               <Tab icon={<LayersGlyph />} label="Community" />
               <Tab icon={<WalletIcon className="h-[17px] w-[17px]" />} label="Wallet" />
             </div>

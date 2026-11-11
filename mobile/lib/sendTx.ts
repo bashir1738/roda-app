@@ -44,12 +44,19 @@ const RODA_MESSAGES: Record<string, string> = {
   NoSurplusToClaim: 'There is no remaining surplus to claim.',
   SurplusAlreadyClaimed: 'You have already claimed your dissolution surplus.',
   UnauthorizedToken: 'Only the configured USDC token contract may credit deposits.',
+  UnfundedAccount:
+    'This NEAR wallet is not activated onchain yet (0 NEAR). Send NEAR to your wallet address first.',
+  InsufficientNearForDao:
+    'Deploying a new Sputnik DAO requires ~6.2 NEAR (6 NEAR DAO storage + bond/gas). Fund your wallet or link an existing DAO.',
 };
 
 export function friendlyError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '');
   const code = message.match(/(?:RodaError:|ContractError:)?([A-Za-z][A-Za-z0-9]+)/)?.[1];
   if (code && RODA_MESSAGES[code]) return RODA_MESSAGES[code];
+  if (/access key .* doesn't exist|account .* doesn't exist/i.test(message)) {
+    return 'Wallet not funded onchain yet (0 NEAR) or key lacks contract access. Send NEAR to activate your address (6.2+ NEAR to deploy a DAO), or reconnect your wallet.';
+  }
   if (/ERR_PERMISSION|not allowed to vote|HostVoter/i.test(message)) {
     return 'Your account lacks permission on this Sputnik DAO policy.';
   }
