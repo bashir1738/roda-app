@@ -19,6 +19,19 @@ npm run build
 npm run dev
 ```
 
+If development startup reports `Watchpack Error: EMFILE`, make sure the
+command is run from `frontend/`. The project scopes Turbopack to that directory
+and uses polling for webpack development mode, so it does not consume one
+native Linux watcher per workspace path. If a stale development process is
+still running, stop it and start again:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Do not start the frontend from `/home/bash` or another parent directory.
+
 Public configuration template in `.env.example`:
 
 ```bash
