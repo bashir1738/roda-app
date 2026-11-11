@@ -56,6 +56,35 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function decodeSuccessValue(outcome) {
+  const b64Val = outcome?.status?.SuccessValue;
+  if (!b64Val) return undefined;
+  const raw = Buffer.from(b64Val, 'base64').toString('utf8');
+  if (!raw) return undefined;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+}
+
+async function waitUntil(fn, description, timeoutMs = 15000, intervalMs = 1200) {
+  const deadline = Date.now() + timeoutMs;
+  let lastVal;
+  let lastErr;
+  while (Date.now() < deadline) {
+    try {
+      lastVal = await fn();
+      if (lastVal) return lastVal;
+    } catch (e) {
+      lastErr = e;
+    }
+    await sleep(intervalMs);
+  }
+  if (lastErr) throw lastErr;
+  throw new Error(`Timed out waiting for: ${description}`);
+}
+
 function isTransientRpcError(err) {
   const code = err?.code || err?.cause?.code || '';
   const msg = String(err?.message || err || '');
@@ -177,46 +206,61 @@ async function main() {
   await call(alice, factory, 'create', { name: daoName, args: b64(initArgs) }, utils.format.parseNearAmount('6'), '180000000000000');
 
   console.log('── 2. Stage Community on Roda ──');
-  await call(alice, roda, 'create_community', {
+  const createCommOutcome = await call(alice, roda, 'create_community', {
     dao_id: daoId,
     name: 'Smoke Community',
     envelopes: ['Grants', 'Operations'],
   });
-  const userIds = await view(near, roda, 'get_user_community_ids', { account: aliceId });
-  const communityId = userIds[userIds.length - 1];
+  let communityId = decodeSuccessValue(createCommOutcome);
+  if (typeof communityId !== 'number') {
+    const userIds = await waitUntil(async () => {
+      const ids = await view(near, roda, 'get_user_community_ids', { account: aliceId });
+      return ids.length ? ids : null;
+    }, 'staged community_id');
+    communityId = userIds[userIds.length - 1];
+  }
   console.log('  staged community_id:', communityId);
 
-  console.log('── 3. Propose & approve confirm_link via Sputnik ──');
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
-    {
-      proposal: {
-        description: `Link Roda community #${communityId}`,
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'confirm_link',
-                args: b64({ community_id: communityId }),
-                deposit: '0',
-                gas: '50000000000000',
-              },
-            ],
+  async function submitAndPass(description, method_name, argsObj, gas = '50000000000000') {
+    const propOutcome = await call(
+      alice,
+      daoId,
+      'add_proposal',
+      {
+        proposal: {
+          description,
+          kind: {
+            FunctionCall: {
+              receiver_id: roda,
+              actions: [
+                {
+                  method_name,
+                  args: b64(argsObj),
+                  deposit: '0',
+                  gas,
+                },
+              ],
+            },
           },
         },
       },
-    },
-    bond
-  );
-  const propId = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: propId, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: propId, action: 'VoteApprove' });
-  await sleep(3000);
-  const linkedComm = await view(near, roda, 'get_community', { community_id: communityId });
-  if (!linkedComm.linked) throw new Error('Expected community to be linked');
+      bond
+    );
+    let propId = decodeSuccessValue(propOutcome);
+    if (typeof propId !== 'number') {
+      propId = (await view(near, daoId, 'get_last_proposal_id')) - 1;
+    }
+    await call(alice, daoId, 'act_proposal', { id: propId, action: 'VoteApprove' });
+    await call(bob, daoId, 'act_proposal', { id: propId, action: 'VoteApprove' });
+    return propId;
+  }
+
+  console.log('── 3. Propose & approve confirm_link via Sputnik ──');
+  await submitAndPass(`Link Roda community #${communityId}`, 'confirm_link', { community_id: communityId });
+  const linkedComm = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_community', { community_id: communityId });
+    return c && c.linked ? c : null;
+  }, 'community.linked === true');
   console.log('  linked verified:', linkedComm.linked);
 
   console.log('── 4. Budget deposit to unallocated pool (20 USDC) ──');
@@ -232,78 +276,41 @@ async function main() {
     },
     YOCTO
   );
+  await waitUntil(async () => {
+    const c = await view(near, roda, 'get_community', { community_id: communityId });
+    return c && c.pool_unallocated >= 20_000_000 ? c : null;
+  }, 'pool_unallocated >= 20 USDC');
 
   console.log('── 5. Propose & approve allocate (15 USDC -> envelope 0) ──');
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
-    {
-      proposal: {
-        description: 'Allocate 15 USDC to Grants',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'allocate',
-                args: b64({ community_id: communityId, envelope_id: 0, amount: 15_000_000 }),
-                deposit: '0',
-                gas: '50000000000000',
-              },
-            ],
-          },
-        },
-      },
-    },
-    bond
-  );
-  const allocProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: allocProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: allocProp, action: 'VoteApprove' });
-  await sleep(3000);
+  await submitAndPass('Allocate 15 USDC to Grants', 'allocate', {
+    community_id: communityId,
+    envelope_id: 0,
+    amount: 15_000_000,
+  });
+  await waitUntil(async () => {
+    const c = await view(near, roda, 'get_community', { community_id: communityId });
+    return c && c.envelopes?.[0]?.allocated >= 15_000_000 ? c : null;
+  }, 'envelope 0 allocated');
 
   console.log('── 6. Propose & approve spend (10 USDC from envelope 0 -> Bob) ──');
   const bobBalBefore = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
+  await submitAndPass(
+    'Pay Bob 10 USDC from Grants envelope',
+    'community_spend',
     {
-      proposal: {
-        description: 'Pay Bob 10 USDC from Grants envelope',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'community_spend',
-                args: b64({
-                  community_id: communityId,
-                  envelope_id: 0,
-                  recipient: bobId,
-                  amount: 10_000_000,
-                }),
-                deposit: '0',
-                gas: '100000000000000',
-              },
-            ],
-          },
-        },
-      },
+      community_id: communityId,
+      envelope_id: 0,
+      recipient: bobId,
+      amount: 10_000_000,
     },
-    bond
+    '100000000000000'
   );
-  const spendProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: spendProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: spendProp, action: 'VoteApprove' });
-  await sleep(4000);
 
-  const bobBalAfter = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
+  const bobBalAfter = await waitUntil(async () => {
+    const bal = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
+    return bal - bobBalBefore === 10_000_000n ? bal : null;
+  }, 'Bob USDC +10 USDC', 20000);
   console.log('  Bob USDC gained:', (bobBalAfter - bobBalBefore).toString());
-  if (bobBalAfter - bobBalBefore !== 10_000_000n) {
-    throw new Error('Expected Bob to receive 10 USDC');
-  }
 
   console.log('── 7. Direct non-DAO spend rejected ──');
   try {
@@ -321,39 +328,18 @@ async function main() {
 
   console.log('── 8. Over-budget spend rejected (10 USDC when 5 USDC remaining) ──');
   const bobBeforeOver = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
+  await submitAndPass(
+    'Attempt over-budget spend of 10 USDC',
+    'community_spend',
     {
-      proposal: {
-        description: 'Attempt over-budget spend of 10 USDC',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'community_spend',
-                args: b64({
-                  community_id: communityId,
-                  envelope_id: 0,
-                  recipient: bobId,
-                  amount: 10_000_000,
-                }),
-                deposit: '0',
-                gas: '100000000000000',
-              },
-            ],
-          },
-        },
-      },
+      community_id: communityId,
+      envelope_id: 0,
+      recipient: bobId,
+      amount: 10_000_000,
     },
-    bond
+    '100000000000000'
   );
-  const overProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: overProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: overProp, action: 'VoteApprove' });
-  await sleep(3000);
+  await sleep(3500);
   const bobAfterOver = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
   const commAfterOver = await view(near, roda, 'get_community', { community_id: communityId });
   if (bobAfterOver !== bobBeforeOver || commAfterOver.envelopes[0].remaining !== 5_000_000) {
@@ -362,42 +348,17 @@ async function main() {
   console.log('  Over-budget spend blocked (remaining still 5 USDC)');
 
   console.log('── 9. Phase 3: Create programmable reward rule via DAO ──');
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
-    {
-      proposal: {
-        description: 'Add 1 USDC CircleRoundCompleted reward from Grants',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'create_reward_rule',
-                args: b64({
-                  community_id: communityId,
-                  source_envelope: 0,
-                  circle_code: null,
-                  trigger: { kind: 'circle_round_completed' },
-                  amount: 1_000_000,
-                }),
-                deposit: '0',
-                gas: '50000000000000',
-              },
-            ],
-          },
-        },
-      },
-    },
-    bond
-  );
-  const rewardProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: rewardProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: rewardProp, action: 'VoteApprove' });
-  await sleep(3000);
-  const rules = await view(near, roda, 'get_reward_rules', { community_id: communityId });
-  if (rules.length < 1) throw new Error('Expected reward rule to be created');
+  await submitAndPass('Add 1 USDC CircleRoundCompleted reward from Grants', 'create_reward_rule', {
+    community_id: communityId,
+    source_envelope: 0,
+    circle_code: null,
+    trigger: { kind: 'circle_round_completed' },
+    amount: 1_000_000,
+  });
+  const rules = await waitUntil(async () => {
+    const r = await view(near, roda, 'get_reward_rules', { community_id: communityId });
+    return r.length >= 1 ? r : null;
+  }, 'reward rule created');
   console.log('  Reward rule created, count:', rules.length);
 
   console.log('── 10. Phase 4: Verify reputation, shares, dissolve & claim surplus ──');
@@ -406,101 +367,46 @@ async function main() {
   console.log('  Alice rep score:', aliceRep.score, 'shares:', aliceShares);
 
   // Grant 20M shares to Bob so Alice & Bob split remaining 10 USDC surplus 50/50
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
-    {
-      proposal: {
-        description: 'Grant 20M shares to Bob',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'grant_shares',
-                args: b64({ community_id: communityId, recipient: bobId, amount: 20_000_000, min_reputation: null }),
-                deposit: '0',
-                gas: '50000000000000',
-              },
-            ],
-          },
-        },
-      },
-    },
-    bond
-  );
-  const grantProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: grantProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: grantProp, action: 'VoteApprove' });
-  await sleep(2000);
+  await submitAndPass('Grant 20M shares to Bob', 'grant_shares', {
+    community_id: communityId,
+    recipient: bobId,
+    amount: 20_000_000,
+    min_reputation: null,
+  });
+  await waitUntil(async () => {
+    const s = await view(near, roda, 'get_community_shares', { community_id: communityId, account: bobId });
+    return s >= 20_000_000 ? s : null;
+  }, 'Bob granted 20M shares');
 
   // Close envelopes 0 and 1, then dissolve community
   for (const eid of [0, 1]) {
-    await call(
-      alice,
-      daoId,
-      'add_proposal',
-      {
-        proposal: {
-          description: `Close envelope ${eid}`,
-          kind: {
-            FunctionCall: {
-              receiver_id: roda,
-              actions: [
-                {
-                  method_name: 'set_envelope',
-                  args: b64({ community_id: communityId, envelope_id: eid, name: null, active: false }),
-                  deposit: '0',
-                  gas: '50000000000000',
-                },
-              ],
-            },
-          },
-        },
-      },
-      bond
-    );
-    const closeProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-    await call(alice, daoId, 'act_proposal', { id: closeProp, action: 'VoteApprove' });
-    await call(bob, daoId, 'act_proposal', { id: closeProp, action: 'VoteApprove' });
-    await sleep(2000);
+    await submitAndPass(`Close envelope ${eid}`, 'set_envelope', {
+      community_id: communityId,
+      envelope_id: eid,
+      name: null,
+      active: false,
+    });
+    await waitUntil(async () => {
+      const c = await view(near, roda, 'get_community', { community_id: communityId });
+      return c && c.envelopes?.[eid] && !c.envelopes[eid].active ? true : null;
+    }, `envelope ${eid} closed`);
   }
 
-  await call(
-    alice,
-    daoId,
-    'add_proposal',
-    {
-      proposal: {
-        description: 'Dissolve community & unlock pro-rata surplus',
-        kind: {
-          FunctionCall: {
-            receiver_id: roda,
-            actions: [
-              {
-                method_name: 'dissolve_community',
-                args: b64({ community_id: communityId }),
-                deposit: '0',
-                gas: '50000000000000',
-              },
-            ],
-          },
-        },
-      },
-    },
-    bond
-  );
-  const dissProp = (await view(near, daoId, 'get_last_proposal_id')) - 1;
-  await call(alice, daoId, 'act_proposal', { id: dissProp, action: 'VoteApprove' });
-  await call(bob, daoId, 'act_proposal', { id: dissProp, action: 'VoteApprove' });
-  await sleep(3000);
+  await submitAndPass('Dissolve community & unlock pro-rata surplus', 'dissolve_community', {
+    community_id: communityId,
+  });
+  await waitUntil(async () => {
+    const c = await view(near, roda, 'get_community', { community_id: communityId });
+    return c && c.dissolved ? c : null;
+  }, 'community dissolved');
 
   const bobPreClaim = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
   await call(alice, roda, 'claim_surplus', { community_id: communityId });
   await call(bob, roda, 'claim_surplus', { community_id: communityId });
-  await sleep(4000);
-  const bobPostClaim = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
+  const bobPostClaim = await waitUntil(async () => {
+    const bal = BigInt(await view(near, token, 'ft_balance_of', { account_id: bobId }));
+    return bal - bobPreClaim === 5_000_000n ? bal : null;
+  }, 'Bob claimed 5 USDC surplus', 20000);
   const finalComm = await view(near, roda, 'get_community', { community_id: communityId });
   console.log('  Dissolved:', finalComm.dissolved, 'surplus claimed by Bob:', (bobPostClaim - bobPreClaim).toString());
   if (!finalComm.dissolved || bobPostClaim - bobPreClaim !== 5_000_000n) {

@@ -30,7 +30,7 @@
   - [Onchain Username Registry & Testnet Faucet](#onchain-username-registry--testnet-faucet)
 - [Monorepo Architecture](#monorepo-architecture)
 - [Smart Contract Specification](#smart-contract-specification)
-  - [Deployment Information](#deployment-information)
+  - [Deployed Program & Contract Addresses](#deployed-program--contract-addresses)
   - [Protocol Invariants & Rules](#protocol-invariants--rules)
   - [NEP-141 Token Transfer Messages](#nep-141-token-transfer-messages)
 - [Getting Started](#getting-started)
@@ -50,6 +50,8 @@
 **Roda** is a decentralized savings and community treasury platform built on **NEAR Protocol**. It combines rotating savings and credit associations (ROSCAs — known across Africa and the diaspora as *ajo*, *esusu*, or *adashe*), fixed-term personal USDC vaults, and a **Community Coordination Layer** powered by **Sputnik DAO** and **Trezu**.
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default and opaque bookkeeping while letting growing communities scale into full multi-sig DAOs with hard-capped budget envelopes, capital-weighted on-chain reputation, programmable rewards, and collective ownership shares.
+
+> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Test USDC**: [`usdc.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
 
 ---
 
@@ -150,13 +152,13 @@ roda-app/
 
 ## Smart Contract Specification
 
-### Deployment Information
+### Deployed Program & Contract Addresses
 
 | Parameter | Testnet Value | Mainnet Target |
 |:---|:---|:---|
 | **Network** | `testnet` | `mainnet` |
 | **RPC Endpoint** | `https://rpc.testnet.fastnear.com` | `https://rpc.mainnet.fastnear.com` |
-| **Roda Protocol Contract** | [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) | `roda.near` |
+| **Roda Protocol Program** | [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) | `roda.near` |
 | **Token Asset** | [`usdc.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) (`rUSDC`, 6 decimals) | `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1` (Native Circle USDC) |
 | **Sputnik DAO Factory** | [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet) | `sputnik-dao.near` |
 | **Protocol Admin** | [`dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) | Multi-sig / DAO Treasury |

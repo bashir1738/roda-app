@@ -6,6 +6,14 @@ The `mobile/` package is an Expo React Native client for the Roda NEAR contracts
 2. **Continue with email** — Magic OTP verification paired with encrypted device key storage and a one-time backup recovery flow.
 3. **Connect External NEAR Wallets** — Meteor Wallet, MyNearWallet, and HERE Wallet via secure in-app web auth sessions (`roda://wallet-callback`). Meteor users can upgrade between Roda-only and full-account key scope to sign Sputnik DAO and USDC `ft_transfer_call` transactions directly.
 
+## Deployed Program & Contract Addresses (NEAR Testnet)
+
+| Role | Account ID |
+| --- | --- |
+| **Roda Protocol Program** | `roda.dev-92ebb0b3c42c.testnet` |
+| **NEP-141 Test USDC (`rUSDC`)** | `usdc.dev-92ebb0b3c42c.testnet` |
+| **Sputnik DAO Factory** | `sputnikv2.testnet` |
+
 ## Development
 
 ```bash
@@ -20,7 +28,7 @@ Copy `.env.example` to `.env.local`:
 
 ```bash
 EXPO_PUBLIC_NEAR_NETWORK=testnet
-EXPO_PUBLIC_NEAR_RPC_URL=https://test.rpc.fastnear.com
+EXPO_PUBLIC_NEAR_RPC_URL=https://rpc.testnet.fastnear.com
 EXPO_PUBLIC_CONTRACT_ID=roda.dev-92ebb0b3c42c.testnet
 EXPO_PUBLIC_FT_ID=usdc.dev-92ebb0b3c42c.testnet
 EXPO_PUBLIC_SPUTNIK_FACTORY_ID=sputnikv2.testnet

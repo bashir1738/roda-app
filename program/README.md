@@ -9,11 +9,11 @@ The `program/` package contains the Roda protocol on **NEAR Protocol**:
 
 On mainnet, `Config.token_id` points at native Circle USDC (`17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`). On testnet it points at the Roda test token with a faucet.
 
-## Deployed Contract Addresses (NEAR Testnet)
+## Deployed Program & Contract Addresses (NEAR Testnet)
 
 | Role | Account ID | Explorer Link |
 | --- | --- | --- |
-| **Roda Protocol Contract** | `roda.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) |
+| **Roda Protocol Program** | `roda.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) |
 | **NEP-141 USDC Token** | `usdc.dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/usdc.dev-92ebb0b3c42c.testnet) |
 | **Protocol Admin** | `dev-92ebb0b3c42c.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/dev-92ebb0b3c42c.testnet) |
 | **Sputnik DAO Factory** | `sputnikv2.testnet` | [NearBlocks](https://testnet.nearblocks.io/address/sputnikv2.testnet) |

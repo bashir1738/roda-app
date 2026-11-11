@@ -53,6 +53,22 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+async function waitUntil(fn, description, timeoutMs = 15000, intervalMs = 1200) {
+  const deadline = Date.now() + timeoutMs;
+  let lastErr;
+  while (Date.now() < deadline) {
+    try {
+      const val = await fn();
+      if (val) return val;
+    } catch (e) {
+      lastErr = e;
+    }
+    await sleep(intervalMs);
+  }
+  if (lastErr) throw lastErr;
+  throw new Error(`Timed out waiting for: ${description}`);
+}
+
 function isTransientRpcError(err) {
   const code = err?.code || err?.cause?.code || '';
   const msg = String(err?.message || err || '');
@@ -156,21 +172,28 @@ async function main() {
     contribution_amount: contribution,
     frequency_secs: frequency,
   });
-  const afterCreate = await view(near, roda, 'get_circle', { circle_code: circleCode });
+  const afterCreate = await waitUntil(
+    () => view(near, roda, 'get_circle', { circle_code: circleCode }),
+    'circle created'
+  );
   console.log('  members:', afterCreate.members.length, 'status:', afterCreate.status);
 
   console.log('── 3. Bob joins ──');
   await call(bob, roda, 'join_circle', { circle_code: circleCode });
-  const afterJoin = await view(near, roda, 'get_circle', { circle_code: circleCode });
+  const afterJoin = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_circle', { circle_code: circleCode });
+    return c && c.members.length === 2 ? c : null;
+  }, 'Bob joined circle');
   console.log('  members:', afterJoin.members.length);
-  if (afterJoin.members.length !== 2) throw new Error('expected 2 members');
 
   console.log('── 4. Contribute via ft_transfer_call ──');
   await ftTransferCall(alice, token, roda, contribution, { type: 'contribute', circle: circleCode });
   await ftTransferCall(bob, token, roda, contribution, { type: 'contribute', circle: circleCode });
-  const afterPay = await view(near, roda, 'get_circle', { circle_code: circleCode });
+  const afterPay = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_circle', { circle_code: circleCode });
+    return c && c.paid_count === 2 ? c : null;
+  }, 'both contributed');
   console.log('  paid:', afterPay.paid_count, 'pool:', afterPay.pool_balance);
-  if (afterPay.paid_count !== 2) throw new Error('expected both paid');
 
   console.log('── 5. Wrong recipient claim rejected ──');
   try {
@@ -189,10 +212,11 @@ async function main() {
 
   console.log('── 7. Alice (round 0 recipient) claims ──');
   await call(alice, roda, 'claim_payout', { circle_code: circleCode });
-  await sleep(5000);
-  const afterPayout = await view(near, roda, 'get_circle', { circle_code: circleCode });
+  const afterPayout = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_circle', { circle_code: circleCode });
+    return c && c.pool_balance === 0 ? c : null;
+  }, 'round 0 payout finalized', 20000);
   console.log('  pool:', afterPayout.pool_balance, 'round:', afterPayout.current_round, 'paid:', afterPayout.paid_count);
-  if (afterPayout.pool_balance !== 0) throw new Error('pool should be 0');
 
   const adminBal = await view(near, token, 'ft_balance_of', { account_id: adminId });
   console.log('  admin FT balance:', adminBal);
@@ -202,15 +226,19 @@ async function main() {
   await ftTransferCall(bob, token, roda, contribution, { type: 'contribute', circle: circleCode });
   await sleep((frequency + 5) * 1000);
   await call(bob, roda, 'claim_payout', { circle_code: circleCode });
-  await sleep(5000);
-  const completed = await view(near, roda, 'get_circle', { circle_code: circleCode });
+  const completed = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_circle', { circle_code: circleCode });
+    return c && c.status === 'Completed' ? c : null;
+  }, 'circle completed', 20000);
   console.log('  status:', completed.status, 'pool:', completed.pool_balance);
-  if (completed.status !== 'Completed') throw new Error('circle should be Completed');
 
   console.log('── 9. Close circle ──');
   await call(alice, roda, 'close_circle', { circle_code: circleCode });
-  const gone = await view(near, roda, 'get_circle', { circle_code: circleCode });
-  console.log('  get_circle after close:', gone);
+  const gone = await waitUntil(async () => {
+    const c = await view(near, roda, 'get_circle', { circle_code: circleCode });
+    return c === null ? 'CLOSED' : null;
+  }, 'circle closed');
+  console.log('  get_circle after close:', gone === 'CLOSED' ? null : gone);
 
   console.log('\nSmoke test PASSED');
 }
