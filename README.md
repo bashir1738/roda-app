@@ -39,6 +39,7 @@
 - [Security Model](#security-model)
 - [Getting Started](#getting-started)
 - [Business Model & Roadmap](#business-model--roadmap)
+- [Hackathon Scope](#hackathon-scope)
 - [License](#license)
 
 ---
@@ -368,6 +369,17 @@ node scripts/smoke-testnet.js --alice <alice> --bob <bob>
 - **Phase 1 — Testnet Protocol & Mobile MVP (Live)**: Rust contract deployed at `roda.dev-92ebb0b3c42c.testnet`, Circle USDC settlement, 5-tier principal-only Solo Vaults, Rotating Circles with `min_reputation` gating, Sputnik DAO two-step linking, 12-envelope hard caps, capital-weighted reputation (`0–1000`), automated reward rules, collective shares + dissolution surplus claims, and Expo mobile client.
 - **Phase 2 — Mainnet Launch**: Smart contract audit, mainnet deployment on `roda.near` with native mainnet Circle USDC and `sputnik-dao.near`, handover of `Config.admin` via `set_admin` to a Multi-sig / DAO Treasury, live Trezu (mainnet only) treasury deep-links (`trezu.app/<dao>`), yield for Solo Vaults, and a pilot with real savings groups.
 - **Phase 3 — Ecosystem Expansion**: Cross-community reputation portability, automated late-payment recovery mechanics, and localized fiat on/off-ramp integrations for diaspora savings groups.
+
+---
+
+## Hackathon Scope
+
+I started building Roda in this repository at [`6e2b987`](https://github.com/bashir1738/roda-app/commit/6e2b987) (`2026-11-03`), and every commit in [`main`](https://github.com/bashir1738/roda-app/commits/main) from `2026-11-03` onward is NEAR Protocol work built after **19 October 2026**:
+
+- **NEAR Smart Contracts (`program/`, Rust / `near-sdk` 5.x)**: Full NEAR smart contract implementation covering rotating circles, solo vaults, NEP-141 Circle USDC (`ft_transfer_call`) settlement with atomic async rollback callbacks, on-chain usernames, and Borsh state upgrades (`migrate()`).
+- **NEAR-Native Community & Governance Layer (`program/src/community.rs`, `2026-11-11`)**: Standard `sputnikv2` DAO deployment and two-step linking (`confirm_link`), hard-capped budget envelopes (`<= 12`, `ExceedsEnvelope`), capital-weighted on-chain reputation (`0–1000`, `min_reputation` gating, `reputation_updated` NEP-297 events), automated payout reward rules, collective ownership shares (`grant_shares`), and pro-rata dissolution claims (`dissolve_community` / `claim_surplus`).
+- **Mobile Wallet & Client Integration (`mobile/`, `2026-11-05`–`2026-11-12`)**: Non-custodial NEAR Ed25519 key storage in `Expo SecureStore`, Magic OTP encrypted backup, Meteor / MyNearWallet / HERE Wallet integration, Circle USDC flows, and mobile Sputnik DAO proposal/voting/bounty/envelope/reputation UX (distributed via the testnet Android preview APK).
+- **Testnet Deployment & Showcase (`frontend/`, `program/scripts/`)**: Live contract deployment on `roda.dev-92ebb0b3c42c.testnet`, Circle USDC configuration, end-to-end smoke verification (`smoke-testnet.js`, `smoke-community.js`), and the Next.js landing page.
 
 ---
 
