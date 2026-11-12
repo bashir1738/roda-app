@@ -5,14 +5,13 @@ app for personal saving, rotating savings circles, community treasuries, and
 wallet activity. Its main navigation is **Home → Circles → Community → Save →
 Wallet**.
 
-The `mobile/` package is an Expo React Native client for the Roda NEAR contracts and Sputnik DAO + Trezu coordination layer. It reads views over NEAR JSON-RPC and signs transactions using one of the supported non-custodial wallet flows:
+The `mobile/` package is an Expo React Native client for the Roda NEAR contracts and Sputnik DAO + Trezu (mainnet only) coordination layer. It reads views over NEAR JSON-RPC and signs transactions using one of the supported non-custodial wallet flows:
 
 1. **Create an in-app wallet** — an Ed25519 NEAR keypair generated locally and persisted in `Expo SecureStore`.
 2. **Continue with email** — Magic OTP verification paired with encrypted device key storage and a one-time backup recovery flow.
 3. **Connect External NEAR Wallets** — Meteor Wallet, MyNearWallet, and HERE Wallet via secure in-app web auth sessions (`roda://wallet-callback`). Meteor users can upgrade between Roda-only and full-account key scope to sign Sputnik DAO and USDC `ft_transfer_call` transactions directly.
 
-For a product walkthrough, presenter script, APK bundling details, and demo
-limitations, see the [mobile demo guide](./DEMO_README.md).
+> **Android Preview APK (Testnet)**: [Download Roda Testnet APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) — bundles the app screens, contract logic, and testnet configuration (`roda.dev-92ebb0b3c42c.testnet`). See the [root README](../README.md) for verified testnet transactions and protocol overview.
 
 ## Deployed Program & Contract Addresses (NEAR Testnet)
 
@@ -49,7 +48,7 @@ EXPO_PUBLIC_MAGIC_PUBLISHABLE_KEY=
 - **Vaults**: `create_vault`, `withdraw`, `close_vault`, `ft_transfer_call` (`{"type":"deposit","vault_id":N}`)
 - **Circles**: `create_circle` (with optional `min_reputation` threshold), `join_circle`, `claim_payout`, `close_circle`, `ft_transfer_call` (`{"type":"contribute","circle":N}`)
 - **Community & Sputnik DAOs**: Deploy DAOs via `sputnikv2.testnet`, submit/vote on `add_proposal` / `act_proposal` (`FunctionCall`, `Transfer`, `Vote`, `AddBounty`, `BountyDone`), `confirm_link`, `allocate`, `community_spend`, `add_envelope`, `set_envelope`, and `ft_transfer_call` (`{"type":"budget_deposit","community":N,"envelope":M|null}`)
-- **Reputation, Rewards & Shares**: `get_reputation_breakdown`, `create_reward_rule`, `grant_shares`, `dissolve_community`, `claim_surplus`, plus Trezu deep-linking (`trezu.app/<dao>`)
+- **Reputation, Rewards & Shares**: `get_reputation_breakdown`, `create_reward_rule`, `grant_shares`, `dissolve_community`, `claim_surplus`, plus Trezu (mainnet only) deep-linking (`trezu.app/<dao>`)
 - **Names & Activity**: `claim_name`, `release_name`, `get_activity`
 
 The mobile app uses Circle's official NEAR testnet USDC contract. Testnet tokens

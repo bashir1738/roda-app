@@ -49,7 +49,7 @@
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default and opaque bookkeeping while letting growing communities scale into full multi-sig DAOs with hard-capped budget envelopes, capital-weighted on-chain reputation, programmable rewards, and collective ownership shares.
 
-> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC (testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
+> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC (testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
 
 ---
 
@@ -133,6 +133,7 @@ Verify the deployed contract, view state, and local test suite in under two minu
    npx tsc --noEmit
    ```
 4. **Verify live on-chain receipts**: Click any transaction hash in [Live on Testnet](#live-on-testnet) to inspect NEP-297 `EVENT_JSON` logs (`ContributionMade`, `reputation_updated`, `envelope_spend`, `shares_minted`, `reward_rule_created`).
+5. **Install the Android preview APK**: [Download Roda Testnet APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk).
 
 ---
 
@@ -207,10 +208,10 @@ Lock funds for disciplined personal saving across five tiers:
 ### Mobile Demo Experience
 - The mobile app is the primary interactive client for wallets, circles, vaults, communities, proposals, votes, envelopes, reputation, rewards, shares, and transaction history.
 - The tab order is **Home → Circles → Community → Save → Wallet**.
-- The Android preview build bundles the app screens, contract method logic, public contract/network configuration, fonts, icons, and local artwork.
+- **Android APK Download**: [Download Preview APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) — the Android preview build bundles the app screens, contract method logic, public contract/network configuration, fonts, icons, and local artwork.
 - Runtime access still requires NEAR RPC, deployed contracts, wallet providers, and network connectivity.
 - The demo uses Circle-issued USDC on NEAR testnet. Testnet assets have no financial value, and the Roda faucet is disabled because Roda cannot mint Circle-issued USDC.
-- See the [mobile demo guide](./mobile/DEMO_README.md) for a presenter walkthrough, funding requirements, APK behavior, and known limitations.
+- See the [mobile package guide](./mobile/README.md) for environment setup, contract calls, and module structure.
 
 ---
 
