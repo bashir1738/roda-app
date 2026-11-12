@@ -19,18 +19,27 @@ npm run build
 npm run dev
 ```
 
-If development startup reports `Watchpack Error: EMFILE`, make sure the
-command is run from `frontend/`. The project scopes Turbopack to that directory
-and uses polling for webpack development mode, so it does not consume one
-native Linux watcher per workspace path. If a stale development process is
-still running, stop it and start again:
+`npm run dev` starts the Next.js server with `WATCHPACK_POLLING=1000` by default
+(via `scripts/dev.mjs`) so internal file watching does not hit Linux
+`inotify` instance limits (`Watchpack Error: EMFILE`). Override the interval if
+needed (`WATCHPACK_POLLING=500 npm run dev`), or pass `WATCHPACK_POLLING=1000`
+when invoking `npx next dev` directly:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Do not start the frontend from `/home/bash` or another parent directory.
+If Next reports `Another next dev server is already running`, stop the process
+shown in the message:
+
+```bash
+kill <pid>
+```
+
+The custom launcher removes a stale `.next/dev/lock` automatically when its
+PID is no longer a live Next process for this frontend. It never removes the
+lock for a matching live process.
 
 Public configuration template in `.env.example`:
 

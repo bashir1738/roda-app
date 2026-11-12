@@ -19,6 +19,9 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Ecosystem & Track Fit](#ecosystem--track-fit)
+- [Trust Unlocks More](#trust-unlocks-more)
+- [Live on Testnet](#live-on-testnet)
 - [The Problem & The Solution](#the-problem--the-solution)
 - [Core Features](#core-features)
   - [Rotating Savings Circles (Ajo / Esusu)](#rotating-savings-circles-ajo--esusu)
@@ -56,6 +59,50 @@ By replacing human middlemen with deterministic smart contracts, Roda eliminates
 
 ---
 
+## Ecosystem & Track Fit
+
+| Integration / Track | How Roda Uses It |
+|:---|:---|
+| **NEAR Protocol** | Rust / `near-sdk` 5.x smart contracts powering deterministic circle custody, solo vaults, community escrow, on-chain reputation, rewards, and NEP-297 events. |
+| **Circle USDC** | Native NEP-141 stablecoin settlement via `ft_transfer_call` (`contribute`, `deposit`, `budget_deposit`) with fail-safe async payout rollbacks. |
+| **Sputnik DAO** | Standard `sputnikv2` multi-sig governance for community creation, proposals, voting, native bounties, and strict `dao_id` predecessor authorization on community spends. |
+| **Trezu** | Every Roda community is a standard Sputnik DAO from the official factory, the same kind Trezu manages. On mainnet, the community’s DAO opens in Trezu (`trezu.app/<dao>`); on testnet, Trezu’s hosted app isn’t available, so the link is mainnet-only. |
+
+---
+
+## Trust Unlocks More
+
+Reputation in Roda is earned, not bought. Every on-time circle contribution, completed circle, matured vault and community deposit raises your on-chain score (0–1000), weighted by real money at risk, so empty accounts score 0.
+
+That trust unlocks access:
+- Circles can require a minimum score (`create_circle({ min_reputation })`). Low-reputation accounts are refused with `InsufficientReputation`.
+- Communities reward reliable members through reward rules and shares.
+- Every change is public, emitted as `reputation_updated` events.
+
+New members start small, prove themselves, and earn their way into bigger circles.
+
+---
+
+## Live on Testnet
+
+Verified transactions handled by [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) on NEAR Testnet:
+
+| Flow | Contract Call / Receipt | Explorer Link |
+|:---|:---|:---|
+| **Create circle (Circle USDC)** | `create_circle` | [`EcKftJQVGw...pyfY3p`](https://testnet.nearblocks.io/txns/EcKftJQVGwUWs4u7ZkAKiQvXNSqzJNpzXMygrZpyfY3p) |
+| **Join circle** | `join_circle` | [`8QgsLGeH6o...UjS4FR`](https://testnet.nearblocks.io/txns/8QgsLGeH6om1XjEeCpsFepAgp2wSpyQTMASGZAUjS4FR) |
+| **Contribute to circle (+ reputation)** | `ft_transfer_call` (`contribute`) | [`HsbnszKRkC...9vaKs8`](https://testnet.nearblocks.io/txns/HsbnszKRkCnr9jLPThk8J7mS4FDx9CNx1h1mGC9vaKs8) |
+| **Claim circle payout** | `claim_payout` | [`Ch6YdRWGNa...DdbaB4w`](https://testnet.nearblocks.io/txns/Ch6YdRWGNaQPfBXLYLk9MDyvFqvTyVkE89vocDdbaB4w) |
+| **Create solo vault** | `create_vault` | [`J3LbETEbJQ...1TE8bU`](https://testnet.nearblocks.io/txns/J3LbETEbJQEpjKaRZJCm9PYcnV2qwdcSE95uKi1TE8bU) |
+| **Create community** | `create_community` | [`GXbXNfhbGa...CEQ2yZ`](https://testnet.nearblocks.io/txns/GXbXNfhbGamJS3pGoVevKhtvPiGa1hRv1tUAAcCEQ2yZ) |
+| **Link Sputnik DAO (DAO approved)** | `act_proposal` -> `confirm_link` | [`CkJaEMCS8P...rBdjh`](https://testnet.nearblocks.io/txns/CkJaEMCS8PTocgWVuJ6Rb4App1tDJd6AdvDX2NdrBdjh) |
+| **Community budget deposit (+ shares & reputation)** | `ft_transfer_call` (`budget_deposit`) | [`8HS5UVWc3y...QXDYBj`](https://testnet.nearblocks.io/txns/8HS5UVWc3yvZGSmQapnZ6MoNPu8hNUM89TMB8eQXDYBj) |
+| **Approved community spend (DAO approved)** | `act_proposal` -> `community_spend` | [`F4Chz96XZQ...mqSbqy`](https://testnet.nearblocks.io/txns/F4Chz96XZQ18N9hnvLxC9yPqG2wuR7wJeF4K4fmqSbqy) |
+| **Create reward rule (DAO approved)** | `act_proposal` -> `create_reward_rule` | [`D5iGyYsz9u...N3zLUV`](https://testnet.nearblocks.io/txns/D5iGyYsz9ubcFYRzXh2js7tiV2HgtaUpJbkP9CN3zLUV) |
+| **Grant community shares (DAO approved)** | `act_proposal` -> `grant_shares` | [`283fkej3vb...DhKK3`](https://testnet.nearblocks.io/txns/283fkej3vbVVZWWdhyUUTkvVHTeXeBj1T3rMyT1DhKK3) |
+
+---
+
 ## The Problem & The Solution
 
 Traditional rotating savings clubs and community pots suffer from structural vulnerabilities:
@@ -66,7 +113,7 @@ Traditional rotating savings clubs and community pots suffer from structural vul
 
 **How Roda Fixes This**:
 - **Trustless Circle & Vault Custody**: Roda smart contracts custody circle pools and solo vaults deterministically; no admin can withdraw or redirect user funds.
-- **Sputnik DAO + Trezu Split Custody**: Community operations stay inside standard Sputnik DAOs (managed natively in mobile and deep-linked to `trezu.app/<dao>`), while earmarked budgets sit in Roda escrow envelopes enforced with hard spending limits.
+- **Sputnik DAO + Trezu Compatibility**: Community operations stay inside standard Sputnik DAOs from the official factory (managed natively in mobile, and compatible with Trezu on mainnet at `trezu.app/<dao>`), while earmarked budgets sit in Roda escrow envelopes enforced with hard spending limits.
 - **Capital-Weighted Reputation**: On-chain activity scores real USDC reliability and tenure (0–1000) to gate high-trust circles without centralized credit bureaus.
 
 ---
@@ -105,13 +152,13 @@ Lock funds for disciplined personal saving across five tiers:
 │  Transfer · Call ·       │     │  On-Chain Reputation (0–1000)│
 │  Bounties [NEAR + USDC]  │     │  Reward Rules & Shares       │
 └──────────┬───────────────┘     └──────────────────────────────┘
-           │ deep-link
+           │ deep-link (mainnet)
            ▼
      trezu.app/<dao>   (bulk pay, swaps, confidential, exports)
 ```
 - **Deploy or Link Any Sputnik DAO**: Launch a new DAO via `sputnikv2.testnet` right inside the mobile wizard (or link an existing DAO), then execute `confirm_link` via DAO proposal.
 - **Hard-Capped Budget Envelopes**: Allocate pooled escrow into up to 12 labeled envelopes (`Grants`, `Ops`, `Events`, etc.). Disbursements require a DAO `FunctionCall` proposal executing `community_spend`, which atomically rejects any spend exceeding remaining envelope allocation.
-- **Trezu Deep-Linking**: Jump directly to `trezu.app/<dao>` from any community dashboard for batch payments, token swaps, and treasury exports.
+- **Trezu Compatibility (Mainnet-Only Link)**: Every Roda community DAO is a standard Sputnik DAO from the official factory — the same kind Trezu manages. On mainnet, the community’s DAO opens in Trezu (`trezu.app/<dao>`) for batch payments, token swaps, and treasury exports; on testnet, Trezu’s hosted app isn’t available.
 
 ### On-Chain Reputation & Trust Gating
 - **0–1000 Score**: Lazily updated inside Roda transactions from on-time circle contributions, completed circles, matured vault withdrawals, community escrow deposits, and account tenure (minus late penalties).
