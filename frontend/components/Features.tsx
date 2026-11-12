@@ -27,7 +27,7 @@ const FEATURES: {
   {
     icon: WalletIcon,
     title: "Hard-capped DAO budgets",
-    body: "Back community treasuries with Sputnik DAO + Trezu. Escrow envelopes cannot be overspent — only council Call proposals unlock funds.",
+    body: "Back community treasuries with Sputnik DAO + Trezu (mainnet only). Escrow envelopes cannot be overspent — only council Call proposals unlock funds.",
   },
   {
     icon: GlobeIcon,

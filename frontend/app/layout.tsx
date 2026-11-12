@@ -19,7 +19,7 @@ const syne = Syne({
 export const metadata: Metadata = {
   title: "Roda — Save together. Coordinate onchain.",
   description:
-    "Roda unites rotating savings circles, personal USDC vaults, and Sputnik DAO community treasuries with Trezu integration, budget envelopes, and on-chain reputation on NEAR Protocol.",
+    "Roda unites rotating savings circles, personal USDC vaults, and Sputnik DAO community treasuries with Trezu (mainnet only) compatibility, budget envelopes, and on-chain reputation on NEAR Protocol.",
 };
 
 import { CookiesNotification } from "../components/CookiesNotification";

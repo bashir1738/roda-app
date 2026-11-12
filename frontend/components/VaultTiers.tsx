@@ -76,7 +76,7 @@ export function VaultTiers() {
                   ✓ Zero Middleman Fees
                 </span>
                 <span className="inline-flex items-center gap-1.5 border-2 border-charcoal bg-[#9BE7B2] px-3 py-1 text-[12px] font-bold text-charcoal">
-                  ✓ Fixed Yield Protocol
+                  ✓ Yield: Planned for Mainnet
                 </span>
                 <span className="inline-flex items-center gap-1.5 border-2 border-charcoal bg-blush px-3 py-1 text-[12px] font-bold text-charcoal">
                   ✓ Withdraw Anytime on Flex

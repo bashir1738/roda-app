@@ -4,7 +4,10 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const projectRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
-const devLockPath = path.join(projectRoot, '.next', 'dev', 'lock');
+const devDirPath = path.join(projectRoot, '.next', 'dev');
+const devLockPath = path.join(devDirPath, 'lock');
+
+process.chdir(projectRoot);
 
 function isFrontendNextProcess(pid) {
   try {
@@ -36,8 +39,8 @@ if (fs.existsSync(devLockPath)) {
     process.exit(1);
   }
 
-  fs.rmSync(devLockPath);
-  console.log(`Removed stale Next development lock for PID ${lock.pid ?? 'unknown'}.`);
+  fs.rmSync(devDirPath, { recursive: true, force: true });
+  console.log(`Removed stale Next development state for PID ${lock.pid ?? 'unknown'}.`);
 }
 
 // Linux hosts with low fs.inotify.max_user_instances (e.g. 128) hit EMFILE in
@@ -55,6 +58,12 @@ if (!binRel) {
   throw new Error('Could not locate Next.js CLI binary in node_modules/next/package.json');
 }
 
+const extraArgs = process.argv.slice(2);
+const usesExplicitBundler = extraArgs.some(
+  (arg) => arg === '--webpack' || arg === '--turbopack' || arg === '--turbo',
+);
+const bundlerArgs = usesExplicitBundler ? [] : ['--webpack'];
+
 const nextBin = path.resolve(path.dirname(nextPkgPath), binRel);
-process.argv = [process.argv[0], nextBin, 'dev', ...process.argv.slice(2)];
+process.argv = [process.argv[0], nextBin, 'dev', ...bundlerArgs, ...extraArgs];
 await import(pathToFileURL(nextBin).href);

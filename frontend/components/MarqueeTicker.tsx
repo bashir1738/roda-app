@@ -1,7 +1,7 @@
 const TICKER_ITEMS = [
   "No account or maintenance fees",
   "Automated rotating payouts",
-  "Sputnik DAO + Trezu ready",
+  "Sputnik DAO + Trezu (mainnet only)",
   "Hard-capped budget envelopes",
   "Capital-weighted reputation",
   "One flat 0.3% payout fee",

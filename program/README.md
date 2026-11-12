@@ -33,8 +33,8 @@ legacy migrations, but it is not the active settlement asset.
 - Vault withdrawals debit balance immediately and restore on failed `ft_transfer`.
 - Username claims are lowercase `[a-z0-9_]`, length 3–20, 24h cooldown.
 
-### Community Coordination Layer (Sputnik DAO + Trezu)
-- **Split Custody**: Each community anchors to a Sputnik DAO (`<name>.sputnikv2.testnet` / `*.sputnik-dao.near`). Day-to-day ops treasury (`NEAR` + `USDC`) lives directly on the DAO (Trezu-visible); budgeted USDC funds live inside Roda escrow (`pool_unallocated` + up to `MAX_ENVELOPES = 12` envelopes).
+### Community Coordination Layer (Sputnik DAO + Trezu (mainnet only))
+- **Split Custody**: Each community anchors to a Sputnik DAO (`<name>.sputnikv2.testnet` / `*.sputnik-dao.near`). Day-to-day ops treasury (`NEAR` + `USDC`) lives directly on the DAO (compatible with Trezu (mainnet only)); budgeted USDC funds live inside Roda escrow (`pool_unallocated` + up to `MAX_ENVELOPES = 12` envelopes).
 - **Two-Step Link Consent**: `create_community` stages a community with `linked = false`; only a Sputnik `FunctionCall` proposal executed by `predecessor == dao_id` invoking `confirm_link` transitions `linked = true`.
 - **Budget Deposits**: Members fund escrow via `ft_transfer_call` with `msg = {"type":"budget_deposit","community":N,"envelope":M|null}`. Deposits bump reputation (`community_volume`) and mint collective ownership shares (`1 micro-USDC = 1 share`).
 - **Hard Envelope Ceilings & Rollback**: `allocate`/`community_allocate`, `spend`/`community_spend`, `add_envelope`, `set_envelope`, `create_reward_rule`, `toggle_reward_rule`, `grant_shares`, and `dissolve_community` all require `predecessor == community.dao_id`. Envelopes enforce `spent + amount <= allocated` and debit optimistically with atomic rollback in `on_spend` / `on_reward_transfer`.

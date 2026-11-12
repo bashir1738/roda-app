@@ -1,6 +1,6 @@
 # Roda frontend
 
-The `frontend/` package is the Next.js 16 public landing page and product showcase for Roda. The product is delivered primarily through the bundled mobile app, whose five-tab experience is **Home, Circles, Community, Save, and Wallet**. The web frontend explains Circles, Solo Vaults, and Sputnik DAO + Trezu Community Coordination; it does not hold wallet secrets or submit contract calls, because transaction flows live in the mobile client.
+The `frontend/` package is the Next.js 16 public landing page and product showcase for Roda. The product is delivered primarily through the bundled mobile app, whose five-tab experience is **Home, Circles, Community, Save, and Wallet**. The web frontend explains Circles, Solo Vaults, and Sputnik DAO + Trezu (mainnet only) Community Coordination; it does not hold wallet secrets or submit contract calls, because transaction flows live in the mobile client.
 
 ## Deployed Program & Contract Addresses (NEAR Testnet)
 

@@ -4,7 +4,7 @@ import { AppPreview } from "./AppPreview";
 
 const HIGHLIGHTS = [
   "Automated circle payouts",
-  "Sputnik DAO + Trezu treasuries",
+  "Sputnik DAO + Trezu (mainnet only) treasuries",
   "On-chain reputation & shares",
 ];
 
@@ -31,7 +31,7 @@ export function Hero() {
 
           <p className="mt-6 max-w-md border-l-4 border-[#00C08B] pl-4 text-[16px] leading-relaxed text-muted sm:text-lg">
             Roda unites rotating savings circles, personal vaults, and Sputnik DAO
-            community treasuries with Trezu integration, budget envelopes, and
+            community treasuries with Trezu (mainnet only) compatibility, budget envelopes, and
             on-chain reputation — all under your own keys.
           </p>
 
