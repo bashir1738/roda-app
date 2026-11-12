@@ -8,7 +8,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/NEAR-Testnet-00C08B?style=flat-square&logo=near" alt="NEAR Testnet" />
   <img src="https://img.shields.io/badge/Contracts-Rust_%2F_near--sdk_5.x-DEA584?style=flat-square&logo=rust" alt="Rust Contracts" />
-  <img src="https://img.shields.io/badge/Governance-Sputnik_DAO_%2B_Trezu-111111?style=flat-square" alt="Sputnik DAO and Trezu" />
+  <img src="https://img.shields.io/badge/Governance-Sputnik_DAO_%2B_Trezu_(mainnet_only)-111111?style=flat-square" alt="Sputnik DAO and Trezu (mainnet only)" />
   <img src="https://img.shields.io/badge/Mobile-Expo_%2F_React_Native-4630EB?style=flat-square&logo=expo" alt="Mobile Expo" />
   <img src="https://img.shields.io/badge/Frontend-Next.js_16-black?style=flat-square&logo=next.js" alt="Next.js Frontend" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License" />
@@ -19,32 +19,26 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Ecosystem & Track Fit](#ecosystem--track-fit)
-- [Trust Unlocks More](#trust-unlocks-more)
-- [Live on Testnet](#live-on-testnet)
 - [The Problem & The Solution](#the-problem--the-solution)
+- [Why Roda Is Different](#why-roda-is-different)
+- [Ecosystem & Track Fit](#ecosystem--track-fit)
+- [Live on Testnet](#live-on-testnet)
+- [Quick Check](#quick-check)
 - [Core Features](#core-features)
   - [Rotating Savings Circles (Ajo / Esusu)](#rotating-savings-circles-ajo--esusu)
+  - [Trust Unlocks More](#trust-unlocks-more)
   - [Solo Savings Vaults](#solo-savings-vaults)
-  - [Community Coordination Layer (Sputnik DAO + Trezu)](#community-coordination-layer-sputnik-dao--trezu)
-  - [On-Chain Reputation & Trust Gating](#on-chain-reputation--trust-gating)
+  - [Community Coordination Layer (Sputnik DAO + Trezu (mainnet only))](#community-coordination-layer-sputnik-dao--trezu-mainnet-only)
   - [Bounties, Programmable Rewards & Collective Ownership](#bounties-programmable-rewards--collective-ownership)
   - [Non-Custodial Multi-Wallet Engine](#non-custodial-multi-wallet-engine)
   - [Onchain Username Registry](#onchain-username-registry)
   - [Mobile Demo Experience](#mobile-demo-experience)
 - [Monorepo Architecture](#monorepo-architecture)
 - [Smart Contract Specification](#smart-contract-specification)
-  - [Deployed Program & Contract Addresses](#deployed-program--contract-addresses)
-  - [Protocol Invariants & Rules](#protocol-invariants--rules)
-  - [NEP-141 Token Transfer Messages](#nep-141-token-transfer-messages)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Environment Setup](#environment-setup)
-  - [Running the Mobile App](#running-the-mobile-app)
-  - [Running the Web Frontend](#running-the-web-frontend)
-  - [Building and Testing Smart Contracts](#building-and-testing-smart-contracts)
 - [Directory Structure](#directory-structure)
 - [Security Model](#security-model)
+- [Getting Started](#getting-started)
+- [Business Model & Roadmap](#business-model--roadmap)
 - [License](#license)
 
 ---
@@ -59,6 +53,33 @@ By replacing human middlemen with deterministic smart contracts, Roda eliminates
 
 ---
 
+## The Problem & The Solution
+
+Traditional rotating savings clubs and community pots suffer from structural vulnerabilities:
+1. **Organizer Risk**: Group organizers can disappear with pooled cash or manipulate payout orders.
+2. **Default / Drop-out**: Members receive early payouts and stop contributing to subsequent rounds without consequence.
+3. **Unchecked Treasury Spends**: Even with a multi-sig, treasuries lack hard program/project spending caps and automated circle incentives.
+4. **No Portable Trust**: Savers who consistently honor commitments earn zero portable proof of creditworthiness.
+
+**How Roda Fixes This**:
+- **Trustless Circle & Vault Custody**: Roda smart contracts custody circle pools and solo vaults deterministically; no admin can withdraw or redirect user funds.
+- **Sputnik DAO + Trezu (mainnet only) Compatibility**: Community operations stay inside standard Sputnik DAOs from the official factory (managed natively in mobile, and compatible with Trezu (mainnet only) at `trezu.app/<dao>`), while earmarked budgets sit in Roda escrow envelopes enforced with hard spending limits.
+- **Capital-Weighted Reputation**: On-chain activity scores real USDC reliability and tenure (0–1000) to gate high-trust circles without centralized credit bureaus.
+
+---
+
+## Why Roda Is Different
+
+Most savings apps stop at either informal group tracking or basic multi-sig wallets. Roda connects both in one mobile-first protocol:
+
+- **ROSCA + DAO Split Custody**: Informal *ajo* / *esusu* apps rely on custodian trust, while generic DAOs lack structured recurring savings schedules and spend ceilings. Roda pairs deterministic circle custody with standard `sputnikv2` governance and hard-capped escrow envelopes (`ExceedsEnvelope`).
+- **Capital-Weighted, Sybil-Resistant Reputation**: Unlike social or point-farming scores, Roda's `0–1000` reputation derives strictly from verified USDC capital at risk (on-time circle contributions, completed circles, matured vault withdrawals, and community deposits) plus calendar tenure. Empty accounts always score `0`.
+- **Programmable Rewards & Pro-Rata Collective Ownership**: DAOs can attach automated USDC reward rules to circle milestones (`CircleRoundCompleted` / `Streak`), mint `1 micro-USDC = 1 share` on budget deposits, grant merit shares (`grant_shares`), and guarantee exact pro-rata `claim_surplus` rights on dissolution.
+- **Atomic Async Rollbacks**: Every outbound `ft_transfer` uses NEAR promise callbacks (`on_withdraw`, `on_payout`, `on_spend`, `on_reward_transfer`, `on_claim_surplus`) so failed token transfers cleanly restore balances and flags without stuck funds.
+- **Non-Custodial Multi-Wallet Onboarding**: Users can start in seconds with a local `Expo SecureStore` keypair or Magic Email OTP (with backup recovery) or connect Meteor, MyNearWallet, or HERE Wallet.
+
+---
+
 ## Ecosystem & Track Fit
 
 | Integration / Track | How Roda Uses It |
@@ -66,20 +87,7 @@ By replacing human middlemen with deterministic smart contracts, Roda eliminates
 | **NEAR Protocol** | Rust / `near-sdk` 5.x smart contracts powering deterministic circle custody, solo vaults, community escrow, on-chain reputation, rewards, and NEP-297 events. |
 | **Circle USDC** | Native NEP-141 stablecoin settlement via `ft_transfer_call` (`contribute`, `deposit`, `budget_deposit`) with fail-safe async payout rollbacks. |
 | **Sputnik DAO** | Standard `sputnikv2` multi-sig governance for community creation, proposals, voting, native bounties, and strict `dao_id` predecessor authorization on community spends. |
-| **Trezu** | Every Roda community is a standard Sputnik DAO from the official factory, the same kind Trezu manages. On mainnet, the community’s DAO opens in Trezu (`trezu.app/<dao>`); on testnet, Trezu’s hosted app isn’t available, so the link is mainnet-only. |
-
----
-
-## Trust Unlocks More
-
-Reputation in Roda is earned, not bought. Every on-time circle contribution, completed circle, matured vault and community deposit raises your on-chain score (0–1000), weighted by real money at risk, so empty accounts score 0.
-
-That trust unlocks access:
-- Circles can require a minimum score (`create_circle({ min_reputation })`). Low-reputation accounts are refused with `InsufficientReputation`.
-- Communities reward reliable members through reward rules and shares.
-- Every change is public, emitted as `reputation_updated` events.
-
-New members start small, prove themselves, and earn their way into bigger circles.
+| **Trezu (mainnet only)** | Every Roda community is a standard Sputnik DAO from the official factory, the same kind Trezu (mainnet only) manages. On mainnet, the community’s DAO opens in Trezu (mainnet only) (`trezu.app/<dao>`); on testnet, the hosted Trezu (mainnet only) app isn’t available, so the link is mainnet-only. |
 
 ---
 
@@ -103,18 +111,28 @@ Verified transactions handled by [`roda.dev-92ebb0b3c42c.testnet`](https://testn
 
 ---
 
-## The Problem & The Solution
+## Quick Check
 
-Traditional rotating savings clubs and community pots suffer from structural vulnerabilities:
-1. **Organizer Risk**: Group organizers can disappear with pooled cash or manipulate payout orders.
-2. **Default / Drop-out**: Members receive early payouts and stop contributing to subsequent rounds without consequence.
-3. **Unchecked Treasury Spends**: Even with a multi-sig, treasuries lack hard program/project spending caps and automated circle incentives.
-4. **No Portable Trust**: Savers who consistently honor commitments earn zero portable proof of creditworthiness.
+Verify the deployed contract, view state, and local test suite in under two minutes:
 
-**How Roda Fixes This**:
-- **Trustless Circle & Vault Custody**: Roda smart contracts custody circle pools and solo vaults deterministically; no admin can withdraw or redirect user funds.
-- **Sputnik DAO + Trezu Compatibility**: Community operations stay inside standard Sputnik DAOs from the official factory (managed natively in mobile, and compatible with Trezu on mainnet at `trezu.app/<dao>`), while earmarked budgets sit in Roda escrow envelopes enforced with hard spending limits.
-- **Capital-Weighted Reputation**: On-chain activity scores real USDC reliability and tenure (0–1000) to gate high-trust circles without centralized credit bureaus.
+1. **Inspect live testnet config via NEAR RPC** (returns `token_id` pointing at Circle USDC testnet and `faucet_enabled: false`):
+   ```bash
+   curl -s https://rpc.testnet.fastnear.com -H 'Content-Type: application/json' -d '{
+     "jsonrpc":"2.0","id":"1","method":"query",
+     "params":{"request_type":"call_function","finality":"final","account_id":"roda.dev-92ebb0b3c42c.testnet","method_name":"get_config","args_base64":"e30="}
+   }'
+   ```
+2. **Run contract unit tests & off-chain invariant math**:
+   ```bash
+   cd program
+   npm test
+   ```
+3. **Type-check the mobile client**:
+   ```bash
+   cd mobile
+   npx tsc --noEmit
+   ```
+4. **Verify live on-chain receipts**: Click any transaction hash in [Live on Testnet](#live-on-testnet) to inspect NEP-297 `EVENT_JSON` logs (`ContributionMade`, `reputation_updated`, `envelope_spend`, `shares_minted`, `reward_rule_created`).
 
 ---
 
@@ -125,8 +143,21 @@ Traditional rotating savings clubs and community pots suffer from structural vul
 - **Join via Code**: Members inspect reputation requirements and join directly from mobile.
 - **Round Contributions & Payouts**: Contributions settle via `ft_transfer_call`. Once every member pays and the round interval elapses, the designated recipient claims the pool (with a flat 0.3% protocol fee and automatic reward rule evaluation).
 
+### Trust Unlocks More
+
+Reputation in Roda is earned, not bought. Every on-time circle contribution, completed circle, matured vault and community deposit raises your on-chain score (0–1000), weighted by real money at risk, so empty accounts score 0.
+
+That trust unlocks access:
+- Circles can require a minimum score (`create_circle({ min_reputation })`). Low-reputation accounts are refused with `InsufficientReputation`.
+- Communities reward reliable members through reward rules and shares.
+- Every change is public, emitted as `reputation_updated` events.
+
+New members start small, prove themselves, and earn their way into bigger circles.
+
 ### Solo Savings Vaults
 Lock funds for disciplined personal saving across five tiers:
+
+> **Yield: planned for mainnet.** On NEAR Testnet, solo vaults enforce deterministic lock durations and principal-only custody (`withdraw` returns deposited USDC 1:1 while building on-chain reputation); yield integrations are planned for mainnet.
 
 | Tier | Name | Lock Period | Minimum | Description |
 |:---:|:---|:---:|:---:|:---|
@@ -136,12 +167,12 @@ Lock funds for disciplined personal saving across five tiers:
 | **3** | **6-Month Solo** | 182 days | $100 USDC | Mid-term cushion with a six-month commitment. |
 | **4** | **1-Year Solo** | 365 days | $250 USDC | Long-term milestone vault. |
 
-### Community Coordination Layer (Sputnik DAO + Trezu)
+### Community Coordination Layer (Sputnik DAO + Trezu (mainnet only))
 ```text
 ┌───────────────────────────────────────────────────────────┐
 │ mobile (Expo)                                             │
 │  Community tab: create DAO · envelopes · propose · vote   │
-│  lib/sputnik.ts (view + tx) · lib/trezu.ts (deep-links)   │
+│  lib/sputnik.ts (view + tx) · lib/trezu.ts (mainnet only) │
 └──────────────┬────────────────────────────┬───────────────┘
                │ add_proposal / act_proposal│ community_* / budget_deposit
                ▼                            ▼
@@ -152,18 +183,13 @@ Lock funds for disciplined personal saving across five tiers:
 │  Transfer · Call ·       │     │  On-Chain Reputation (0–1000)│
 │  Bounties [NEAR + USDC]  │     │  Reward Rules & Shares       │
 └──────────┬───────────────┘     └──────────────────────────────┘
-           │ deep-link (mainnet)
+           │ Trezu (mainnet only) deep-link
            ▼
-     trezu.app/<dao>   (bulk pay, swaps, confidential, exports)
+     trezu.app/<dao>   (Trezu (mainnet only): bulk pay, swaps, confidential, exports)
 ```
 - **Deploy or Link Any Sputnik DAO**: Launch a new DAO via `sputnikv2.testnet` right inside the mobile wizard (or link an existing DAO), then execute `confirm_link` via DAO proposal.
 - **Hard-Capped Budget Envelopes**: Allocate pooled escrow into up to 12 labeled envelopes (`Grants`, `Ops`, `Events`, etc.). Disbursements require a DAO `FunctionCall` proposal executing `community_spend`, which atomically rejects any spend exceeding remaining envelope allocation.
-- **Trezu Compatibility (Mainnet-Only Link)**: Every Roda community DAO is a standard Sputnik DAO from the official factory — the same kind Trezu manages. On mainnet, the community’s DAO opens in Trezu (`trezu.app/<dao>`) for batch payments, token swaps, and treasury exports; on testnet, Trezu’s hosted app isn’t available.
-
-### On-Chain Reputation & Trust Gating
-- **0–1000 Score**: Lazily updated inside Roda transactions from on-time circle contributions, completed circles, matured vault withdrawals, community escrow deposits, and account tenure (minus late penalties).
-- **Sybil Resistance**: Score derives strictly from verifiable USDC capital at risk and calendar time — spawning empty accounts yields `0` reputation.
-- **Threshold Gates**: Enforce minimum reputation scores on high-trust circles (`create_circle` / `join_circle`) and optionally on community creation or DAO share grants.
+- **Trezu (mainnet only) Compatibility**: Every Roda community DAO is a standard Sputnik DAO from the official factory — the same kind Trezu (mainnet only) manages. On mainnet, the community’s DAO opens in Trezu (mainnet only) (`trezu.app/<dao>`) for batch payments, token swaps, and treasury exports; on testnet, the hosted Trezu (mainnet only) app isn’t available.
 
 ### Bounties, Programmable Rewards & Collective Ownership
 - **Sputnik Native Bounties**: Create, claim, submit (`BountyDone`), and approve DAO bounties directly from mobile.
@@ -200,7 +226,7 @@ roda-app/
 | Package | Stack | Purpose |
 |:---|:---|:---|
 | [`program/`](./program/README.md) | Rust, `near-sdk` 5.x, Borsh, Cargo | Circles, solo vaults, Sputnik community escrow/envelopes, reputation, rewards, shares, usernames, and NEP-141 token settlement. |
-| [`mobile/`](./mobile/README.md) | React Native 0.88, Expo 58, TypeScript, NativeWind | Bundled iOS/Android client for the five-tab Roda experience, wallet keys, circles, vaults, DAO creation/voting, envelopes, bounties, reputation, and Trezu deep links. |
+| [`mobile/`](./mobile/README.md) | React Native 0.88, Expo 58, TypeScript, NativeWind | Bundled iOS/Android client for the five-tab Roda experience, wallet keys, circles, vaults, DAO creation/voting, envelopes, bounties, reputation, and Trezu (mainnet only) deep links. |
 | [`frontend/`](./frontend/README.md) | Next.js 16 (App Router), React 19, Tailwind CSS v4 | Responsive public landing page and protocol showcase. |
 
 ---
@@ -242,6 +268,52 @@ Funding operations use NEAR's `ft_transfer_call` interface with JSON `msg` paylo
 
 ---
 
+## Directory Structure
+
+```text
+roda-app/
+├── .env.example
+├── README.md
+│
+├── frontend/                        # Web Landing Page (Next.js 16)
+│   ├── app/                         # App Router layout & landing page
+│   ├── components/                  # Hero, CirclesShowcase, CommunityCoordination, VaultTiers, Features, Security
+│   └── public/                      # Static media assets
+│
+├── mobile/                          # Mobile Client (Expo 58 / React Native)
+│   ├── app/
+│   │   ├── (tabs)/                  # Home, Circles, Save (Vaults), Community, Wallet, Profile
+│   │   └── community/               # DAO/community wizard, dashboard & proposal composer
+│   ├── components/                  # ReputationBadge, CircleCard, CreateCircleWizard, ProfileSidebar, etc.
+│   ├── constants/                   # Contract IDs, Sputnik/Trezu (mainnet only) URLs, vault tiers
+│   ├── hooks/                       # React Query hooks for Roda & Sputnik DAO
+│   ├── lib/                         # near.ts, contract.ts, sputnik.ts, trezu.ts, nearWalletConnect.ts
+│   └── providers/                   # WalletContext & session management
+│
+└── program/                         # Smart Contracts (Rust / near-sdk 5)
+    ├── src/
+    │   ├── lib.rs                   # Core entrypoint, vaults, circles, names, upgrades/migrate, callbacks
+    │   ├── community.rs             # Community DAO escrow, envelopes, reputation, rewards, shares & dissolve
+    │   ├── state.rs                 # Contract state, V1->V2 compat, JSON views
+    │   ├── ft.rs                    # FungibleTokenReceiver (deposit / contribute / budget_deposit)
+    │   ├── events.rs                # NEP-297 event emitters
+    │   └── constants.rs             # Fees, limits, reputation weights, reward caps, gas
+    ├── token/                       # Optional local test token contract
+    └── scripts/                     # deploy-account.js, upgrade.js, smoke-testnet.js, smoke-community.js, test-logic.js
+```
+
+---
+
+## Security Model
+
+- **Non-Custodial Keys**: Device keys stay in `Expo SecureStore` / hardware enclave; external NEAR wallets sign with user-controlled full or contract-scoped access keys.
+- **DAO Predecessor & Envelope Enforcement**: Community spends and structural changes can only originate from the linked `dao_id` smart contract after governance approval and never exceed allocated envelope budgets.
+- **Fail-Safe Async Rollbacks**: Promise callbacks (`on_withdraw`, `on_payout`, `on_spend`, `on_reward_transfer`, `on_claim_surplus`) atomically restore balances, locks, and claim flags on transfer failure.
+- **Upgrade & State Migration Safety**: `migrate()` reads raw Borsh state bytes cleanly to support backwards-compatible V1 → V2 upgrades and idempotent V2+ migrations without losing existing vaults, circles, or balances.
+- **Auditable NEP-297 Events**: Every vault, circle, community budget, reputation update, reward payout, and share operation emits standardized `EVENT_JSON` logs.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -280,56 +352,21 @@ npm run dev
 cd program
 npm install
 npm run build                  # Compile roda.wasm and roda_token.wasm
-node scripts/test-logic.js     # Verify off-chain reference math
+npm test                       # Run Rust unit tests + off-chain reference logic
 node scripts/smoke-community.js --alice <alice> --bob <bob>
 node scripts/smoke-testnet.js --alice <alice> --bob <bob>
 ```
 
 ---
 
-## Directory Structure
+## Business Model & Roadmap
 
-```text
-roda-app/
-├── .env.example
-├── README.md
-│
-├── frontend/                        # Web Landing Page (Next.js 16)
-│   ├── app/                         # App Router layout & landing page
-│   ├── components/                  # Hero, CirclesShowcase, CommunityCoordination, VaultTiers, Features, Security
-│   └── public/                      # Static media assets
-│
-├── mobile/                          # Mobile Client (Expo 58 / React Native)
-│   ├── app/
-│   │   ├── (tabs)/                  # Home, Circles, Save (Vaults), Community, Wallet, Profile
-│   │   └── community/               # DAO/community wizard, dashboard & proposal composer
-│   ├── components/                  # ReputationBadge, CircleCard, CreateCircleWizard, ProfileSidebar, etc.
-│   ├── constants/                   # Contract IDs, Sputnik/Trezu URLs, vault tiers
-│   ├── hooks/                       # React Query hooks for Roda & Sputnik DAO
-│   ├── lib/                         # near.ts, contract.ts, sputnik.ts, trezu.ts, nearWalletConnect.ts
-│   └── providers/                   # WalletContext & session management
-│
-└── program/                         # Smart Contracts (Rust / near-sdk 5)
-    ├── src/
-    │   ├── lib.rs                   # Core entrypoint, vaults, circles, names, upgrades/migrate, callbacks
-    │   ├── community.rs             # Community DAO escrow, envelopes, reputation, rewards, shares & dissolve
-    │   ├── state.rs                 # Contract state, V1->V2 compat, JSON views
-    │   ├── ft.rs                    # FungibleTokenReceiver (deposit / contribute / budget_deposit)
-    │   ├── events.rs                # NEP-297 event emitters
-    │   └── constants.rs             # Fees, limits, reputation weights, reward caps, gas
-    ├── token/                       # Optional local test token contract
-    └── scripts/                     # deploy-account.js, upgrade.js, smoke-testnet.js, smoke-community.js, test-logic.js
-```
+**Revenue**: Roda charges a flat **0.3% payout fee** (`3 / 1000`) on claimed circle pools during `claim_payout`, routed to the protocol treasury (`Config.admin`) to fund operations and ongoing development without taxing solo vault deposits, circle creation, or DAO governance. Mainnet will add a yield share on locked Solo Vaults and optional organizational treasury tiers.
 
----
-
-## Security Model
-
-- **Non-Custodial Keys**: Device keys stay in `Expo SecureStore` / hardware enclave; external NEAR wallets sign with user-controlled full or contract-scoped access keys.
-- **DAO Predecessor & Envelope Enforcement**: Community spends and structural changes can only originate from the linked `dao_id` smart contract after governance approval and never exceed allocated envelope budgets.
-- **Fail-Safe Async Rollbacks**: Promise callbacks (`on_withdraw`, `on_payout`, `on_spend`, `on_reward_transfer`, `on_claim_surplus`) atomically restore balances, locks, and claim flags on transfer failure.
-- **Upgrade & State Migration Safety**: `migrate()` reads raw Borsh state bytes cleanly to support backwards-compatible V1 → V2 upgrades and idempotent V2+ migrations without losing existing vaults, circles, or balances.
-- **Auditable NEP-297 Events**: Every vault, circle, community budget, reputation update, reward payout, and share operation emits standardized `EVENT_JSON` logs.
+### Roadmap
+- **Phase 1 — Testnet Protocol & Mobile MVP (Live)**: Rust contract deployed at `roda.dev-92ebb0b3c42c.testnet`, Circle USDC settlement, 5-tier principal-only Solo Vaults, Rotating Circles with `min_reputation` gating, Sputnik DAO two-step linking, 12-envelope hard caps, capital-weighted reputation (`0–1000`), automated reward rules, collective shares + dissolution surplus claims, and Expo mobile client.
+- **Phase 2 — Mainnet Launch**: Smart contract audit, mainnet deployment on `roda.near` with native mainnet Circle USDC and `sputnik-dao.near`, handover of `Config.admin` via `set_admin` to a Multi-sig / DAO Treasury, live Trezu (mainnet only) treasury deep-links (`trezu.app/<dao>`), yield for Solo Vaults, and a pilot with real savings groups.
+- **Phase 3 — Ecosystem Expansion**: Cross-community reputation portability, automated late-payment recovery mechanics, and localized fiat on/off-ramp integrations for diaspora savings groups.
 
 ---
 
