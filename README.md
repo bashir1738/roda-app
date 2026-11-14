@@ -36,16 +36,7 @@ It is a non-custodial mobile platform built on **NEAR Protocol** that unites rot
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default while giving growing groups a smooth path to scale: starting with small savings circles, proving on-chain creditworthiness, and graduating into full-fledged community DAOs with hard-capped budget envelopes, programmable rewards, and collective ownership shares.
 
-> **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/) · **Full Demo on X**: [Watch on X](https://x.com/0xbash1738/status/2120867102932320511) · **Docs**: [Interactive Docs](https://roda.devbash.xyz/docs) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) · **NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
-
-<p align="center">
-  <a href="https://x.com/0xbash1738/status/2120867102932320511">
-    <img src="./frontend/public/overview-preview.png" width="700" alt="Roda Product Overview Video - Click to Watch" />
-  </a>
-  <br />
-  <em><strong>Roda 60-Second Overview</strong> — <a href="https://x.com/0xbash1738/status/2120867102932320511">Watch on X (@0xbash1738)</a> · <a href="https://roda.devbash.xyz/demo">Watch on Website</a></em>
-</p>
-
+> **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/) · **Full Demo on X**: [Watch on X](https://x.com/0xbash1738/status/2120867102932320511) · **Docs**: [Interactive Docs](https://roda.devbash.xyz/docs) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) · **NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/
 ### Mobile App Showcase
 
 <p align="center">
