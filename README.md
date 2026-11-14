@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Rotating Savings &amp; Community Treasuries, Onchain</strong><br />
-  <em>Digitalizing community savings, shared DAO budgets, and verifiable reputation on NEAR Protocol.</em>
+  <em>Circles that grow into community wallets, with trust that unlocks more.</em>
 </p>
 
 <p align="center">
@@ -46,9 +46,11 @@
 
 ## Overview
 
-**Roda** is a non-custodial mobile savings and community treasury platform built on **NEAR Protocol**. Its mobile experience is organized around five tabs — **Home, Circles, Community, Save, and Wallet** — combining rotating savings and credit associations (ROSCAs, known across Africa and the diaspora as *ajo*, *esusu*, or *adashe*), personal USDC vaults, community coordination, and wallet activity in one app.
+**Roda is built around a natural progression: informal savings circles that grow into shared community wallets, with on-chain trust that unlocks more at every stage.**
 
-By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default and opaque bookkeeping while letting growing communities scale into full multi-sig DAOs with hard-capped budget envelopes, capital-weighted on-chain reputation, programmable rewards, and collective ownership shares.
+It is a non-custodial mobile platform built on **NEAR Protocol** that unites rotating savings clubs (ROSCAs — known across Africa and the diaspora as *ajo*, *esusu*, or *adashe*), personal USDC vaults, and Sputnik DAO multi-sig treasuries into one polished five-tab mobile experience (**Home, Circles, Community, Save, and Wallet**).
+
+By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default while giving growing groups a smooth path to scale: starting with small savings circles, proving on-chain creditworthiness, and graduating into full-fledged community DAOs with hard-capped budget envelopes, programmable rewards, and collective ownership shares.
 
 > **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC (testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
 
@@ -71,7 +73,9 @@ Traditional rotating savings clubs and community pots suffer from structural vul
 
 ## Why Roda Is Different
 
-Most savings apps stop at either informal group tracking or basic multi-sig wallets. Roda connects both in one mobile-first protocol:
+Most savings experiments tackle only one isolated piece: either a bare ROSCA contract with no client, or a raw multi-sig with no savings mechanics.
+
+Roda's edge is **breadth and polish**. We built the complete end-to-end lifecycle — taking users from their very first rotating circle on mobile, to a capital-weighted reputation score, to a mature community treasury governed by Sputnik DAO and Trezu (mainnet only):
 
 - **ROSCA + DAO Split Custody**: Informal *ajo* / *esusu* apps rely on custodian trust, while generic DAOs lack structured recurring savings schedules and spend ceilings. Roda pairs deterministic circle custody with standard `sputnikv2` governance and hard-capped escrow envelopes (`ExceedsEnvelope`).
 - **Capital-Weighted, Sybil-Resistant Reputation**: Unlike social or point-farming scores, Roda's `0–1000` reputation derives strictly from verified USDC capital at risk (on-time circle contributions, completed circles, matured vault withdrawals, and community deposits) plus calendar tenure. Empty accounts always score `0`.
