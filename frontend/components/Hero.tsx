@@ -1,6 +1,7 @@
 import { Container, Button } from "./ui";
 import { GetAppButton } from "./GetAppModal";
 import { AppPreview } from "./AppPreview";
+import { PlayIcon } from "./icons";
 
 const HIGHLIGHTS = [
   "Automated circle payouts",
@@ -35,19 +36,26 @@ export function Hero() {
             on-chain reputation — all under your own keys.
           </p>
 
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <GetAppButton
               variant="primary"
               className="!bg-[#00C08B] hover:!bg-[#1AD9A4]"
             >
               Start a circle
             </GetAppButton>
+            <a
+              href="/demo"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-charcoal bg-[#FFD166] px-5 text-sm font-bold text-charcoal shadow-[4px_4px_0_#111] transition hover:-translate-y-0.5 hover:bg-[#ffe08a]"
+            >
+              <PlayIcon className="h-4 w-4 fill-charcoal" />
+              Watch Demo
+            </a>
             <Button
-              href="#how"
+              href="/docs"
               variant="secondary"
               className="!border-charcoal !bg-white !text-black hover:!bg-surface-sand"
             >
-              How it works
+              Docs
             </Button>
           </div>
 

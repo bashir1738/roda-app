@@ -11,7 +11,19 @@ The `mobile/` package is an Expo React Native client for the Roda NEAR contracts
 2. **Continue with email** — Magic OTP verification paired with encrypted device key storage and a one-time backup recovery flow.
 3. **Connect External NEAR Wallets** — Meteor Wallet, MyNearWallet, and HERE Wallet via secure in-app web auth sessions (`roda://wallet-callback`). Meteor users can upgrade between Roda-only and full-account key scope to sign Sputnik DAO and USDC `ft_transfer_call` transactions directly.
 
-> **Android Preview APK (Testnet)**: [Download Roda Testnet APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) — bundles the app screens, contract logic, and testnet configuration (`roda.dev-92ebb0b3c42c.testnet`). See the [root README](../README.md) for verified testnet transactions and protocol overview.
+> **Live Resources**: [Live Website (roda.devbash.xyz)](https://roda.devbash.xyz/) · [Demo Video](https://roda.devbash.xyz/demo) · [Interactive Docs](https://roda.devbash.xyz/docs) · [Download Android APK](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) — bundles all screens, non-custodial wallet flows, and testnet configuration (`roda.dev-92ebb0b3c42c.testnet`). See the [root README](../README.md) for verified testnet receipts.
+
+### App Screenshots
+
+<div align="center">
+
+| Home Dashboard | Savings Circles | Community DAOs | Solo Vaults | Wallet & Activity |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="../frontend/public/Screenshot_1794648280.png" width="180" alt="Home Dashboard" /> | <img src="../frontend/public/Screenshot_1794648335.png" width="180" alt="Savings Circles" /> | <img src="../frontend/public/Screenshot_1794648356.png" width="180" alt="Community DAOs" /> | <img src="../frontend/public/Screenshot_1794648517.png" width="180" alt="Solo Vaults" /> | <img src="../frontend/public/Screenshot_1794648647.png" width="180" alt="Wallet & Activity" /> |
+
+*Five core tabs: Home, Circles, Community, Save, and Wallet.*
+
+</div>
 
 ## Deployed Program & Contract Addresses (NEAR Testnet)
 

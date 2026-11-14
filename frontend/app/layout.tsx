@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import { Syne } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+const jakarta = localFont({
+  src: "../public/fonts/PlusJakartaSans-Variable.woff2",
   variable: "--font-jakarta",
-  subsets: ["latin"],
   display: "swap",
+  weight: "400 800",
 });
 
-const syne = Syne({
+const syne = localFont({
+  src: "../public/fonts/Syne-Variable.woff2",
   variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
+  weight: "400 800",
 });
 
 export const metadata: Metadata = {

@@ -5,7 +5,7 @@ import { CircleUsersIcon, TrendingUpIcon, GiftIcon, WalletIcon } from "./icons";
    that mirrors the real app: forest-green header + cream sheet with circles. */
 export function AppPreview() {
   return (
-    <div className="relative mx-auto w-[290px] sm:w-[320px]">
+    <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px]">
       {/* Ambient glow */}
       <div className="absolute -inset-10 -z-10 " />
       <div className="absolute -bottom-8 -left-4 -z-10 h-32 w-32 rounded-full bg-surface-sand" />

@@ -4,6 +4,7 @@ import { MarqueeTicker } from "../components/MarqueeTicker";
 import { Stats } from "../components/Stats";
 import { CirclesShowcase } from "../components/CirclesShowcase";
 import { CommunityCoordination } from "../components/CommunityCoordination";
+import { DemoSection } from "../components/DemoSection";
 import { Features } from "../components/Features";
 import { VaultTiers } from "../components/VaultTiers";
 import { HowItWorks } from "../components/HowItWorks";
@@ -21,6 +22,7 @@ export default function Home() {
         <Stats />
         <CirclesShowcase />
         <CommunityCoordination />
+        <DemoSection />
         <Features />
         <VaultTiers />
         <HowItWorks />

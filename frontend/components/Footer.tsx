@@ -4,26 +4,28 @@ const FOOTER_NAV = [
   {
     title: "Product",
     links: [
-      { label: "Circles", href: "#circles" },
-      { label: "Community DAOs", href: "#community" },
-      { label: "Vaults", href: "#vaults" },
-      { label: "App", href: "#cta" },
+      { label: "Circles", href: "/#circles" },
+      { label: "Community DAOs", href: "/#community" },
+      { label: "Solo Vaults", href: "/#vaults" },
+      { label: "Demo Video", href: "/demo" },
+      { label: "Documentation", href: "/docs" },
     ],
   },
   {
-    title: "Company",
+    title: "Resources",
     links: [
-      { label: "How it works", href: "#how" },
-      { label: "Security", href: "#security" },
-      { label: "NEAR", href: "#security" },
+      { label: "How it works", href: "/#how" },
+      { label: "Security Model", href: "/#security" },
+      { label: "Android APK", href: "https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk" },
+      { label: "NearBlocks Explorer", href: "https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet" },
     ],
   },
   {
-    title: "Legal",
+    title: "Protocol & Code",
     links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-      { label: "Licenses", href: "#" },
+      { label: "GitHub Repo", href: "https://github.com/bashir1738/roda-app" },
+      { label: "Sputnik DAO", href: "https://testnet.nearblocks.io/address/sputnikv2.testnet" },
+      { label: "License (MIT)", href: "https://github.com/bashir1738/roda-app/blob/main/LICENSE" },
     ],
   },
 ];

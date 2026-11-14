@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { Logo } from "./Logo";
 import { GetAppButton } from "./GetAppModal";
-import { CloseIcon } from "./icons";
+import { CloseIcon, PlayIcon } from "./icons";
 
 const LINKS = [
-  { label: "Circles", href: "#circles" },
-  { label: "Community", href: "#community" },
-  { label: "Vaults", href: "#vaults" },
-  { label: "How it works", href: "#how" },
-  { label: "Security", href: "#security" },
+  { label: "Circles", href: "/#circles" },
+  { label: "Community", href: "/#community" },
+  { label: "Vaults", href: "/#vaults" },
+  { label: "How it works", href: "/#how" },
+  { label: "Demo", href: "/demo" },
+  { label: "Docs", href: "/docs" },
 ];
 
 export function Navbar() {
@@ -35,7 +36,14 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <a
+            href="/demo"
+            className="hidden items-center gap-1.5 rounded-lg border-2 border-charcoal bg-[#FFD166] px-3.5 py-2 text-xs font-bold text-charcoal shadow-[2px_2px_0_#111] transition hover:-translate-y-0.5 hover:bg-[#ffe08a] md:inline-flex"
+          >
+            <PlayIcon className="h-3.5 w-3.5 fill-charcoal" />
+            Watch Demo
+          </a>
           <GetAppButton
             className="hidden !bg-[#00C08B] hover:!bg-[#1AD9A4] md:inline-flex"
           >
@@ -61,12 +69,27 @@ export function Navbar() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-sm text-charcoal"
+                className="text-base font-semibold text-charcoal transition-colors hover:text-[#00C08B]"
               >
                 {l.label}
               </a>
             ))}
           </nav>
+          <div className="mt-6 flex flex-col gap-3 border-t border-charcoal/20 pt-4">
+            <a
+              href="/demo"
+              onClick={() => setOpen(false)}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border-2 border-charcoal bg-[#FFD166] px-4 text-sm font-bold text-charcoal shadow-[3px_3px_0_#111]"
+            >
+              <PlayIcon className="h-4 w-4 fill-charcoal" />
+              Watch Demo Video
+            </a>
+            <GetAppButton
+              className="w-full !bg-[#00C08B] hover:!bg-[#1AD9A4]"
+            >
+              Get the app
+            </GetAppButton>
+          </div>
         </div>
       )}
     </header>

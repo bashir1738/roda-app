@@ -16,6 +16,18 @@
 
 ---
 
+> ### 🚀 Quick Access & Live Resources
+> - 🌐 **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/)
+> - 📹 **Full Demo Video (on X)**: [Watch on X (@0xbash1738)](https://x.com/0xbash1738/status/2120867102932320511)
+> - ⚡ **60-Second Overview & Proofs**: [roda.devbash.xyz/demo](https://roda.devbash.xyz/demo)
+> - 📖 **Interactive Documentation**: [roda.devbash.xyz/docs](https://roda.devbash.xyz/docs)
+> - 📱 **Android Preview APK**: [Download APK Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
+> - 📜 **Deployed Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet)
+> - 🏛️ **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
+> - 🪙 **Circle USDC (Testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af)
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -52,7 +64,19 @@ It is a non-custodial mobile platform built on **NEAR Protocol** that unites rot
 
 By replacing human middlemen with deterministic smart contracts, Roda eliminates organizer default while giving growing groups a smooth path to scale: starting with small savings circles, proving on-chain creditworthiness, and graduating into full-fledged community DAOs with hard-capped budget envelopes, programmable rewards, and collective ownership shares.
 
-> **Live NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC (testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
+> **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/) · **Full Demo on X**: [Watch on X](https://x.com/0xbash1738/status/2120867102932320511) · **Docs**: [Interactive Docs](https://roda.devbash.xyz/docs) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) · **NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
+
+### Mobile App Showcase
+
+<div align="center">
+
+| Home Dashboard | Savings Circles | Community DAOs | Solo Vaults | Wallet & Activity |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="./frontend/public/Screenshot_1794648280.png" width="180" alt="Home Dashboard" /> | <img src="./frontend/public/Screenshot_1794648335.png" width="180" alt="Savings Circles" /> | <img src="./frontend/public/Screenshot_1794648356.png" width="180" alt="Community DAOs" /> | <img src="./frontend/public/Screenshot_1794648517.png" width="180" alt="Solo Vaults" /> | <img src="./frontend/public/Screenshot_1794648647.png" width="180" alt="Wallet & Activity" /> |
+
+*The five core tabs in the Roda mobile client: Home, Circles, Community, Save, and Wallet.*
+
+</div>
 
 ---
 
