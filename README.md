@@ -16,43 +16,15 @@
 
 ---
 
-> ### 🚀 Quick Access & Live Resources
-> - 🌐 **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/)
-> - 📹 **Full Demo Video (on X)**: [Watch on X (@0xbash1738)](https://x.com/0xbash1738/status/2120867102932320511)
-> - ⚡ **60-Second Overview & Proofs**: [roda.devbash.xyz/demo](https://roda.devbash.xyz/demo)
-> - 📖 **Interactive Documentation**: [roda.devbash.xyz/docs](https://roda.devbash.xyz/docs)
-> - 📱 **Android Preview APK**: [Download APK Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
-> - 📜 **Deployed Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet)
-> - 🏛️ **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
-> - 🪙 **Circle USDC (Testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af)
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [The Problem & The Solution](#the-problem--the-solution)
-- [Why Roda Is Different](#why-roda-is-different)
-- [Ecosystem & Track Fit](#ecosystem--track-fit)
-- [Live on Testnet](#live-on-testnet)
-- [Quick Check](#quick-check)
-- [Core Features](#core-features)
-  - [Rotating Savings Circles (Ajo / Esusu)](#rotating-savings-circles-ajo--esusu)
-  - [Trust Unlocks More](#trust-unlocks-more)
-  - [Solo Savings Vaults](#solo-savings-vaults)
-  - [Community Coordination Layer (Sputnik DAO + Trezu (mainnet only))](#community-coordination-layer-sputnik-dao--trezu-mainnet-only)
-  - [Bounties, Programmable Rewards & Collective Ownership](#bounties-programmable-rewards--collective-ownership)
-  - [Non-Custodial Multi-Wallet Engine](#non-custodial-multi-wallet-engine)
-  - [Onchain Username Registry](#onchain-username-registry)
-  - [Mobile Demo Experience](#mobile-demo-experience)
-- [Monorepo Architecture](#monorepo-architecture)
-- [Smart Contract Specification](#smart-contract-specification)
-- [Directory Structure](#directory-structure)
-- [Security Model](#security-model)
-- [Getting Started](#getting-started)
-- [Business Model & Roadmap](#business-model--roadmap)
-- [Hackathon Scope](#hackathon-scope)
-- [License](#license)
+> ### Quick Access & Live Resources
+> - **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/)
+> - **Full Demo Video (on X)**: [Watch on X (@0xbash1738)](https://x.com/0xbash1738/status/2120867102932320511)
+> - **60-Second Overview & Proofs**: [roda.devbash.xyz/demo](https://roda.devbash.xyz/demo)
+> - **Interactive Documentation**: [roda.devbash.xyz/docs](https://roda.devbash.xyz/docs)
+> - **Android Preview APK**: [Download APK Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk)
+> - **Deployed Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet)
+> - **Sputnik DAO Factory**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
+> - **Circle USDC (Testnet)**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af)
 
 ---
 
@@ -66,17 +38,23 @@ By replacing human middlemen with deterministic smart contracts, Roda eliminates
 
 > **Live Website**: [roda.devbash.xyz](https://roda.devbash.xyz/) · **Full Demo on X**: [Watch on X](https://x.com/0xbash1738/status/2120867102932320511) · **Docs**: [Interactive Docs](https://roda.devbash.xyz/docs) · **Android APK**: [Download Preview Build](https://expo.dev/artifacts/eas/72debAby9UF2RnLX7Ml-x6YwdDO_YZ6G5bL114sLeLc.apk) · **NEAR Testnet Program**: [`roda.dev-92ebb0b3c42c.testnet`](https://testnet.nearblocks.io/address/roda.dev-92ebb0b3c42c.testnet) · **Circle USDC**: [`3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af`](https://testnet.nearblocks.io/token/3e2210e1184b45b64c8a434c0a7e7b23cc04ea7eb7a6c3c32520d03d4afcb8af) · **Sputnik DAO**: [`sputnikv2.testnet`](https://testnet.nearblocks.io/address/sputnikv2.testnet)
 
+<p align="center">
+  <a href="https://x.com/0xbash1738/status/2120867102932320511">
+    <img src="./frontend/public/overview-preview.png" width="700" alt="Roda Product Overview Video - Click to Watch" />
+  </a>
+  <br />
+  <em><strong>Roda 60-Second Overview</strong> — <a href="https://x.com/0xbash1738/status/2120867102932320511">Watch on X (@0xbash1738)</a> · <a href="https://roda.devbash.xyz/demo">Watch on Website</a></em>
+</p>
+
 ### Mobile App Showcase
 
-<div align="center">
-
-| Home Dashboard | Savings Circles | Community DAOs | Solo Vaults | Wallet & Activity |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="./frontend/public/Screenshot_1794648280.png" width="180" alt="Home Dashboard" /> | <img src="./frontend/public/Screenshot_1794648335.png" width="180" alt="Savings Circles" /> | <img src="./frontend/public/Screenshot_1794648356.png" width="180" alt="Community DAOs" /> | <img src="./frontend/public/Screenshot_1794648517.png" width="180" alt="Solo Vaults" /> | <img src="./frontend/public/Screenshot_1794648647.png" width="180" alt="Wallet & Activity" /> |
-
-*The five core tabs in the Roda mobile client: Home, Circles, Community, Save, and Wallet.*
-
-</div>
+<p align="center">
+  <img src="./frontend/public/Screenshot_1794648280.png" width="19%" alt="Roda Mobile App" />
+  <img src="./frontend/public/Screenshot_1794648335.png" width="19%" alt="Roda Mobile App" />
+  <img src="./frontend/public/Screenshot_1794648356.png" width="19%" alt="Roda Mobile App" />
+  <img src="./frontend/public/Screenshot_1794648517.png" width="19%" alt="Roda Mobile App" />
+  <img src="./frontend/public/Screenshot_1794648647.png" width="19%" alt="Roda Mobile App" />
+</p>
 
 ---
 

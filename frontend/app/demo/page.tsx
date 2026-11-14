@@ -168,7 +168,8 @@ export default function DemoPage() {
                   controls
                   playsInline
                   preload="metadata"
-                  src="/Roda_60s_Overview.mp4"
+                  poster="/overview-preview.png"
+                  src="/video_2026-11-14_10-51-32.mp4"
                 >
                   Your browser does not support the video tag.
                 </video>
@@ -205,13 +206,13 @@ export default function DemoPage() {
                 <div className="flex items-center gap-3">
                   <span className="h-3 w-3 rounded-full bg-[#00C08B]" />
                   <span className="text-[13px] font-bold text-charcoal">
-                    Full HD (1920×1072) · 60s Overview · Circle USDC Testnet
+                    848×464 · 60s Overview · Circle USDC Testnet
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <a
-                    href="/Roda_60s_Overview.mp4"
-                    download="Roda_60s_Overview.mp4"
+                    href="/video_2026-11-14_10-51-32.mp4"
+                    download="Roda_Overview.mp4"
                     className="inline-flex items-center gap-1.5 text-[12px] font-bold text-charcoal underline hover:text-[#00C08B]"
                   >
                     <DownloadIcon className="h-3.5 w-3.5" />

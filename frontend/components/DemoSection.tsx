@@ -38,7 +38,8 @@ export function DemoSection() {
               controls
               playsInline
               preload="metadata"
-              src="/Roda_60s_Overview.mp4"
+              poster="/overview-preview.png"
+              src="/video_2026-11-14_10-51-32.mp4"
             >
               Your browser does not support the video tag.
             </video>
